@@ -1,0 +1,3 @@
+[submodule "Hazel_demo/vendor/spdlog"]
+	path = Hazel_demo/vendor/spdlog
+	url = https://gitee.com/ljr1998/spdlog
