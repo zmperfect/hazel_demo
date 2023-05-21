@@ -10,6 +10,13 @@ workspace "Hazel_demo"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+include "Hazel_demo/vendor/GLFW"
+
+-- Include directories relative to root folder (solution directory)
+-- 包括相对于根文件夹的目录（解决方案目录）
+IncludeDir = {}
+IncludeDir["GLFW"] = "Hazel_demo/vendor/GLFW/include"
+
 project "Hazel_demo"
 	location "Hazel_demo"
 	kind "SharedLib"
@@ -26,11 +33,18 @@ project "Hazel_demo"
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp"
 	}
-
+ 
 	includedirs
 	{
 		"%{prj.name}/src",
-		"%{prj.name}/vendor/spdlog/include"
+		"%{prj.name}/vendor/spdlog/include",
+		"%{IncludeDir.GLFW}"
+	}
+
+	links 
+	{ 
+		"GLFW",
+		"opengl32.lib"
 	}
 
 	filter "system:windows"
@@ -46,21 +60,20 @@ project "Hazel_demo"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" ..outputdir .. "/Sandbox")
+			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
 		}
 
-    filter "configurations:Debug"
-        defines "HZ_DEBUG"
-        symbols "On"
+	filter "configurations:Debug"
+		defines "HZ_DEBUG"
+		symbols "On"
 
-    filter "configurations:Release"
-        defines "HZ_RELEASE"
-        optimize "On"
+	filter "configurations:Release"
+		defines "HZ_RELEASE"
+		optimize "On"
 
-    filter "configurations:Dist"
-        defines "HZ_DIST"
-        optimize "On"
-
+	filter "configurations:Dist"
+		defines "HZ_DIST"
+		optimize "On"
 
 project "Sandbox"
 	location "Sandbox"
@@ -74,7 +87,6 @@ project "Sandbox"
 	{
 		"%{prj.name}/src/**.h",
 		"%{prj.name}/src/**.cpp"
-
 	}
 
 	includedirs
@@ -98,14 +110,14 @@ project "Sandbox"
 			"HZ_PLATFORM_WINDOWS"
 		}
 
-    filter "configurations:Debug"
-        defines "HZ_DEBUG"
-        symbols "On"
+	filter "configurations:Debug"
+		defines "HZ_DEBUG"
+		symbols "On"
 
-    filter "configurations:Release"
-        defines "HZ_RELEASE"
-        optimize "On"
+	filter "configurations:Release"
+		defines "HZ_RELEASE"
+		optimize "On"
 
-    filter "configurations:Dist"
-        defines "HZ_DIST"
-        optimize "On"
+	filter "configurations:Dist"
+		defines "HZ_DIST"
+		optimize "On"
