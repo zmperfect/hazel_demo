@@ -5,6 +5,8 @@
 #include "Hazel/Events/MouseEvent.h"
 #include "Hazel/Events/KeyEvent.h"
 
+#include <glad/glad.h>
+
 namespace Hazel {
 
 	static bool s_GLFWInitialized = false;//这里用来确定GLFW调用的时候被初始化过了，否则会报错
@@ -63,6 +65,8 @@ namespace Hazel {
 		//这里本质上是绑定了一个用户自定义的指针到window，签名里是个void*，根据文档，这就是
 		//一个用户自己爱干嘛干嘛的入口，glfw本身不会对这个指针做任何操作，我们可以把对应的
 		//信息传进去
+		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		HZ_CORE_ASSERT(status, "Failed to initialize Glad!");
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVsync(true);
 

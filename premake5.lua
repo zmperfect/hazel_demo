@@ -11,11 +11,13 @@ workspace "Hazel_demo"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 include "Hazel_demo/vendor/GLFW"
+include "Hazel_demo/vendor/Glad"
 
 -- Include directories relative to root folder (solution directory)
 -- 包括相对于根文件夹的目录（解决方案目录）
 IncludeDir = {}
 IncludeDir["GLFW"] = "Hazel_demo/vendor/GLFW/include"
+IncludeDir["Glad"] = "Hazel_demo/vendor/Glad/include"
 
 project "Hazel_demo"
 	location "Hazel_demo"
@@ -38,12 +40,14 @@ project "Hazel_demo"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}"
 	}
 
 	links 
 	{ 
 		"GLFW",
+		"Glad",
 		"opengl32.lib"
 	}
 
@@ -55,7 +59,8 @@ project "Hazel_demo"
 		defines
 		{
 			"HZ_PLATFORM_WINDOWS",
-			"HZ_BUILD_DLL"
+			"HZ_BUILD_DLL",
+			"GLFW_INCLUDE_NONE"
 		}
 
 		postbuildcommands

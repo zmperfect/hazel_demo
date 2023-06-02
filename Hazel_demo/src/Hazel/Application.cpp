@@ -3,7 +3,7 @@
 
 #include "Hazel/Log.h"
 
-#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 namespace Hazel {
 
@@ -13,6 +13,7 @@ namespace Hazel {
 	{
 		m_Window = std::unique_ptr<Window>(Window::Create());//创建一个窗口
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));//设置窗口的回调函数
+
 	}
 
 	Application::~Application()
