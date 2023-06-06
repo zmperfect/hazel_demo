@@ -12,12 +12,14 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 include "Hazel_demo/vendor/GLFW"
 include "Hazel_demo/vendor/Glad"
+include "Hazel_demo/vendor/imgui"
 
 -- Include directories relative to root folder (solution directory)
 -- 包括相对于根文件夹的目录（解决方案目录）
 IncludeDir = {}
 IncludeDir["GLFW"] = "Hazel_demo/vendor/GLFW/include"
 IncludeDir["Glad"] = "Hazel_demo/vendor/Glad/include"
+IncludeDir["ImGui"] = "Hazel_demo/vendor/imgui"
 
 project "Hazel_demo"
 	location "Hazel_demo"
@@ -41,13 +43,15 @@ project "Hazel_demo"
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.Glad}"
+		"%{IncludeDir.Glad}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links 
 	{ 
 		"GLFW",
 		"Glad",
+		"ImGui",
 		"opengl32.lib"
 	}
 

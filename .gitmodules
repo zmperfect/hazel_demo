@@ -4,3 +4,6 @@
 [submodule "Hazel_demo/vendor/spdlog"]
 	path = Hazel_demo/vendor/spdlog
 	url = https://gitee.com/ljr1998/spdlog.git
+[submodule "Hazel_demo/vendor/imgui"]
+	path = Hazel_demo/vendor/imgui
+	url = https://gitee.com/ljr1998/imgui.git

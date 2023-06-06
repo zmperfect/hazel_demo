@@ -9,8 +9,13 @@ namespace Hazel {
 
 	#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
+	Application* Application::s_Instance = nullptr;
+
 	Application::Application()
 	{
+		HZ_CORE_ASSERT(!s_Instance, "Application already exists!");
+		s_Instance = this;
+
 		m_Window = std::unique_ptr<Window>(Window::Create());//创建一个窗口
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));//设置窗口的回调函数
 
@@ -23,11 +28,13 @@ namespace Hazel {
 	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);//将layer压入栈中
+		layer->OnAttach();//将layer附加到窗口上
 	}
 
-	void Application::PushOverlay(Layer* overlay)
+	void Application::PushOverlay(Layer* layer)
 	{
-		m_LayerStack.PushOverlay(overlay);//将overlay压入栈中
+		m_LayerStack.PushOverlay(layer);//将overlay压入栈中
+		layer->OnAttach();
 	}
 	void Application::OnEvent(Event& e)
 	{

@@ -20,13 +20,19 @@ namespace Hazel {
 		void OnEvent(Event& e);
 
 		void PushLayer(Layer* layer);//将一个Layer压入LayerStack
-		void PushOverlay(Layer* overlay);//将一个Layer压入LayerStack的顶部
+		void PushOverlay(Layer* layer);//将一个Layer压入LayerStack的顶部
+
+		inline Window& GetWindow() { return *m_Window; }
+
+		inline static Application& Get() { return *s_Instance; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 
 		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
 		LayerStack m_LayerStack;//LayerStack是一个容器，用来存放Layer
+	private:
+		static Application* s_Instance;
 	};
 
 	// To be defined in CLIENT

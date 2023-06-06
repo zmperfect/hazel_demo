@@ -26,6 +26,7 @@ public:
 	Sandbox() 
 	{
 		PushLayer(new ExampleLayer());
+		PushOverlay(new Hazel::ImGuiLayer());//把这个ImguiLayer作为一个Overlay Push进引擎的LayerStack里面
 	}
 
 	~Sandbox()
