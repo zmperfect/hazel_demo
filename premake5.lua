@@ -1,5 +1,6 @@
 workspace "Hazel_demo"
 	architecture "x64"
+	startproject "Sandbox"
 
 	configurations
 	{
@@ -69,7 +70,7 @@ project "Hazel_demo"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 	filter "configurations:Debug"

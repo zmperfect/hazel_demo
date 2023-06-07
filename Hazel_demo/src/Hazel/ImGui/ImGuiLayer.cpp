@@ -110,6 +110,7 @@ namespace Hazel {
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseDown[e.GetMouseButton()] = true;
 
+		//返回false表示事件未完成，并不希望其他层吸收该事件
 		return false;
 	}
 
