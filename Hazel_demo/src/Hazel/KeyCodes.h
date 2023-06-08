@@ -1,6 +1,6 @@
 #pragma once
 
-// From glfw3.h
+// From glfw3.hÒÆ³ı¶ÔGLFW¼üÂëµÄÒÀÀµ
 #define HZ_KEY_SPACE              32
 #define HZ_KEY_APOSTROPHE         39  /* ' */
 #define HZ_KEY_COMMA              44  /* , */
