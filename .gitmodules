@@ -7,3 +7,6 @@
 [submodule "Hazel_demo/vendor/imgui"]
 	path = Hazel_demo/vendor/imgui
 	url = https://gitee.com/ljr1998/imgui.git
+[submodule "Hazel_demo/vendor/glm"]
+	path = Hazel_demo/vendor/glm
+	url = https://gitee.com/ljr1998/glm.git
