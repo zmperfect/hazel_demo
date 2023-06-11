@@ -115,6 +115,7 @@ project "Sandbox"
 	{
 		"Hazel_demo/vendor/spdlog/include",
 		"Hazel_demo/src",
+		"Hazel_demo/vendor",
 		"%{IncludeDir.glm}"
 	}
 

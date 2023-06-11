@@ -1,5 +1,7 @@
 #include <Hazel.h>
 
+//#include "imgui/imgui.h"
+
 class ExampleLayer : public Hazel::Layer
 {
 public:
@@ -11,8 +13,15 @@ public:
 	void OnUpdate() override
 	{
 		if (Hazel::Input::IsKeyPressed(HZ_KEY_TAB))
-			HZ_TRACE("Tab key is pressed(poll)!");
+			HZ_TRACE("Tab key is pressed (poll)!");
 	}
+
+	//virtual void OnImGuiRender() override
+	//{
+	//	ImGui::Begin("Test");
+	//	ImGui::Text("Hello World");
+	//	ImGui::End();
+	//}
 
 	void OnEvent(Hazel::Event& event) override
 	{
@@ -30,10 +39,9 @@ public:
 class Sandbox : public Hazel::Application
 {
 public:
-	Sandbox() 
+	Sandbox()
 	{
 		PushLayer(new ExampleLayer());
-		PushOverlay(new Hazel::ImGuiLayer());//把这个ImguiLayer作为一个Overlay Push进引擎的LayerStack里面
 	}
 
 	~Sandbox()
@@ -41,11 +49,9 @@ public:
 
 	}
 
-private:
-
 };
 
 Hazel::Application* Hazel::CreateApplication()
 {
-	return new Sandbox;
+	return new Sandbox();
 }
