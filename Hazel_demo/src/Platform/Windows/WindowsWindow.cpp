@@ -5,7 +5,7 @@
 #include "Hazel/Events/MouseEvent.h"
 #include "Hazel/Events/KeyEvent.h"
 
-#include <glad/glad.h>
+#include <Platform/OpenGL/OpenGLContext.h>
 
 namespace Hazel {
 
@@ -59,14 +59,10 @@ namespace Hazel {
 
 		//所需的信息已经齐全，用glfwCreateWindow创建一个glfwWindow并返回指针
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		//这里将一个glfwWindow设置为当前上下文，一个thread同时只能拥有一个上下文，
-		//这省去了一些函数每次都指定window的麻烦，像glfwSwapInterval()这样的函数只操作当前Context
-		glfwMakeContextCurrent(m_Window);
-		//这里本质上是绑定了一个用户自定义的指针到window，签名里是个void*，根据文档，这就是
-		//一个用户自己爱干嘛干嘛的入口，glfw本身不会对这个指针做任何操作，我们可以把对应的
-		//信息传进去
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		HZ_CORE_ASSERT(status, "Failed to initialize Glad!");
+		
+		m_Context = new OpenGLContext(m_Window);
+		m_Context->Init();
+
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVsync(true);
 
@@ -174,7 +170,7 @@ namespace Hazel {
 		glfwPollEvents();
 		//刷新下一帧(严格来说是把Framebuffer后台帧换到前台，把Framebuffer当前帧换到后台，
 		//所以是Swap)
-		glfwSwapBuffers(m_Window);
+		m_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVsync(bool enabled)
