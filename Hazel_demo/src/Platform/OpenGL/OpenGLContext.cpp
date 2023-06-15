@@ -22,6 +22,11 @@ namespace Hazel {
         //这里是用来初始化glad的，glad是一个OpenGL的函数指针管理库，用来管理OpenGL的函数指针
         int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
         HZ_CORE_ASSERT(status, "Failed to initialize Glad!");
+
+        HZ_CORE_INFO("OpenGL Info:");
+        HZ_CORE_INFO("  Vendor: {0}", glGetString(GL_VENDOR));
+        HZ_CORE_INFO("  Renderer: {0}", glGetString(GL_RENDERER));
+        HZ_CORE_INFO("  Version: {0}", glGetString(GL_VERSION));
     }
 
     void OpenGLContext::SwapBuffers()

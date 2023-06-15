@@ -24,6 +24,28 @@ namespace Hazel {
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
 
+		glGenVertexArrays(1, &m_VertexArray);//创建一个顶点数组
+		glBindVertexArray(m_VertexArray);//绑定顶点数组
+
+		glGenBuffers(1, &m_VertexBuffer);//创建一个顶点缓冲区
+		glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);//绑定顶点缓冲区
+
+		float vertices[3 * 3] = {//顶点坐标
+            -0.5f, -0.5f, 0.0f,//左下角
+             0.5f, -0.5f, 0.0f,//右下角
+             0.0f,  0.5f, 0.0f//顶点
+        };
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);//将顶点数据传入缓冲区
+
+		glEnableVertexAttribArray(0);//启用顶点属性
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);//设置顶点属性
+
+		glGenBuffers(1, &m_IndexBuffer);//创建一个索引缓冲区
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer);//绑定索引缓冲区
+
+		unsigned int indices[3] = { 0, 1, 2 };//索引
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);//将索引数据传入缓冲区
 	}
 
 	Application::~Application()
@@ -58,8 +80,11 @@ namespace Hazel {
 	{
 		while (m_Running)
 		{
-			glClearColor(1, 0, 1, 1);
+			glClearColor(0.1f, 0.1f, 0.1f, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
+
+            glBindVertexArray(m_VertexArray);//绑定顶点数组
+            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);//绘制三角形
 
 			for (Layer* layer : m_LayerStack)//遍历layer栈
 				layer->OnUpdate();//更新每一个layer
