@@ -9,7 +9,7 @@ namespace Hazel {
 	{
 	public:
 		Layer(const std::string& name = "Layer");
-		virtual	~Layer();
+		virtual	~Layer() = default;
 
 		//可谓是非常抽象了，每个Layer可以被调用的时机在：
 		//被塞进Stack的时候
