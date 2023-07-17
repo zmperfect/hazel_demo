@@ -134,13 +134,11 @@ namespace Hazel {
 	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);//将layer压入栈中
-		layer->OnAttach();//将layer附加到窗口上
 	}
 
 	void Application::PushOverlay(Layer* layer)
 	{
 		m_LayerStack.PushOverlay(layer);//将overlay压入栈中
-		layer->OnAttach();
 	}
 	void Application::OnEvent(Event& e)
 	{
