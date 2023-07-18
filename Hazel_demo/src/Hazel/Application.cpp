@@ -3,7 +3,7 @@
 
 #include "Hazel/Log.h"
 
-#include <glad/glad.h>
+#include "Hazel/Renderer/Renderer.h"
 
 #include "Input.h"
 
@@ -157,16 +157,18 @@ namespace Hazel {
 	{
 		while (m_Running)
 		{
-			glClearColor(0.1f, 0.1f, 0.1f, 1);//设置清屏颜色
-			glClear(GL_COLOR_BUFFER_BIT);//清屏
+			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });//设置清屏颜色
+			RenderCommand::Clear();//清屏
+
+			Renderer::BeginScene();//开始渲染场景
 
 			m_BlueShader->Bind();//绑定蓝色着色器
-			m_SquareVA->Bind();//绑定方形顶点数组
-			glDrawElements(GL_TRIANGLES, m_SquareVA->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);//绘制方形
+			Renderer::Submit(m_SquareVA);//提交方形顶点数组
 
 			m_Shader->Bind();//绑定着色器
-			m_VertexArray->Bind();//绑定顶点数组
-			glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);//绘制三角形
+			Renderer::Submit(m_VertexArray);//提交顶点数组
+
+			Renderer::EndScene();//结束渲染场景
 
 			for (Layer* layer : m_LayerStack)//遍历layer栈
 				layer->OnUpdate();//更新每一个layer
