@@ -14,6 +14,7 @@ namespace Hazel {
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application()
+		: m_Camera(-1.6f, 1.6f, -0.9f, 0.9f)
 	{
 		HZ_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
@@ -67,11 +68,14 @@ namespace Hazel {
 		squareIB.reset(IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
 		m_SquareVA->SetIndexBuffer(squareIB);
 
+		//存储着色器源代码
         std::string vertexSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) in vec3 a_Position;
 			layout(location = 1) in vec4 a_Color;
+
+			uniform mat4 u_ViewProjection;
 
 			out vec3 v_Position;
 			out vec4 v_Color;
@@ -80,7 +84,7 @@ namespace Hazel {
 			{
 				v_Position = a_Position;
 				v_Color = a_Color;
-				gl_Position = vec4(a_Position, 1.0);	
+				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
 			}
 		)";
 
@@ -101,20 +105,24 @@ namespace Hazel {
 
         m_Shader.reset(new Shader(vertexSrc, fragmentSrc));
 
+		//存储着色器源代码
 		std::string blueShaderVertexSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) in vec3 a_Position;
+
+			uniform mat4 u_ViewProjection;
 
 			out vec3 v_Position;
 
 			void main()
 			{
 				v_Position = a_Position;
-				gl_Position = vec4(a_Position, 1.0);	
+				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
 			}
 		)";
 
+		//存储着色器源代码
 		std::string blueShaderFragmentSrc = R"(
 			#version 330 core
 			
@@ -160,13 +168,14 @@ namespace Hazel {
 			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });//设置清屏颜色
 			RenderCommand::Clear();//清屏
 
-			Renderer::BeginScene();//开始渲染场景
+			m_Camera.SetPosition({ 0.5f, 0.5f, 0.0f });//设置相机位置
+			m_Camera.SetRotation(45.0f);//设置相机旋转角度
 
-			m_BlueShader->Bind();//绑定蓝色着色器
-			Renderer::Submit(m_SquareVA);//提交方形顶点数组
+			Renderer::BeginScene(m_Camera);//开始渲染场景
 
-			m_Shader->Bind();//绑定着色器
-			Renderer::Submit(m_VertexArray);//提交顶点数组
+			Renderer::Submit(m_BlueShader, m_SquareVA);//提交方形顶点数组
+
+			Renderer::Submit(m_Shader, m_VertexArray);//提交顶点数组
 
 			Renderer::EndScene();//结束渲染场景
 
