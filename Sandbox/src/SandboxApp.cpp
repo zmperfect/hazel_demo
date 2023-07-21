@@ -2,6 +2,8 @@
 
 #include "imgui/imgui.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 class ExampleLayer : public Hazel::Layer
 {
 public:
@@ -33,10 +35,10 @@ public:
         m_SquareVA.reset(Hazel::VertexArray::Create());//创建一个方形顶点数组
 
         float squareVertices[3 * 4] = {
-            -0.75f, -0.75f, 0.0f,
-             0.75f, -0.75f, 0.0f,
-             0.75f,  0.75f, 0.0f,
-            -0.75f,  0.75f, 0.0f
+            -0.5f, -0.5f, 0.0f,
+             0.5f, -0.5f, 0.0f,
+             0.5f,  0.5f, 0.0f,
+            -0.5f,  0.5f, 0.0f
         };
 
         std::shared_ptr<Hazel::VertexBuffer> squareVB;
@@ -51,7 +53,7 @@ public:
         squareIB.reset(Hazel::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
         m_SquareVA->SetIndexBuffer(squareIB);
 
-        //存储着色器源代码
+        //存储顶点代码
         std::string vertexSrc = R"(
 			#version 330 core
 			
@@ -59,6 +61,7 @@ public:
 			layout(location = 1) in vec4 a_Color;
 
 			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
 
 			out vec3 v_Position;
 			out vec4 v_Color;
@@ -67,10 +70,11 @@ public:
 			{
 				v_Position = a_Position;
 				v_Color = a_Color;
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
+				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
 			}
 		)";
 
+		//fragement
         std::string fragmentSrc = R"(
 			#version 330 core
 			
@@ -88,24 +92,24 @@ public:
 
         m_Shader.reset(new Hazel::Shader(vertexSrc, fragmentSrc));
 
-        //存储着色器源代码
+        //shader
         std::string blueShaderVertexSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) in vec3 a_Position;
 
 			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
 
 			out vec3 v_Position;
 
 			void main()
 			{
 				v_Position = a_Position;
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);	
+				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);	
 			}
 		)";
 
-        //存储着色器源代码
         std::string blueShaderFragmentSrc = R"(
 			#version 330 core
 			
@@ -151,7 +155,19 @@ public:
 
         Hazel::Renderer::BeginScene(m_Camera);//开始渲染场景
 
-		Hazel::Renderer::Submit(m_BlueShader, m_SquareVA);//提交方形顶点数组
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));//缩放
+
+		//渲染出20*20个方形
+		for(int y = 0; y < 20; y++)
+		{
+			for (int x = 0; x < 20; x++)
+			{
+				glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
+				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+				Hazel::Renderer::Submit(m_BlueShader, m_SquareVA, transform);
+			}
+		}
+
 		Hazel::Renderer::Submit(m_Shader, m_VertexArray);//提交顶点数组
 
 		Hazel::Renderer::EndScene();//结束渲染场景

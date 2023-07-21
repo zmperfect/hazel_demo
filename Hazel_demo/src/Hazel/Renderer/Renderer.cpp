@@ -14,10 +14,11 @@ namespace Hazel {
     {
     }
 
-    void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray)
+    void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform)
     {
         shader->Bind();//绑定着色器
         shader->UploadUniformMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);//上传视角投影矩阵
+        shader->UploadUniformMat4("u_Transform", transform);//上传变换矩阵
 
         vertexArray->Bind();//绑定顶点数组
         RenderCommand::DrawIndexed(vertexArray);//绘制顶点数组
