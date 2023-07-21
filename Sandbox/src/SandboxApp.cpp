@@ -1,8 +1,11 @@
 #include <Hazel.h>
 
+#include "Platform/OpenGL/OpenGLShader.h"
+
 #include "imgui/imgui.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class ExampleLayer : public Hazel::Layer
 {
@@ -53,7 +56,7 @@ public:
         squareIB.reset(Hazel::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
         m_SquareVA->SetIndexBuffer(squareIB);
 
-        //存储顶点代码
+        //存储顶点着色器代码
         std::string vertexSrc = R"(
 			#version 330 core
 			
@@ -74,7 +77,7 @@ public:
 			}
 		)";
 
-		//fragement
+		//片段着色器代码
         std::string fragmentSrc = R"(
 			#version 330 core
 			
@@ -90,10 +93,10 @@ public:
 			}
 		)";
 
-        m_Shader.reset(new Hazel::Shader(vertexSrc, fragmentSrc));
+        m_Shader.reset(Hazel::Shader::Create(vertexSrc, fragmentSrc));
 
         //shader
-        std::string blueShaderVertexSrc = R"(
+        std::string flatColorShaderVertexSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) in vec3 a_Position;
@@ -110,20 +113,22 @@ public:
 			}
 		)";
 
-        std::string blueShaderFragmentSrc = R"(
+        std::string flatColorShaderFragmentSrc = R"(
 			#version 330 core
 			
 			layout(location = 0) out vec4 color;
 
 			in vec3 v_Position;
 
+			uniform vec3 u_Color;
+
 			void main()
 			{
-				color = vec4(0.2, 0.3, 0.8, 1.0);
+				color = vec4(u_Color, 1.0);
 			}
 		)";
 
-        m_BlueShader.reset(new Hazel::Shader(blueShaderVertexSrc, blueShaderFragmentSrc));
+        m_FlatColorShader.reset(Hazel::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
 	}
 
 	void OnUpdate(Hazel::Timestep ts) override
@@ -157,6 +162,9 @@ public:
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));//缩放
 
+		std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_FlatColorShader)->Bind();//绑定shader
+		std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_FlatColorShader)->UploadUniformFloat3("u_Color", m_SquareColor);//上传颜色
+
 		//渲染出20*20个方形
 		for(int y = 0; y < 20; y++)
 		{
@@ -164,7 +172,7 @@ public:
 			{
 				glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
 				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
-				Hazel::Renderer::Submit(m_BlueShader, m_SquareVA, transform);
+				Hazel::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
 			}
 		}
 
@@ -177,6 +185,9 @@ public:
 
 	virtual void OnImGuiRender() override
 	{
+        ImGui::Begin("Settings");
+        ImGui::ColorEdit3("Square Color", glm::value_ptr(m_SquareColor));//设置方形颜色
+        ImGui::End();
 	}
 
 	void OnEvent(Hazel::Event& event) override
@@ -186,15 +197,17 @@ private:
     std::shared_ptr<Hazel::Shader> m_Shader;
     std::shared_ptr<Hazel::VertexArray> m_VertexArray;
 
-    std::shared_ptr<Hazel::Shader> m_BlueShader;
+    std::shared_ptr<Hazel::Shader> m_FlatColorShader;
     std::shared_ptr<Hazel::VertexArray> m_SquareVA;
 
     Hazel::OrthographicCamera m_Camera;
     glm::vec3 m_CameraPosition;
     float m_CameraMoveSpeed = 5.0f;
 
-    float m_CameraRotation = 0.0f;
-    float m_CameraRotationSpeed = 180.0f;
+    float m_CameraRotation = 0.0f;//旋转角度
+    float m_CameraRotationSpeed = 180.0f;//旋转速度
+
+	glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.8f };//方形颜色
 };
 
 class Sandbox : public Hazel::Application
