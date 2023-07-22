@@ -21,7 +21,7 @@ public:
              0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f//顶点坐标，颜色
         };
 
-        std::shared_ptr<Hazel::VertexBuffer> vertexBuffer;//顶点缓冲区
+        Hazel::Ref<Hazel::VertexBuffer> vertexBuffer;//顶点缓冲区
         vertexBuffer.reset(Hazel::VertexBuffer::Create(vertices, sizeof(vertices)));//创建一个顶点缓冲区
         Hazel::BufferLayout layout = {//创建一个布局
             { Hazel::ShaderDataType::Float3, "a_Position" },//顶点坐标
@@ -31,7 +31,7 @@ public:
         m_VertexArray->AddVertexBuffer(vertexBuffer);//将顶点缓冲区添加到顶点数组中
 
         uint32_t indices[3] = { 0, 1, 2 };//索引
-        std::shared_ptr<Hazel::IndexBuffer> indexBuffer;//索引缓冲区
+        Hazel::Ref<Hazel::IndexBuffer> indexBuffer;//索引缓冲区
         indexBuffer.reset(Hazel::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));//创建一个索引缓冲区
         m_VertexArray->SetIndexBuffer(indexBuffer);//设置顶点数组的索引缓冲区
 
@@ -44,7 +44,7 @@ public:
             -0.5f,  0.5f, 0.0f
         };
 
-        std::shared_ptr<Hazel::VertexBuffer> squareVB;
+        Hazel::Ref<Hazel::VertexBuffer> squareVB;
         squareVB.reset(Hazel::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
         squareVB->SetLayout({
             { Hazel::ShaderDataType::Float3, "a_Position" }
@@ -52,7 +52,7 @@ public:
         m_SquareVA->AddVertexBuffer(squareVB);
 
         uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
-        std::shared_ptr<Hazel::IndexBuffer> squareIB;
+        Hazel::Ref<Hazel::IndexBuffer> squareIB;
         squareIB.reset(Hazel::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
         m_SquareVA->SetIndexBuffer(squareIB);
 
@@ -183,6 +183,7 @@ public:
 
 	}
 
+	//渲染GUI
 	virtual void OnImGuiRender() override
 	{
         ImGui::Begin("Settings");
@@ -194,11 +195,11 @@ public:
 	{
 	}
 private:
-    std::shared_ptr<Hazel::Shader> m_Shader;
-    std::shared_ptr<Hazel::VertexArray> m_VertexArray;
+    Hazel::Ref<Hazel::Shader> m_Shader;
+    Hazel::Ref<Hazel::VertexArray> m_VertexArray;
 
-    std::shared_ptr<Hazel::Shader> m_FlatColorShader;
-    std::shared_ptr<Hazel::VertexArray> m_SquareVA;
+    Hazel::Ref<Hazel::Shader> m_FlatColorShader;
+    Hazel::Ref<Hazel::VertexArray> m_SquareVA;
 
     Hazel::OrthographicCamera m_Camera;
     glm::vec3 m_CameraPosition;

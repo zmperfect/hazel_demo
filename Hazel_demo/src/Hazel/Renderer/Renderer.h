@@ -14,7 +14,7 @@ namespace Hazel {
         static void BeginScene(OrthographicCamera& camera);
         static void EndScene();
         // This function is used to submit a shader and a vertex array to the renderer.
-        static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
+        static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
 
         // This function returns the renderer API.
         inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
