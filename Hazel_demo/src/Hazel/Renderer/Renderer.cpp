@@ -7,6 +7,11 @@ namespace Hazel {
 
     Renderer::SceneData* Renderer::s_SceneData = new Renderer::SceneData;//创建一个场景数据的作用域
 
+    void Renderer::Init()
+    {
+        RenderCommand::Init();//初始化渲染命令
+    }
+
     void Renderer::BeginScene(OrthographicCamera& camera)
     {
         s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();//获取视角投影矩阵

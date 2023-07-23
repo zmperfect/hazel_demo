@@ -11,8 +11,9 @@ namespace Hazel {
     {
     public:
         // This function is used to initialize the renderer.
-        static void BeginScene(OrthographicCamera& camera);
-        static void EndScene();
+        static void Init();//初始化
+        static void BeginScene(OrthographicCamera& camera);//开始场景
+        static void EndScene();//结束场景
         // This function is used to submit a shader and a vertex array to the renderer.
         static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
 

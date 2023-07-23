@@ -54,23 +54,22 @@ namespace Hazel {
         glBindVertexArray(m_RendererID);
         vertexBuffer->Bind();
 
-        uint32_t index = 0;
         const auto& layout = vertexBuffer->GetLayout();
         //遍历布局
         for (const auto& element : layout)
         {
-            glEnableVertexAttribArray(index);//启用顶点属性
+            glEnableVertexAttribArray(m_VertexBufferIndex);//启用顶点属性
             //设置顶点属性指针
-            glVertexAttribPointer(index,
+            glVertexAttribPointer(m_VertexBufferIndex,
                         element.GetComponentCount(),
                         ShaderDataTypeToOpenGLBaseType(element.Type),
                         element.Normalized ? GL_TRUE : GL_FALSE,
                         layout.GetStride(),
-                        (const void*)element.Offset);
-            index++;
+                        (const void*)(intptr_t)element.Offset);
+            m_VertexBufferIndex++;
         }
 
-        m_VertexBuffers.push_back(vertexBuffer);
+        m_VertexBuffers.push_back(vertexBuffer);//添加顶点缓冲
     }
 
     void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)

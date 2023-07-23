@@ -170,6 +170,7 @@ public:
         m_TextureShader.reset(Hazel::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
 
         m_Texture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
+        m_LJRLogoTexture = Hazel::Texture2D::Create("assets/textures/LJRLogo.png");
 
         std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_TextureShader)->Bind();
         std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
@@ -224,6 +225,8 @@ public:
 		//绑定纹理与提交
         m_Texture->Bind();
         Hazel::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		m_LJRLogoTexture->Bind();
+        Hazel::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		//三角形提交
 		//Hazel::Renderer::Submit(m_Shader, m_VertexArray);//提交顶点数组
@@ -250,7 +253,7 @@ private:
     Hazel::Ref<Hazel::Shader> m_FlatColorShader, m_TextureShader;//纯色shader,纹理shader
     Hazel::Ref<Hazel::VertexArray> m_SquareVA;//方形顶点数组
 
-	Hazel::Ref<Hazel::Texture2D> m_Texture;//纹理
+	Hazel::Ref<Hazel::Texture2D> m_Texture, m_LJRLogoTexture;//纹理,logo纹理
 
     Hazel::OrthographicCamera m_Camera;
     glm::vec3 m_CameraPosition;

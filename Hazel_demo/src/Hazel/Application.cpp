@@ -23,6 +23,8 @@ namespace Hazel {
 		m_Window = std::unique_ptr<Window>(Window::Create());//创建一个窗口
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));//设置窗口的回调函数
 
+		Renderer::Init();//初始化渲染器
+
         m_ImGuiLayer = new ImGuiLayer();
         PushOverlay(m_ImGuiLayer);
 	}

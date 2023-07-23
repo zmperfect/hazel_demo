@@ -28,11 +28,11 @@ namespace Hazel {
 
 	void LayerStack::PopLayer(Layer* layer)
 	{
-		auto it = std::find(m_Layers.begin() + m_LayerInsertIndex, m_Layers.end(), layer);//find() 函数用于在 vector 容器中查找指定元素，它返回的是一个迭代器，指向的是第一个等于指定值的元素。LayerStack只需要在m_Layers中查找即可，不需要在m_Layers.begin() + m_LayerInsertIndex之前的元素中查找
-		if (it != m_Layers.end())
+		auto it = std::find(m_Layers.begin(), m_Layers.begin() + m_LayerInsertIndex, layer);//find() 函数用于在 vector 容器中查找指定元素，它返回的是一个迭代器，指向的是第一个等于指定值的元素。
+		if (it != m_Layers.begin() + m_LayerInsertIndex)//修复bug，如果it不等于m_Layers.begin() + m_LayerInsertIndex，说明找到了，就执行下面的代码，否则不执行
 		{
 			layer->OnDetach();
-			m_Layers.erase(it);
+			m_Layers.erase(it);//erase() 函数用于删除 vector 容器中的指定元素，它返回的是一个迭代器，指向的是被删除元素的下一个元素。
 			m_LayerInsertIndex--;
 		}
 	}

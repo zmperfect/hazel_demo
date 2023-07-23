@@ -7,9 +7,11 @@ namespace Hazel {
     class OpenGLRendererAPI : public RendererAPI
     {
     public:
-        virtual void SetClearColor(const glm::vec4& color) override;
-        virtual void Clear() override;
+        virtual void Init() override;//初始化
 
-        virtual void DrawIndexed(const Ref<VertexArray>& vertexArray) override;
+        virtual void SetClearColor(const glm::vec4& color) override;//设置清除颜色
+        virtual void Clear() override;//清除
+
+        virtual void DrawIndexed(const Ref<VertexArray>& vertexArray) override;//绘制顶点数组
     };
 }
