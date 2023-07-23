@@ -6,7 +6,12 @@ namespace Hazel {
 
 	class HAZEL_API Input
 	{
+	protected:
+		Input() = default;
 	public:
+		Input(const Input&) = delete;//禁止拷贝构造和赋值构造
+		Input& operator=(const Input&) = delete;//禁止拷贝构造和赋值构造
+
 		inline static bool IsKeyPressed(int keycode) { return s_Instance->IsKeyPressedImpl(keycode); }
 
 		inline static bool IsMouseButtonPressed(int button) { return s_Instance->IsMouseButtonPressedImpl(button); }
