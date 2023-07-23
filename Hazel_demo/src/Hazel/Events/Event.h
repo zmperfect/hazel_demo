@@ -10,7 +10,7 @@ namespace Hazel {
 	// For the future, a better strategy might be to buffer events in an event
 	// bus and process them during the "event" part of the update stage.
 
-	enum class EventType
+	enum class EventType//事件类型
 	{
 		None = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
@@ -19,7 +19,7 @@ namespace Hazel {
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
 
-	enum EventCategory
+	enum EventCategory//事件类别
 	{
 		None = 0,
 		EventCategoryApplication    = BIT(0),
@@ -53,20 +53,18 @@ namespace Hazel {
 
 	class EventDispatcher
 	{
-		template<typename T>
-		using EventFn = std::function<bool(T&)>;
 	public:
 		EventDispatcher(Event& event)
 			: m_Event(event)
 		{
 		}
 
-		template<typename T>
-		bool Dispatch(EventFn<T> func)
+		template<typename T, typename F>
+		bool Dispatch(const F& func)
 		{
 			if (m_Event.GetEventType() == T::GetStaticType())
 			{
-				m_Event.Handled = func(*(T*)&m_Event);
+				m_Event.Handled = func(static_cast<T&>(m_Event));
 				return true;
 			}
 			return false;
