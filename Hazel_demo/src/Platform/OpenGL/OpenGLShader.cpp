@@ -24,9 +24,17 @@ namespace Hazel {
         std::string source = ReadFile(filePath);//读取文件
         auto shaderSources = PreProcess(source);//预处理
         Compile(shaderSources);//编译
+
+        //从文件名中提取着色器名称
+        auto lastSlash = filePath.find_last_of("/\\");//查找最后一个斜杠
+        lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;//如果没有斜杠，从0开始，否则从斜杠后开始
+        auto lastDot = filePath.rfind('.');//查找最后一个点
+        auto count = lastDot == std::string::npos ? filePath.size() - lastSlash : lastDot - lastSlash;//如果没有点，从斜杠后开始，否则从点前开始
+        m_Name = filePath.substr(lastSlash, count);//获取名称
     }
 
-    OpenGLShader::OpenGLShader(const std::string& vertexSrc, const std::string& fragmentSrc)//从源码加载着色器
+    OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)//从源码加载着色器
+        : m_Name(name)
     {
         std::unordered_map<GLenum, std::string> sources;//着色器源码
         sources[GL_VERTEX_SHADER] = vertexSrc;//顶点着色器
@@ -84,7 +92,9 @@ namespace Hazel {
     void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
     {
         GLint program = glCreateProgram();//创建着色器程序
-        std::vector<GLenum> glShaderIDs(shaderSources.size());//着色器ID
+        HZ_CORE_ASSERT(shaderSources.size() <= 2, "We only support 2 shaders for now");//如果着色器数量大于2，输出错误
+        std::array<GLenum, 2> glShaderIDs;//着色器ID数组
+        int glShaderIDIndex = 0;//着色器ID数组索引
         for (auto& kv : shaderSources)
         {
             GLenum type = kv.first;//着色器类型
@@ -113,7 +123,7 @@ namespace Hazel {
             }
 
             glAttachShader(program, shader);//附加着色器
-            glShaderIDs.push_back(shader);//添加着色器ID
+            glShaderIDs[glShaderIDIndex++] = shader;//设置着色器ID
         }
 
         m_RendererID = program;//设置着色器程序ID

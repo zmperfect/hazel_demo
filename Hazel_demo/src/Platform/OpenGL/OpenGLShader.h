@@ -12,11 +12,13 @@ namespace Hazel {
     {
     public:
         OpenGLShader(const std::string& filePath);//从文件中读取shader
-        OpenGLShader(const std::string& vertexSrc, const std::string& fragmentSrc);//从字符串中读取shader
+        OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);//从字符串中读取shader
         virtual ~OpenGLShader();
 
         virtual void Bind() const override;//绑定shader
         virtual void Unbind() const override;//解绑shader
+
+        virtual const std::string& GetName() const override { return m_Name; }//获取shader的名字
 
         void UploadUniformInt(const std::string& name, int value);//上传int类型的uniform
 
@@ -33,6 +35,7 @@ namespace Hazel {
         void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);//编译shader
     private:
         uint32_t m_RendererID;//shader的id
+        std::string m_Name;//shader的名字
     };
 
 }

@@ -94,7 +94,7 @@ public:
 			}
 		)";
 
-        m_Shader.reset(Hazel::Shader::Create(vertexSrc, fragmentSrc));
+        m_Shader = Hazel::Shader::Create("VertexPosColor", vertexSrc, fragmentSrc);//创建一个包含位置颜色的着色器
 
         //shader
         std::string flatColorShaderVertexSrc = R"(
@@ -130,15 +130,15 @@ public:
 			}
 		)";
 
-        m_FlatColorShader.reset(Hazel::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));//// release, take ownership of _Px
+        m_FlatColorShader = Hazel::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc);//创建一个纯色着色器
 
-        m_TextureShader.reset(Hazel::Shader::Create("assets/shaders/Texture.glsl"));
+        auto textureShader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
 
         m_Texture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
         m_LJRLogoTexture = Hazel::Texture2D::Create("assets/textures/LJRLogo.png");
 
-        std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_TextureShader)->Bind();
-        std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
+        std::dynamic_pointer_cast<Hazel::OpenGLShader>(textureShader)->Bind();
+        std::dynamic_pointer_cast<Hazel::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
 
 	}
 
@@ -187,11 +187,13 @@ public:
 			}
 		}
 
+		auto textureShader = m_ShaderLibrary.Get("Texture");
+
 		//绑定纹理与提交
         m_Texture->Bind();
-        Hazel::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+        Hazel::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 		m_LJRLogoTexture->Bind();
-        Hazel::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+        Hazel::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		//三角形提交
 		//Hazel::Renderer::Submit(m_Shader, m_VertexArray);//提交顶点数组
@@ -212,10 +214,11 @@ public:
 	{
 	}
 private:
+	Hazel::ShaderLibrary m_ShaderLibrary;//着色器库
     Hazel::Ref<Hazel::Shader> m_Shader;//shader
     Hazel::Ref<Hazel::VertexArray> m_VertexArray;//顶点数组
 
-    Hazel::Ref<Hazel::Shader> m_FlatColorShader, m_TextureShader;//纯色shader,纹理shader
+    Hazel::Ref<Hazel::Shader> m_FlatColorShader;//纯色shader
     Hazel::Ref<Hazel::VertexArray> m_SquareVA;//方形顶点数组
 
 	Hazel::Ref<Hazel::Texture2D> m_Texture, m_LJRLogoTexture;//纹理,logo纹理
