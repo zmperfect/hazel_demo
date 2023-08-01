@@ -10,6 +10,8 @@ namespace Hazel {
     public:
         OrthographicCamera(float left, float right, float bottom, float top);//This constructor is used to create a 2D camera.
 
+        void SetProjection(float left, float right, float bottom, float top);//This function sets the projection of the camera.
+
         const glm::vec3& GetPosition() const { return m_Position; }//This function returns the position of the camera.
         void SetPosition(const glm::vec3& position) { m_Position = position; RecalculateViewMatrix(); }//This function sets the position of the camera.
 
