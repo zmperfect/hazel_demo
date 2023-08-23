@@ -10,8 +10,10 @@ namespace Hazel {
     class Renderer
     {
     public:
-        // This function is used to initialize the renderer.
+        
         static void Init();//初始化
+        static void OnWindowResize(uint32_t width, uint32_t height);//窗口大小改变
+
         static void BeginScene(OrthographicCamera& camera);//开始场景
         static void EndScene();//结束场景
         // This function is used to submit a shader and a vertex array to the renderer.

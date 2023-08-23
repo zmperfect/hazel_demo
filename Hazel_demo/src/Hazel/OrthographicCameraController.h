@@ -8,7 +8,6 @@
 
 namespace Hazel {
 
-    // This class is used to control the 2D camera.
     class OrthographicCameraController
     {
     public:
@@ -19,6 +18,9 @@ namespace Hazel {
 
         OrthographicCamera& GetCamera() { return m_Camera; }
         const OrthographicCamera& GetCamera() const { return m_Camera; }
+
+        float GetZoomLevel() const { return m_ZoomLevel; }//获取缩放等级
+        void SetZoomLevel(float level) { m_ZoomLevel = level; }//设置缩放等级
     private:
         bool OnMouseScrolled(MouseScrolledEvent& e);//处理鼠标滚轮事件
         bool OnWindowResized(WindowResizeEvent& e);//处理窗口大小改变事件

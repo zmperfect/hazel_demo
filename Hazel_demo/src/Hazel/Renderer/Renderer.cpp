@@ -12,6 +12,11 @@ namespace Hazel {
         RenderCommand::Init();//初始化渲染命令
     }
 
+    void Renderer::OnWindowResize(uint32_t width, uint32_t height)
+    {
+        RenderCommand::SetViewport(0, 0, width, height);//设置视口，x,y 以像素为单位，指定了视口的左下角位置。width，height 表示这个视口矩形的宽度和高度，根据窗口的实时变化重绘窗口。
+    }
+
     void Renderer::BeginScene(OrthographicCamera& camera)
     {
         s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();//获取视角投影矩阵

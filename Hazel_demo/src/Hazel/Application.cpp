@@ -41,7 +41,8 @@ namespace Hazel {
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));//将窗口关闭事件分发给OnWindowClose函数
+		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));//将窗口大小改变事件分发给OnWindowResize函数
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )//从后往前遍历
 		{
@@ -57,9 +58,14 @@ namespace Hazel {
 		{
             float time = (float)glfwGetTime();//获取当前时间
             Timestep timestep = time - m_LastFrameTime;//计算时间差
-            m_LastFrameTime = time;
-			for (Layer* layer : m_LayerStack)//遍历layer栈
-				layer->OnUpdate(timestep);//更新每一个layer
+            m_LastFrameTime = time;//更新上一帧时间
+
+			//如果窗口没有最小化则更新layer
+			if (!m_Minimized)
+			{
+                for (Layer* layer : m_LayerStack)//遍历layer栈
+                    layer->OnUpdate(timestep);//更新每一个layer
+			}
 
             m_ImGuiLayer->Begin();
             for (Layer* layer : m_LayerStack)
@@ -76,4 +82,18 @@ namespace Hazel {
 		return true;
 	}
 
+	bool Application::OnWindowResize(WindowResizeEvent& e)
+	{
+		//强制窗口大小为0*0时使窗口最小化
+		if (e.GetWidth() == 0 || e.GetHeight() == 0)
+		{
+			m_Minimized = true;
+			return false;
+		}
+
+		m_Minimized = false;
+		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());//渲染器窗口大小改变
+
+		return false;
+	}
 }

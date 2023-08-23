@@ -30,11 +30,13 @@ namespace Hazel {
 
 		inline static Application& Get() { return *s_Instance; }
 	private:
-		bool OnWindowClose(WindowCloseEvent& e);
+		bool OnWindowClose(WindowCloseEvent& e);//处理窗口关闭事件
+		bool OnWindowResize(WindowResizeEvent& e);//处理窗口大小改变事件)
 	private:
 		std::unique_ptr<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
+		bool m_Minimized = false;
 		LayerStack m_LayerStack;//LayerStack是一个容器，用来存放Layer
 
 		float m_LastFrameTime = 0.0f;

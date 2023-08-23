@@ -4,29 +4,28 @@
 
 namespace Hazel {
     
-    // This class is used to create a 2D camera.
     class OrthographicCamera
     {
     public:
-        OrthographicCamera(float left, float right, float bottom, float top);//This constructor is used to create a 2D camera.
+        OrthographicCamera(float left, float right, float bottom, float top);//创建一个正交相机
 
-        void SetProjection(float left, float right, float bottom, float top);//This function sets the projection of the camera.
+        void SetProjection(float left, float right, float bottom, float top);//设置相机的投影矩阵
 
-        const glm::vec3& GetPosition() const { return m_Position; }//This function returns the position of the camera.
-        void SetPosition(const glm::vec3& position) { m_Position = position; RecalculateViewMatrix(); }//This function sets the position of the camera.
+        const glm::vec3& GetPosition() const { return m_Position; }//返回相机的位置
+        void SetPosition(const glm::vec3& position) { m_Position = position; RecalculateViewMatrix(); }//设置相机的位置
 
-        float GetRotation() const { return m_Rotation; }//This function returns the rotation of the camera.
-        void SetRotation(float rotation) { m_Rotation = rotation; RecalculateViewMatrix(); }//This function sets the rotation of the camera.
+        float GetRotation() const { return m_Rotation; }//返回相机的旋转角度
+        void SetRotation(float rotation) { m_Rotation = rotation; RecalculateViewMatrix(); }//设置相机的旋转角度
 
         const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
         const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
         const glm::mat4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
     private:
-        void RecalculateViewMatrix();//This function recalculates the view matrix of the camera.
+        void RecalculateViewMatrix();//重新计算相机的视图矩阵
     private:
-        glm::mat4 m_ProjectionMatrix;//This is the projection matrix of the camera.
-        glm::mat4 m_ViewMatrix;//This is the view matrix of the camera.
-        glm::mat4 m_ViewProjectionMatrix;//This is the view projection matrix of the camera.
+        glm::mat4 m_ProjectionMatrix;//相机的投影矩阵
+        glm::mat4 m_ViewMatrix;//相机的视图矩阵
+        glm::mat4 m_ViewProjectionMatrix;//相机的视图投影矩阵
 
         glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
         float m_Rotation = 0.0f;
