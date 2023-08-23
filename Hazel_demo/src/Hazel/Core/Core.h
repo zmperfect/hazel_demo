@@ -2,20 +2,54 @@
 
 #include <memory>
 
-#ifdef HZ_PLATFORM_WINDOWS//判断平台
-#if HZ_DYNAMIC_LINK//判断是否为动态链接库
-	#ifdef HZ_BUILD_DLL//是否构建dll
-		#define HAZEL_API _declspec(dllexport)
-	#else
-		#define HAZEL_API _declspec(dllimport)
-	#endif
-#else
-	#define HAZEL_API//静态链接库
-#endif
-#else
-	//错误提示
-	#error Hazel only support Windows!
-#endif
+//使用预定义宏的平台检测
+#ifdef _WIN32 //Windows平台
+    #ifdef _WIN64 //64位
+        #define HZ_PLATFORM_WINDOWS
+    #else//32位
+        #error "x86 Builds are not supported!"
+    #endif
+#elif defined(__APPLE__) || defined(__MACH__)//苹果平台
+	#include <TargetConditionals.h>
+    /* TARGET_OS_MAC存在于苹果平台的所有系统中
+     * 所以我们必须检查所有的系统来确保我们运行在MAC上*/
+    #if TARGET_IPHONE_SIMULATOR == 1//模拟器
+        #error "IOS simulator is not supported!"
+    #elif TARGET_OS_IPHONE == 1//IOS
+        #define HZ_PLATFORM_IOS
+        #error "IOS is not supported!"
+    #elif TARGET_OS_MAC == 1//MAC
+        #define HZ_PLATFORM_MACOS
+        #error "MacOS is not supported!"
+    #else//未知
+        #error "Unknown Apple platform!"
+    #endif
+
+//在Linux平台上编译前必须检查是否是安卓平台
+#elif defined(__ANDROID__)//安卓平台
+    #define HZ_PLATFORM_ANDROID
+    #error "Android is not supported!"
+#elif defined(__linux__)//Linux平台
+    #define HZ_PLATFORM_LINUX
+    #error "Linux is not supported!"
+#else//未知平台
+    #error "Unknown platform!"
+#endif // 平台检测结束
+
+//DLLsupport
+#ifdef HZ_PLATFORM_WINDOWS//Windows平台
+    #if HZ_DYNAMIC_LINK//动态链接
+        #ifdef HZ_BUILD_DLL//编译DLL
+            #define HAZEL_API __declspec(dllexport)//导出
+        #else//未编译DLL
+            #define HAZEL_API __declspec(dllimport)//导入
+        #endif
+    #else//静态链接
+        #define HAZEL_API
+    #endif
+#else//非Windows平台
+    #error Hazel only supports Windows!
+#endif //End of DLL support
 
 #ifdef HZ_DEBUG//判断是否为debug模式
 	#define HZ_ENABLE_ASSERTS//启用断言
