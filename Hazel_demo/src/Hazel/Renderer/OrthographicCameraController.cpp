@@ -13,15 +13,27 @@ namespace Hazel {
 
     void OrthographicCameraController::OnUpdate(Timestep ts)
     {
-        if(Input::IsKeyPressed(HZ_KEY_A))
-            m_CameraPosition.x -= m_CameraTranslationSpeed * ts;//相机位置的x坐标减去相机平移速度乘以时间步长，即相机向左移动
+        if (Input::IsKeyPressed(HZ_KEY_A))
+        {
+            m_CameraPosition.x -= cos(glm::radians(m_CameraRotation)) * m_CameraTranslationSpeed * ts;//相机位置的x坐标减去cos(相机旋转角度)乘以相机平移速度乘以时间步长，即相机向左移动
+            m_CameraPosition.y -= sin(glm::radians(m_CameraRotation)) * m_CameraTranslationSpeed * ts;//相机位置的y坐标减去sin(相机旋转角度)乘以相机平移速度乘以时间步长，即相机向左移动
+        }
         else if (Input::IsKeyPressed(HZ_KEY_D))
-            m_CameraPosition.x += m_CameraTranslationSpeed * ts;//相机位置的x坐标加上相机平移速度乘以时间步长，即相机向右移动
+        {
+            m_CameraPosition.x += cos(glm::radians(m_CameraRotation)) * m_CameraTranslationSpeed * ts;//相机位置的x坐标加上cos(相机旋转角度)乘以相机平移速度乘以时间步长，即相机向右移动
+            m_CameraPosition.y += sin(glm::radians(m_CameraRotation)) * m_CameraTranslationSpeed * ts;//相机位置的y坐标加上sin(相机旋转角度)乘以相机平移速度乘以时间步长，即相机向右移动
+        }
 
         if (Input::IsKeyPressed(HZ_KEY_W))
-            m_CameraPosition.y += m_CameraTranslationSpeed * ts;//相机位置的y坐标加上相机平移速度乘以时间步长，即相机向上移动
+        {
+            m_CameraPosition.x += -sin(glm::radians(m_CameraRotation)) * m_CameraTranslationSpeed * ts;//相机位置的x坐标加上-sin(相机旋转角度)乘以相机平移速度乘以时间步长，即相机向上移动
+            m_CameraPosition.y += cos(glm::radians(m_CameraRotation)) * m_CameraTranslationSpeed * ts;//相机位置的y坐标加上cos(相机旋转角度)乘以相机平移速度乘以时间步长，即相机向上移动
+        }
         else if (Input::IsKeyPressed(HZ_KEY_S))
-            m_CameraPosition.y -= m_CameraTranslationSpeed * ts;//相机位置的y坐标减去相机平移速度乘以时间步长，即相机向下移动
+        {
+            m_CameraPosition.x -= -sin(glm::radians(m_CameraRotation)) * m_CameraTranslationSpeed * ts;//相机位置的x坐标减去-sin(相机旋转角度)乘以相机平移速度乘以时间步长，即相机向下移动
+            m_CameraPosition.y -= cos(glm::radians(m_CameraRotation)) * m_CameraTranslationSpeed * ts;//相机位置的y坐标减去cos(相机旋转角度)乘以相机平移速度乘以时间步长，即相机向下移动
+        }
 
         if (m_Rotation)
         {
@@ -29,6 +41,11 @@ namespace Hazel {
                 m_CameraRotation += m_CameraRotationSpeed * ts;//相机旋转角度加上相机旋转速度乘以时间步长，即相机逆时针旋转
             else if (Input::IsKeyPressed(HZ_KEY_E))
                 m_CameraRotation -= m_CameraRotationSpeed * ts;//相机旋转角度减去相机旋转速度乘以时间步长，即相机顺时针旋转
+
+            if(m_CameraRotation > 180.0f)
+                m_CameraRotation -= 360.0f;//如果相机旋转角度大于180度，相机旋转角度减去360度
+            else if (m_CameraRotation <= -180.0f)
+                m_CameraRotation += 360.0f;
 
             m_Camera.SetRotation(m_CameraRotation);//设置相机旋转角度
         }
