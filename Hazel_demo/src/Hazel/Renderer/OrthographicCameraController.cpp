@@ -6,8 +6,8 @@
 
 namespace Hazel {
 
-    OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation)
-        : m_AspectRatio(aspectRatio), m_Camera(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel), m_Rotation(rotation = true)//rotation默认关闭，改为true则开启相机旋转功能
+    OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation, bool reset)
+        : m_AspectRatio(aspectRatio), m_Camera(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel), m_Rotation(rotation = true), m_Reset(reset = true)//rotation默认关闭，改为true则开启相机旋转功能，复位功能同理
     {
     }
 
@@ -31,6 +31,16 @@ namespace Hazel {
                 m_CameraRotation -= m_CameraRotationSpeed * ts;//相机旋转角度减去相机旋转速度乘以时间步长，即相机顺时针旋转
 
             m_Camera.SetRotation(m_CameraRotation);//设置相机旋转角度
+        }
+
+        if (m_Reset) 
+        {
+            if (Input::IsKeyPressed(HZ_KEY_Z))
+            {
+                m_CameraPosition = { 0.0f, 0.0f, 0.0f };//相机位置复位
+                m_CameraRotation = 0.0f;//相机旋转角度复位
+                m_ZoomLevel = 1.0f;//相机缩放等级复位
+            }
         }
 
         m_Camera.SetPosition(m_CameraPosition);//设置相机位置

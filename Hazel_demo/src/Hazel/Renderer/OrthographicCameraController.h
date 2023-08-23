@@ -11,7 +11,7 @@ namespace Hazel {
     class OrthographicCameraController
     {
     public:
-        OrthographicCameraController(float aspectRatio, bool rotation = false);//创建一个正交相机控制器
+        OrthographicCameraController(float aspectRatio, bool rotation = false, bool reset = false);//创建一个正交相机控制器
 
         void OnUpdate(Timestep ts);//更新相机控制器
         void OnEvent(Event& e);//处理事件
@@ -30,6 +30,7 @@ namespace Hazel {
         OrthographicCamera m_Camera;//正交相机
 
         bool m_Rotation;//是否旋转
+        bool m_Reset;//是否复位
 
         glm::vec3 m_CameraPosition = { 0.0f, 0.0f, 0.0f };//相机位置
         float m_CameraRotation = 0.0f;//相机旋转

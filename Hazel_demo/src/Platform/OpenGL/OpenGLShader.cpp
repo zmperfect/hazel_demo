@@ -155,7 +155,10 @@ namespace Hazel {
         }
 
         for (auto id : glShaderIDs)//遍历着色器ID
+        {
             glDetachShader(program, id);//分离着色器
+            glDeleteShader(id);//删除着色器
+        }
     }
 
 
