@@ -78,13 +78,14 @@ namespace Hazel {
         {
             size_t eol = source.find_first_of("\r\n", pos);//查找换行符
             HZ_CORE_ASSERT(eol != std::string::npos, "Syntax error");//如果换行符不是字符串结尾，输出错误
-            size_t begin = pos + typeTokenLength + 1;//开始位置
+            size_t begin = pos + typeTokenLength + 1;//开始位置(在"#type"之后)
             std::string type = source.substr(begin, eol - begin);//获取类型
             HZ_CORE_ASSERT(ShaderTypeFromString(type), "Invalid shader type specified");//如果类型无效，输出错误
 
-            size_t nextLinePos = source.find_first_not_of("\r\n", eol);//查找下一行
-            pos = source.find(typeToken, nextLinePos);//查找下一个类型标记
-            shaderSources[ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));//获取源码
+            size_t nextLinePos = source.find_first_not_of("\r\n", eol); //shader代码的开始位置(位于shader type描述符的下一行)
+            HZ_CORE_ASSERT(nextLinePos != std::string::npos, "Syntax error");//如果开始位置不是字符串结尾，输出错误
+            pos = source.find(typeToken, nextLinePos);//Start of next shader type declaration line
+            shaderSources[ShaderTypeFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);//shader code 获取
         }
         return shaderSources;
     }

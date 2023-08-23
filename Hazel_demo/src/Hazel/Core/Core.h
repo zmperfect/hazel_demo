@@ -12,7 +12,7 @@
 #elif defined(__APPLE__) || defined(__MACH__)//苹果平台
 	#include <TargetConditionals.h>
     /* TARGET_OS_MAC存在于苹果平台的所有系统中
-     * 所以我们必须检查所有的系统来确保我们运行在MAC上*/
+     * 所以必须检查所有的系统来确保运行在MAC上*/
     #if TARGET_IPHONE_SIMULATOR == 1//模拟器
         #error "IOS simulator is not supported!"
     #elif TARGET_OS_IPHONE == 1//IOS
