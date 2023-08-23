@@ -1,12 +1,16 @@
 [submodule "Hazel_demo/vendor/GLFW"]
 	path = Hazel_demo/vendor/GLFW
 	url = https://gitee.com/ljr1998/glfw.git
+	branch = master
 [submodule "Hazel_demo/vendor/spdlog"]
 	path = Hazel_demo/vendor/spdlog
 	url = https://gitee.com/ljr1998/spdlog.git
+	branch = v1.x
 [submodule "Hazel_demo/vendor/imgui"]
 	path = Hazel_demo/vendor/imgui
 	url = https://gitee.com/ljr1998/imgui.git
+	branch = docking
 [submodule "Hazel_demo/vendor/glm"]
 	path = Hazel_demo/vendor/glm
 	url = https://gitee.com/ljr1998/glm.git
+	branch = master
