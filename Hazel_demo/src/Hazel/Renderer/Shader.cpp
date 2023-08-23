@@ -43,21 +43,21 @@ namespace Hazel {
         Add(name, shader);//调用上面的Add函数
     }
 
-    Hazel::Ref<Hazel::Shader> ShaderLibrary::Load(const std::string& filepath)
+    Ref<Shader> ShaderLibrary::Load(const std::string& filepath)
     {
         auto shader = Shader::Create(filepath);//创建一个Shader对象
         Add(shader);//调用上面的Add函数
         return shader;//返回一个指向它的智能指针
     }
 
-    Hazel::Ref<Hazel::Shader> ShaderLibrary::Load(const std::string& name, const std::string& filepath)
+    Ref<Shader> ShaderLibrary::Load(const std::string& name, const std::string& filepath)
     {
         auto shader = Shader::Create(filepath);//创建一个Shader对象
         Add(name, shader);//调用上面的Add函数
         return shader;//返回一个指向它的智能指针
     }
 
-    Hazel::Ref<Hazel::Shader> ShaderLibrary::Get(const std::string& name)
+    Ref<Shader> ShaderLibrary::Get(const std::string& name)
     {
         HZ_CORE_ASSERT(Exists(name), "Shader not found!");//确保Shader存在
         return m_Shaders[name];//返回name对应的Shader

@@ -5,7 +5,7 @@
 
 namespace Hazel {
 
-    Renderer::SceneData* Renderer::s_SceneData = new Renderer::SceneData;//创建一个场景数据的作用域
+    Scope<Renderer::SceneData> Renderer::s_SceneData = CreateScope<Renderer::SceneData>();//创建一个场景数据的作用域
 
     void Renderer::Init()
     {
