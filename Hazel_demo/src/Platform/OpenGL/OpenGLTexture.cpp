@@ -37,7 +37,8 @@ namespace Hazel {
         glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//设置纹理最小化参数
         glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//设置最大化参数
 
-        //glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);//设置重复参数
+        glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);//设置水平重复
+        glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);//设置垂直重复
 
         glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);//设置纹理数据，从左下角开始，宽高为m_Width,m_Height，格式为RGB，类型为无符号字节，数据为data
 

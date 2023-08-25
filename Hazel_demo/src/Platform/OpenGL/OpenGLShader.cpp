@@ -174,9 +174,29 @@ namespace Hazel {
         glUseProgram(0);
     }
 
+    void OpenGLShader::SetInt(const std::string& name, int value)
+    {
+        UploadUniformInt(name, value);//上传整型,设置uniform
+    }
+
+    void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
+    {
+        UploadUniformFloat3(name, value);//上传浮点型,设置uniform
+    }
+
+    void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
+    {
+        UploadUniformFloat4(name, value);//上传浮点型,设置uniform
+    }
+
+    void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
+    {
+        UploadUniformMat4(name, value);//上传矩阵,设置uniform
+    }
+
     void OpenGLShader::UploadUniformInt(const std::string& name, int value)
     {
-        GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+        GLint location = glGetUniformLocation(m_RendererID, name.c_str());//获取uniform位置
         glUniform1i(location, value);
     }
 

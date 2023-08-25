@@ -3,6 +3,8 @@
 #include <string>
 #include <unordered_map>
 
+#include <glm/glm.hpp>
+
 namespace Hazel {
 
     class Shader
@@ -12,6 +14,11 @@ namespace Hazel {
 
         virtual void Bind() const = 0;
         virtual void Unbind() const = 0;
+
+        virtual void SetInt(const std::string& name, int value) = 0;//设置int值
+        virtual void SetFloat3(const std::string& name, const glm::vec3& value) = 0;//设置float3值
+        virtual void SetFloat4(const std::string& name, const glm::vec4& value) = 0;//设置float4值
+        virtual void SetMat4(const std::string& name, const glm::mat4& value) = 0;//设置mat4值
 
         virtual const std::string& GetName() const = 0;//获取shader的名字
 
