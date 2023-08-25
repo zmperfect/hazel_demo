@@ -9,7 +9,7 @@
 
 namespace Hazel {
 
-	static bool s_GLFWInitialized = false;//这里用来确定GLFW调用的时候被初始化过了，否则会报错
+	static uint8_t s_GLFWWindowCount = 0;//用于确保GLFW只初始化一次
 
 	//简单的异常处理，用于glfwSetErrorCallback()
 	static void GLFWErrorCallback(int error, const char* description)
@@ -45,8 +45,9 @@ namespace Hazel {
 		HZ_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		// Make sure to initialize GLFW only once, along with the first window
-		if (!s_GLFWInitialized)
+		if (s_GLFWWindowCount == 0)
 		{
+			HZ_CORE_INFO("Initializing GLFW");
 			//如果GLFW没有初始化，在这里对其初始化
 			int success = glfwInit();
 			//下个断言，确保真的初始化了，之所以要进行赋值再查断言的原因是因为
@@ -54,12 +55,12 @@ namespace Hazel {
 			//因而打包出来的版本根本不会进行初始化。
 			HZ_CORE_ASSERT(success, "Could not intialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
-			s_GLFWInitialized = true;
 		}
 
 		//所需的信息已经齐全，用glfwCreateWindow创建一个glfwWindow并返回指针
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		
+		++s_GLFWWindowCount;
+
 		m_Context = CreateScope<OpenGLContext>(m_Window);
 		m_Context->Init();
 
@@ -162,6 +163,12 @@ namespace Hazel {
 	void WindowsWindow::Shutdown()
 	{
 		glfwDestroyWindow(m_Window);
+
+		if (--s_GLFWWindowCount == 0)
+		{
+			HZ_CORE_INFO("Terminating GLFW");
+			glfwTerminate();
+		}
 	}
 
 	void WindowsWindow::OnUpdate()
