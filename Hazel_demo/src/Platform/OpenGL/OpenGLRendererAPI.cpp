@@ -22,12 +22,16 @@ namespace Hazel {
     {
         glClearColor(color.r, color.g, color.b, color.a);
     }
+
     void OpenGLRendererAPI::Clear()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
+
+    //按照索引绘制
     void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray)
     {
-        glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);//绘制三角形，顶点索引，索引类型，偏移量
+        glBindTexture(GL_TEXTURE_2D, 0);//解绑纹理
     }
 }
