@@ -1,9 +1,9 @@
 #include "hzpch.h"
-#include "Renderer2D.h"
+#include "Hazel/Renderer/Renderer2D.h"
 
-#include "VertexArray.h"
-#include "Shader.h"
-#include "RenderCommand.h"
+#include "Hazel/Renderer/VertexArray.h"
+#include "Hazel/Renderer/Shader.h"
+#include "Hazel/Renderer/RenderCommand.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -30,8 +30,7 @@ namespace Hazel {
             -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
         };
 
-        Ref<VertexBuffer> squareVB;//顶点缓冲区
-        squareVB.reset(VertexBuffer::Create(squareVertices, sizeof(squareVertices)));//创建顶点缓冲区
+        Ref<VertexBuffer> squareVB = VertexBuffer::Create(squareVertices, sizeof(squareVertices));//顶点缓冲区
         squareVB->SetLayout({//设置顶点缓冲区的布局,位置和纹理
                    { ShaderDataType::Float3, "a_Position" },
                    { ShaderDataType::Float2, "a_TexCoord" }
@@ -40,8 +39,7 @@ namespace Hazel {
 
         uint32_t squareIndices[6] = {//方形顶点索引
                    0, 1, 2, 2, 3, 0 };
-        Ref<IndexBuffer> squareIB;//索引缓冲区
-        squareIB.reset(IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));//创建索引缓冲区
+        Ref<IndexBuffer> squareIB = IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));//索引缓冲区
         s_Data->QuadVertexArray->SetIndexBuffer(squareIB);//设置索引缓冲区
 
         s_Data->WhiteTexture = Texture2D::Create(1, 1);//创建纹理

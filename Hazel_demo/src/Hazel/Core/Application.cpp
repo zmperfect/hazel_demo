@@ -1,17 +1,15 @@
 #include "hzpch.h"
-#include "Application.h"
+#include "Hazel/Core/Application.h"
 
 #include "Hazel/Core/Log.h"
 
 #include "Hazel/Renderer/Renderer.h"
 
-#include "Input.h"
+#include "Hazel/Core/Input.h"
 
 #include <glfw/glfw3.h>
 
 namespace Hazel {
-
-	#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
 	Application* Application::s_Instance = nullptr;
 
@@ -20,14 +18,19 @@ namespace Hazel {
 		HZ_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
-		m_Window = std::unique_ptr<Window>(Window::Create());//创建一个窗口
-		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));//设置窗口的回调函数
+		m_Window = Window::Create();//创建一个窗口
+		m_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));//设置窗口的回调函数
 
 		Renderer::Init();//初始化渲染器
 
-        m_ImGuiLayer = new ImGuiLayer();
-        PushOverlay(m_ImGuiLayer);
+        m_ImGuiLayer = new ImGuiLayer();//创建一个imgui层
+        PushOverlay(m_ImGuiLayer);//将imgui层压入栈中
 	}
+
+	Application::~Application()
+    {
+        Renderer::Shutdown();//关闭渲染器
+    }
 
 	void Application::PushLayer(Layer* layer)
 	{
@@ -41,8 +44,8 @@ namespace Hazel {
 	void Application::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));//将窗口关闭事件分发给OnWindowClose函数
-		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));//将窗口大小改变事件分发给OnWindowResize函数
+		dispatcher.Dispatch<WindowCloseEvent>(HZ_BIND_EVENT_FN(Application::OnWindowClose));//将窗口关闭事件分发给OnWindowClose函数
+		dispatcher.Dispatch<WindowResizeEvent>(HZ_BIND_EVENT_FN(Application::OnWindowResize));//将窗口大小改变事件分发给OnWindowResize函数
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )//从后往前遍历
 		{

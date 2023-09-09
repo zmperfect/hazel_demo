@@ -36,21 +36,6 @@
     #error "Unknown platform!"
 #endif // 平台检测结束
 
-//DLLsupport
-#ifdef HZ_PLATFORM_WINDOWS//Windows平台
-    #if HZ_DYNAMIC_LINK//动态链接
-        #ifdef HZ_BUILD_DLL//编译DLL
-            #define HAZEL_API __declspec(dllexport)//导出
-        #else//未编译DLL
-            #define HAZEL_API __declspec(dllimport)//导入
-        #endif
-    #else//静态链接
-        #define HAZEL_API
-    #endif
-#else//非Windows平台
-    #error Hazel only supports Windows!
-#endif //End of DLL support
-
 #ifdef HZ_DEBUG//判断是否为debug模式
 	#define HZ_ENABLE_ASSERTS//启用断言
 #endif

@@ -1,5 +1,5 @@
 #include "hzpch.h"
-#include "OpenGLShader.h"
+#include "Platform/OpenGL/OpenGLShader.h"
 
 #include <fstream>
 #include <glad/glad.h>
@@ -54,10 +54,18 @@ namespace Hazel {
         if (in)//如果打开成功
         {
             in.seekg(0, std::ios::end);//定位到文件末尾
-            result.resize(in.tellg());//调整结果大小
-            in.seekg(0, std::ios::beg);//定位到文件开头
-            in.read(&result[0], result.size());//读取文件
-            in.close();//关闭文件
+            size_t size = in.tellg();//获取文件大小
+            if (size != 1)
+            {
+                result.resize(size);//调整结果大小
+                in.seekg(0, std::ios::beg);//定位到文件开头
+                in.read(&result[0], size);//读取文件
+                in.close();//关闭文件
+            }
+            else
+            {
+                HZ_CORE_ASSERT(false, "Could not read from file '{0}'", filepath);//输出错误
+            }
         }
         else//如果打开失败
         {

@@ -1,8 +1,8 @@
 #include "hzpch.h"
-#include "Renderer.h"
+#include "Hazel/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLShader.h"
-#include "Renderer2D.h"
+#include "Hazel/Renderer/Renderer2D.h"
 
 namespace Hazel {
 
@@ -12,6 +12,11 @@ namespace Hazel {
     {
         RenderCommand::Init();//初始化渲染命令
         Renderer2D::Init();//初始化2D渲染器
+    }
+
+    void Renderer::Shutdown()
+    {
+        Renderer2D::Shutdown();//关闭2D渲染器
     }
 
     void Renderer::OnWindowResize(uint32_t width, uint32_t height)
@@ -31,8 +36,8 @@ namespace Hazel {
     void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)
     {
         shader->Bind();//绑定着色器
-        std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);//上传视角投影矩阵
-        std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_Transform", transform);//上传变换矩阵
+        shader->SetMat4("u_ViewProjection", s_SceneData->ViewProjectionMatrix);//上传视角投影矩阵
+        shader->SetMat4("u_Transform", transform);//上传变换矩阵
 
         vertexArray->Bind();//绑定顶点数组
         RenderCommand::DrawIndexed(vertexArray);//绘制顶点数组

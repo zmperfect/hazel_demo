@@ -1,9 +1,7 @@
 #include <Hazel.h>
 #include <Hazel/Core/EntryPoint.h>
 
-#include "Platform/OpenGL/OpenGLShader.h"
-
-#include "imgui/imgui.h"
+#include <imgui/imgui.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -24,8 +22,7 @@ public:
              0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f//顶点坐标，颜色
         };
 
-        Hazel::Ref<Hazel::VertexBuffer> vertexBuffer;//顶点缓冲区
-        vertexBuffer.reset(Hazel::VertexBuffer::Create(vertices, sizeof(vertices)));//创建一个顶点缓冲区
+        Hazel::Ref<Hazel::VertexBuffer> vertexBuffer = Hazel::VertexBuffer::Create(vertices, sizeof(vertices));//创建顶点缓冲区
         Hazel::BufferLayout layout = {//创建一个布局
             { Hazel::ShaderDataType::Float3, "a_Position" },//顶点坐标
             { Hazel::ShaderDataType::Float4, "a_Color" }//顶点颜色
@@ -34,8 +31,7 @@ public:
         m_VertexArray->AddVertexBuffer(vertexBuffer);//将顶点缓冲区添加到顶点数组中
 
         uint32_t indices[3] = { 0, 1, 2 };//索引
-        Hazel::Ref<Hazel::IndexBuffer> indexBuffer;//索引缓冲区
-        indexBuffer.reset(Hazel::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));//创建一个索引缓冲区
+        Hazel::Ref<Hazel::IndexBuffer> indexBuffer = Hazel::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));//创建索引缓冲区
         m_VertexArray->SetIndexBuffer(indexBuffer);//设置顶点数组的索引缓冲区
 
         m_SquareVA = Hazel::VertexArray::Create();//创建一个方形顶点数组
@@ -47,8 +43,7 @@ public:
             -0.5f,  0.5f, 0.0f, 0.0f, 1.0f//顶点坐标，纹理坐标
         };
 
-        Hazel::Ref<Hazel::VertexBuffer> squareVB;
-        squareVB.reset(Hazel::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+        Hazel::Ref<Hazel::VertexBuffer> squareVB = Hazel::VertexBuffer::Create(squareVertices, sizeof(squareVertices));//创建方形顶点缓冲区
         squareVB->SetLayout({
             { Hazel::ShaderDataType::Float3, "a_Position" },//顶点坐标
             { Hazel::ShaderDataType::Float2, "a_TexCoord" }//纹理坐标
@@ -56,8 +51,7 @@ public:
         m_SquareVA->AddVertexBuffer(squareVB);
 
         uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
-        Hazel::Ref<Hazel::IndexBuffer> squareIB;
-        squareIB.reset(Hazel::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+        Hazel::Ref<Hazel::IndexBuffer> squareIB = Hazel::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
         m_SquareVA->SetIndexBuffer(squareIB);
 
         //存储顶点着色器代码
@@ -140,8 +134,8 @@ public:
         m_Texture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
         m_LJRLogoTexture = Hazel::Texture2D::Create("assets/textures/LJRLogo.png");
 
-        std::dynamic_pointer_cast<Hazel::OpenGLShader>(textureShader)->Bind();
-        std::dynamic_pointer_cast<Hazel::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
+        textureShader->Bind();
+        textureShader->SetInt("u_Texture", 0);
 
 	}
 
@@ -158,8 +152,8 @@ public:
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));//缩放
 
-		std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_FlatColorShader)->Bind();//绑定shader
-		std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_FlatColorShader)->UploadUniformFloat3("u_Color", m_SquareColor);//上传颜色
+		m_FlatColorShader->Bind();//绑定shader
+		m_FlatColorShader->SetFloat3("u_Color", m_SquareColor);//上传颜色
 
 		//渲染出20*20个方形
 		for(int y = 0; y < 20; y++)

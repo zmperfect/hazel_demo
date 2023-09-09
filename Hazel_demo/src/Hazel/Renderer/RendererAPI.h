@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "VertexArray.h"
+#include "Hazel/Renderer/VertexArray.h"
 
 namespace Hazel {
 
@@ -22,6 +22,8 @@ namespace Hazel {
         virtual void DrawIndexed(const Ref<VertexArray>& vertexArray) = 0;//绘制顶点数组
 
         inline static API GetAPI() { return s_API; }//获取API
+        static Scope<RendererAPI> Create();//创建
+
     private:
         static API s_API;//API
     };
