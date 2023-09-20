@@ -19,6 +19,8 @@ namespace Hazel {
 
 	void ImGuiLayer::OnAttach()
 	{
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
 		//在1.6版本后，显式创建Imgui上下文是必须的，这用于更好的管理Imgui的资源
@@ -55,20 +57,26 @@ namespace Hazel {
 
 	void ImGuiLayer::OnDetach()
 	{
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
+        ImGui_ImplOpenGL3_Shutdown();//关闭OpenGL3的Implementation
+        ImGui_ImplGlfw_Shutdown();//关闭GLFW的Implementation
+        ImGui::DestroyContext();//销毁Imgui上下文
 	}
 
 	void ImGuiLayer::Begin()
 	{
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
+        ImGui_ImplOpenGL3_NewFrame();//初始化OpenGL3的Implementation
+        ImGui_ImplGlfw_NewFrame();//初始化GLFW的Implementation
+        ImGui::NewFrame();//初始化Imgui
 	}
 
     void ImGuiLayer::End()
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         ImGuiIO& io = ImGui::GetIO();
         Application& app = Application::Get();
         io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());

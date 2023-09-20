@@ -10,6 +10,8 @@ namespace Hazel {
 
     void Renderer::Init()
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         RenderCommand::Init();//初始化渲染命令
         Renderer2D::Init();//初始化2D渲染器
     }

@@ -13,6 +13,8 @@ namespace Hazel {
 
     void OrthographicCameraController::OnUpdate(Timestep ts)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         if (Input::IsKeyPressed(HZ_KEY_A))
         {
             m_CameraPosition.x -= cos(glm::radians(m_CameraRotation)) * m_CameraTranslationSpeed * ts;//相机位置的x坐标减去cos(相机旋转角度)乘以相机平移速度乘以时间步长，即相机向左移动
@@ -67,6 +69,8 @@ namespace Hazel {
 
     void OrthographicCameraController::OnEvent(Event& e)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         EventDispatcher dispatcher(e);//创建事件分发器
         dispatcher.Dispatch<MouseScrolledEvent>(HZ_BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));//分发鼠标滚轮事件
         dispatcher.Dispatch<WindowResizeEvent>(HZ_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));//分发窗口大小改变事件
@@ -74,6 +78,8 @@ namespace Hazel {
 
     bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         m_ZoomLevel -= e.GetYOffset() * 0.25f;//相机缩放等级减去鼠标滚轮的y轴偏移量乘以0.25
         m_ZoomLevel = std::max(m_ZoomLevel, 0.25f);//相机缩放等级等于相机缩放等级和0.25中的最大值
         m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);//设置相机投影矩阵
@@ -82,6 +88,8 @@ namespace Hazel {
 
     bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();//宽高比等于窗口宽度除以窗口高度
         m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);//设置相机投影矩阵
         return false;

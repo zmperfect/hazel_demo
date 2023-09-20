@@ -7,6 +7,8 @@ namespace Hazel {
 
     void OpenGLRendererAPI::Init()
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         glEnable(GL_BLEND);//允许混合
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//混合函数
 

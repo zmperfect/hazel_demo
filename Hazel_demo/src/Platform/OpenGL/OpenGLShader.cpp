@@ -21,6 +21,8 @@ namespace Hazel {
 
     OpenGLShader::OpenGLShader(const std::string& filePath)//从文件加载着色器
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         std::string source = ReadFile(filePath);//读取文件
         auto shaderSources = PreProcess(source);//预处理
         Compile(shaderSources);//编译
@@ -36,6 +38,8 @@ namespace Hazel {
     OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)//从源码加载着色器
         : m_Name(name)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         std::unordered_map<GLenum, std::string> sources;//着色器源码
         sources[GL_VERTEX_SHADER] = vertexSrc;//顶点着色器
         sources[GL_FRAGMENT_SHADER] = fragmentSrc;//片段着色器
@@ -44,11 +48,15 @@ namespace Hazel {
 
     OpenGLShader::~OpenGLShader()
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         glDeleteProgram(m_RendererID);
     }
 
     std::string OpenGLShader::ReadFile(const std::string& filepath)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         std::string result;//结果
         std::ifstream in(filepath, std::ios::in | std::ios::binary);//打开文件
         if (in)//如果打开成功
@@ -77,6 +85,8 @@ namespace Hazel {
 
     std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         std::unordered_map<GLenum, std::string> shaderSources;//着色器源码
 
         const char* typeToken = "#type";//类型标记
@@ -100,6 +110,8 @@ namespace Hazel {
 
     void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         GLint program = glCreateProgram();//创建着色器程序
         HZ_CORE_ASSERT(shaderSources.size() <= 2, "We only support 2 shaders for now");//如果着色器数量大于2，输出错误
         std::array<GLenum, 2> glShaderIDs;//着色器ID数组
@@ -174,31 +186,43 @@ namespace Hazel {
 
     void OpenGLShader::Bind() const
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         glUseProgram(m_RendererID);
     }
 
     void OpenGLShader::Unbind() const
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         glUseProgram(0);
     }
 
     void OpenGLShader::SetInt(const std::string& name, int value)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         UploadUniformInt(name, value);//上传整型,设置uniform
     }
 
     void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         UploadUniformFloat3(name, value);//上传浮点型,设置uniform
     }
 
     void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         UploadUniformFloat4(name, value);//上传浮点型,设置uniform
     }
 
     void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         UploadUniformMat4(name, value);//上传矩阵,设置uniform
     }
 

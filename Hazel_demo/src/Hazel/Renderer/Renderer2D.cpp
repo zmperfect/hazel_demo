@@ -20,6 +20,8 @@ namespace Hazel {
 
     void Renderer2D::Init()
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         s_Data = new Renderer2DStorage();
         s_Data->QuadVertexArray = VertexArray::Create();
 
@@ -53,17 +55,22 @@ namespace Hazel {
 
     void Renderer2D::Shutdown()
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         delete s_Data;
     }
 
     void Renderer2D::BeginScene(const OrthographicCamera& camera)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         s_Data->TextureShader->Bind();//绑定纹理着色器
         s_Data->TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());//设置纹理着色器的视图投影矩阵
     }
 
     void Renderer2D::EndScene()
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
     }
 
     void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -73,6 +80,8 @@ namespace Hazel {
 
     void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         s_Data->TextureShader->SetFloat4("u_Color", color);//设置纹理着色器的颜色
         s_Data->WhiteTexture->Bind();//绑定纹理
 
@@ -90,6 +99,8 @@ namespace Hazel {
 
     void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture)
     {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
         s_Data->TextureShader->SetFloat4("u_Color", glm::vec4(1.0f));//设置纹理着色器的颜色
         texture->Bind();//绑定纹理
 

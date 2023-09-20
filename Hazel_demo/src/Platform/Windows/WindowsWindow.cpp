@@ -25,16 +25,22 @@ namespace Hazel {
 	//构造函数，做些想做的，做完了准备Init
 	WindowsWindow::WindowsWindow(const WindowProps & props)
 	{
+		HZ_PROFILE_FUNCTION();//获取函数签名
+
 		Init(props);
 	}
 
 	WindowsWindow::~WindowsWindow()
 	{
+		HZ_PROFILE_FUNCTION();//获取函数签名
+
 		Shutdown();
 	}
 
 	void WindowsWindow::Init(const WindowProps& props)
 	{
+		HZ_PROFILE_FUNCTION();//获取函数签名
+
 		//首先 解包出传入的参数
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
@@ -46,6 +52,8 @@ namespace Hazel {
 		// Make sure to initialize GLFW only once, along with the first window
 		if (s_GLFWWindowCount == 0)
 		{
+			HZ_PROFILE_SCOPE("glfwInit");//创建一个测试计时器
+
 			//如果GLFW没有初始化，在这里对其初始化
 			int success = glfwInit();
 			//下个断言，确保真的初始化了，之所以要进行赋值再查断言的原因是因为
@@ -55,10 +63,13 @@ namespace Hazel {
 			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 
-		//所需的信息已经齐全，用glfwCreateWindow创建一个glfwWindow并返回指针
-		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		++s_GLFWWindowCount;
+		{
+			HZ_PROFILE_SCOPE("glfwCreateWindow");//创建一个测试计时器名为glfwCreateWindow
 
+			//所需的信息已经齐全，用glfwCreateWindow创建一个glfwWindow并返回指针
+			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
+			++s_GLFWWindowCount;
+		}
 		m_Context = GraphicsContext::Create(m_Window);
 		m_Context->Init();
 
@@ -160,6 +171,8 @@ namespace Hazel {
 
 	void WindowsWindow::Shutdown()
 	{
+		HZ_PROFILE_FUNCTION();//获取函数签名
+
 		glfwDestroyWindow(m_Window);
 		--s_GLFWWindowCount;
 
@@ -171,6 +184,8 @@ namespace Hazel {
 
 	void WindowsWindow::OnUpdate()
 	{
+		HZ_PROFILE_FUNCTION();//获取函数签名
+
 		//每次update时，处理当前在队列中的事件
 		glfwPollEvents();
 		//刷新下一帧(严格来说是把Framebuffer后台帧换到前台，把Framebuffer当前帧换到后台，
@@ -180,6 +195,8 @@ namespace Hazel {
 
 	void WindowsWindow::SetVsync(bool enabled)
 	{
+		HZ_PROFILE_FUNCTION();//获取函数签名
+
 		// If w/out brace, only 1 closest line will be executed
 		// 这里的1/0并不是开/关的意思，而是下一帧Swap之间要等多少次Screen Update。。。
 		// 但是glfwSwapInterval内部封装了对应平台的vsync函数，所以基本上就是开关的意思。。。

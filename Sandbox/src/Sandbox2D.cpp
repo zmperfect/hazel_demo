@@ -11,11 +11,14 @@ Sandbox2D::Sandbox2D()
 
 void Sandbox2D::OnAttach()
 {
+    HZ_PROFILE_FUNCTION();//获取函数签名
+
     m_CheckerboardTexture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
 }
 
 void Sandbox2D::OnDetach()
 {
+    HZ_PROFILE_FUNCTION();//获取函数签名
 }
 
 void Sandbox2D::OnUpdate(Hazel::Timestep ts)
@@ -23,10 +26,7 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
     HZ_PROFILE_FUNCTION();//获取函数签名
 
     // Update
-    {
-        HZ_PROFILE_SCOPE("CameraController::OnUpdate");//获取作用域
-        m_CameraController.OnUpdate(ts);
-    }
+    m_CameraController.OnUpdate(ts);
 
     // Render
     {
