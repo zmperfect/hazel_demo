@@ -1334,6 +1334,6 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsContext.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\GraphicsContext.cpp" />
   </ItemGroup>
 </Project>
