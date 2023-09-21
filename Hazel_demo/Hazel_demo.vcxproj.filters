@@ -84,7 +84,7 @@
     <ClInclude Include="src\Hazel\Core\Log.h">
       <Filter>src\Hazel\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Hazel\Core\MouseButtonCodes.h">
+    <ClInclude Include="src\Hazel\Core\MouseCodes.h">
       <Filter>src\Hazel\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Hazel\Core\Timestep.h">
