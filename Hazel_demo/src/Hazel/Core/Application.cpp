@@ -60,10 +60,10 @@ namespace Hazel {
 		dispatcher.Dispatch<WindowCloseEvent>(HZ_BIND_EVENT_FN(Application::OnWindowClose));//将窗口关闭事件分发给OnWindowClose函数
 		dispatcher.Dispatch<WindowResizeEvent>(HZ_BIND_EVENT_FN(Application::OnWindowResize));//将窗口大小改变事件分发给OnWindowResize函数
 
-		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )//从后往前遍历
+		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it )//从后往前遍历
 		{
-			(*--it)->OnEvent(e);//将事件传递给每一个layer
-			if (e.Handled)
+			(*it)->OnEvent(e);//将事件传递给每一个layer
+			if (e.Handled)//如果事件被处理则跳出循环
 				break;
 		}
 	}
