@@ -5,9 +5,39 @@
 
 namespace Hazel {
 
+    //简单的异常处理，用于glDebugMessageCallback()
+    void OpenGLMessageCallback(
+        unsigned source,
+        unsigned type,
+        unsigned id,
+        unsigned severity,
+        int length,
+        const char* message,
+        const void* userParam)
+    {
+        switch (severity)
+        {
+            case GL_DEBUG_SEVERITY_HIGH:         HZ_CORE_CRITICAL(message); return;//严重错误
+            case GL_DEBUG_SEVERITY_MEDIUM:       HZ_CORE_ERROR(message); return;//错误
+            case GL_DEBUG_SEVERITY_LOW:          HZ_CORE_WARN(message); return;//警告
+            case GL_DEBUG_SEVERITY_NOTIFICATION: HZ_CORE_TRACE(message); return;//通知
+        }
+
+        HZ_CORE_ASSERT(false, "Unknown severity level!");//未知错误
+    }
+
     void OpenGLRendererAPI::Init()
     {
         HZ_PROFILE_FUNCTION();//获取函数签名
+
+        #ifdef HZ_DEBUG
+            glEnable(GL_DEBUG_OUTPUT);//启用调试输出
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);//启用调试输出同步
+            glDebugMessageCallback(OpenGLMessageCallback, nullptr);//调试消息回调函数
+
+            //设置调试消息的输出方式
+            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+        #endif
 
         glEnable(GL_BLEND);//允许混合
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//混合函数

@@ -5,6 +5,8 @@
 #include "Hazel/Events/MouseEvent.h"
 #include "Hazel/Events/KeyEvent.h"
 
+#include "Hazel/Renderer/Renderer.h"
+
 #include <Platform/OpenGL/OpenGLContext.h>
 
 namespace Hazel {
@@ -65,6 +67,12 @@ namespace Hazel {
 
 		{
 			HZ_PROFILE_SCOPE("glfwCreateWindow");//创建一个测试计时器名为glfwCreateWindow
+
+			#if defined(HZ_DEBUG)
+				//如果是Debug Build，就开启OpenGL Debug Context
+                if (Renderer::GetAPI() == RendererAPI::API::OpenGL)
+                    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+			#endif
 
 			//所需的信息已经齐全，用glfwCreateWindow创建一个glfwWindow并返回指针
 			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
