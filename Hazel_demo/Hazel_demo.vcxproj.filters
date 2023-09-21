@@ -1343,5 +1343,7 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hazel\Core\Input.cpp" />
+    <ClCompile Include="src\Platform\Windows\Window.cpp" />
   </ItemGroup>
 </Project>
