@@ -3,16 +3,22 @@
 #include <algorithm>
 #include <chrono>
 #include <fstream>
+#include <iomanip>
 
 #include <string>
 #include <thread>
 
 namespace Hazel {
+
+    using FloatingPointMicroseconds = std::chrono::duration<double, std::micro>;//微秒
+
     //测试用的类
     struct ProfileResult
     {
         std::string Name;//测试的名字
-        long long Start, End;//开始时间和结束时间
+        
+        FloatingPointMicroseconds Start;//开始时间
+        std::chrono::microseconds ElapsedTime;//经过的时间
         std::thread::id ThreadID;//线程的ID
     };
 
@@ -73,14 +79,15 @@ namespace Hazel {
             std::replace(name.begin(), name.end(), '"', '\'');//将双引号替换为单引号
 
             //将测试结果写入json字符串流中
+            json << std::setprecision(3) << std::fixed;//设置精度
             json << ",{";
 			json << "\"cat\":\"function\",";
-			json << "\"dur\":" << (result.End - result.Start) << ',';
+			json << "\"dur\":" << (result.ElapsedTime.count()) << ',';
             json << "\"name\":\"" << name << "\",";
             json << "\"ph\":\"X\",";
             json << "\"pid\":0,";
             json << "\"tid\":" << result.ThreadID << ",";
-            json << "\"ts\":" << result.Start;
+            json << "\"ts\":" << result.Start.count();
             json << "}";
 
             std::lock_guard lock(m_Mutex);//加锁
@@ -130,7 +137,7 @@ namespace Hazel {
         InstrumentationTimer(const char* name)
             : m_Name(name), m_Stopped(false)
         {
-            m_StartTimepoint = std::chrono::high_resolution_clock::now();//获取当前时间
+            m_StartTimepoint = std::chrono::steady_clock::now();//获取当前时间
         }
 
         ~InstrumentationTimer()
@@ -141,18 +148,17 @@ namespace Hazel {
 
         void Stop()
         {
-            auto endTimepoint = std::chrono::high_resolution_clock::now();//获取当前时间
+            auto endTimepoint = std::chrono::steady_clock::now();//获取当前时间
+            auto highResStart = FloatingPointMicroseconds{ m_StartTimepoint.time_since_epoch() };//开始时间
+            auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch();//经过的时间
 
-            long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();//开始时间转换
-            long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();//结束时间转换
-
-            Instrumentor::Get().WriteProfile({ m_Name, start, end, std::this_thread::get_id() });//获取线程ID并写入测试结果
+            Instrumentor::Get().WriteProfile({ m_Name, highResStart, elapsedTime, std::this_thread::get_id() });//获取线程ID并写入测试结果
 
             m_Stopped = true;
         }
     private:
         const char* m_Name;//测试的名字
-        std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint;//开始时间
+        std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;//开始时间
         bool m_Stopped;//是否停止
     };
 }
