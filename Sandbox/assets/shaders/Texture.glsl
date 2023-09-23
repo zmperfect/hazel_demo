@@ -27,9 +27,10 @@ layout(location = 0) out vec4 color;//颜色
 in vec2 v_TexCoord;//纹理坐标
 
 uniform vec4 u_Color;//颜色
+uniform float u_TilingFactor;//平铺因子
 uniform sampler2D u_Texture;//采样器
 
 void main()
 {
-	color = texture(u_Texture, v_TexCoord * 10.0) * u_Color;//纹理采样
+	color = texture(u_Texture, v_TexCoord * u_TilingFactor) * u_Color;//纹理采样
 }

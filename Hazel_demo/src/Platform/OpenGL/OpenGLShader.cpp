@@ -205,6 +205,13 @@ namespace Hazel {
         UploadUniformInt(name, value);//上传整型,设置uniform
     }
 
+    void OpenGLShader::SetFloat(const std::string& name, float value)
+    {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
+        UploadUniformFloat(name, value);//上传浮点型,设置uniform
+    }
+
     void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
     {
         HZ_PROFILE_FUNCTION();//获取函数签名

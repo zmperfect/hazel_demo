@@ -19,6 +19,7 @@ namespace Hazel {
         virtual void Unbind() const override;//解绑shader
 
         virtual void SetInt(const std::string& name, int value) override;//设置int类型的uniform
+        virtual void SetFloat(const std::string& name, float value) override;//设置float类型的uniform
         virtual void SetFloat3(const std::string & name, const glm::vec3 & value) override;//设置float3类型的uniform
         virtual void SetFloat4(const std::string & name, const glm::vec4 & value) override;//设置float4类型的uniform
         virtual void SetMat4(const std::string & name, const glm::mat4 & value) override;//设置mat4类型的uniform
