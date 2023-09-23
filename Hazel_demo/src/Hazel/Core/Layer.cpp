@@ -7,5 +7,5 @@ namespace Hazel {
 		: m_DebugName(debugName)
 	{
 	}
-
-}	
+	
+}
