@@ -18,19 +18,43 @@
     <ClCompile Include="src\SandboxApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Sandbox2D.cpp">
+    <ClCompile Include="src\GameLayer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\ExampleLayer.cpp">
+    <ClCompile Include="src\Level.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ParticleSystem.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Random.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Sandbox2D.h">
+    <ClInclude Include="src\Color.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\ExampleLayer.h">
+    <ClInclude Include="src\GameLayer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\Level.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ParticleSystem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Random.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="assets\OpenSans-Regular.ttf" />
   </ItemGroup>
 </Project>
