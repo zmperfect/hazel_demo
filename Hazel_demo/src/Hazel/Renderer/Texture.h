@@ -17,6 +17,8 @@ namespace Hazel {
         virtual void SetData(void* data, uint32_t size) = 0;//设置纹理数据
 
         virtual void Bind(uint32_t slot = 0) const = 0;
+
+        virtual bool operator==(const Texture& other) const = 0;//判断两个纹理是否相等
     };
 
     class Texture2D : public Texture

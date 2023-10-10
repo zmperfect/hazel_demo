@@ -58,7 +58,7 @@ namespace Hazel {
 			//下个断言，确保真的初始化了，之所以要进行赋值再查断言的原因是因为
 			//如果直接断言glfwInit()，在Release或者Ship Build中，这个断言的宏可能直接被ignore了
 			//因而打包出来的版本根本不会进行初始化。
-			HZ_CORE_ASSERT(success, "Could not intialize GLFW!");
+			HZ_CORE_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 

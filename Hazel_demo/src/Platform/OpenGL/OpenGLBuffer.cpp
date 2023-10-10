@@ -65,7 +65,10 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();//获取函数签名
 
-		glCreateBuffers(1, &m_RendererID);
+		glCreateBuffers(1, &m_RendererID);//创建一个缓冲区
+
+        // GL_ELEMENT_ARRAY_BUFFER is not valid without an actively bound VAO
+        // Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state. 
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);//绑定到GL_ARRAY_BUFFER
 		glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);//将数据传入
 	}

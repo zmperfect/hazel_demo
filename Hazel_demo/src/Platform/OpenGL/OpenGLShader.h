@@ -19,6 +19,7 @@ namespace Hazel {
         virtual void Unbind() const override;//解绑shader
 
         virtual void SetInt(const std::string& name, int value) override;//设置int类型的uniform
+        virtual void SetIntArray(const std::string& name, int* values, uint32_t count) override;//设置int数组类型的uniform
         virtual void SetFloat(const std::string& name, float value) override;//设置float类型的uniform
         virtual void SetFloat3(const std::string & name, const glm::vec3 & value) override;//设置float3类型的uniform
         virtual void SetFloat4(const std::string & name, const glm::vec4 & value) override;//设置float4类型的uniform
@@ -28,6 +29,7 @@ namespace Hazel {
 
         //一个GLSL shader中的全局常量，可以随意在任意shader(vertex shader, geometry shader, or fragment shader)访问，不同的shader中uniform是一起链接的，初始化之后，不能修改其值，否则会引起编译错误。
         void UploadUniformInt(const std::string& name, int value);//上传int类型的uniform
+        void UploadUniformIntArray(const std::string& name, int* values, uint32_t count);//上传int数组类型的uniform
 
         void UploadUniformFloat(const std::string& name, float value);//上传float类型的uniform
         void UploadUniformFloat2(const std::string& name, const glm::vec2& value);//上传float2类型的uniform
