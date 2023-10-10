@@ -26,9 +26,9 @@ namespace Hazel {
 		void PushLayer(Layer* layer);//将一个Layer压入LayerStack
 		void PushOverlay(Layer* layer);//将一个Layer压入LayerStack的顶部
 
-		inline Window& GetWindow() { return *m_Window; }
+		Window& GetWindow() { return *m_Window; }
 
-		inline static Application& Get() { return *s_Instance; }
+		static Application& Get() { return *s_Instance; }
 	private:
 		void Run();//运行Application
 		bool OnWindowClose(WindowCloseEvent& e);//处理窗口关闭事件

@@ -21,7 +21,7 @@ namespace Hazel {
 
         virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t count = 0) = 0;//绘制顶点数组
 
-        inline static API GetAPI() { return s_API; }//获取API
+        static API GetAPI() { return s_API; }//获取API
         static Scope<RendererAPI> Create();//创建
 
     private:
