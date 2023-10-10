@@ -1265,6 +1265,9 @@
     <ClCompile Include="src\Hazel\Core\Application.cpp">
       <Filter>src\Hazel\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hazel\Core\Input.cpp">
+      <Filter>src\Hazel\Core</Filter>
+    </ClCompile>
     <ClCompile Include="src\Hazel\Core\Layer.cpp">
       <Filter>src\Hazel\Core</Filter>
     </ClCompile>
@@ -1331,6 +1334,9 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\Window.cpp">
+      <Filter>src\Platform\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
@@ -1343,7 +1349,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Hazel\Core\Input.cpp" />
-    <ClCompile Include="src\Platform\Windows\Window.cpp" />
   </ItemGroup>
 </Project>

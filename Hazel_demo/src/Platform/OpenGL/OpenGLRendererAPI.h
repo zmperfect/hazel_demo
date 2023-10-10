@@ -13,6 +13,6 @@ namespace Hazel {
         virtual void SetClearColor(const glm::vec4& color) override;//设置清除颜色
         virtual void Clear() override;//清除
 
-        virtual void DrawIndexed(const Ref<VertexArray>& vertexArray) override;//绘制顶点数组
+        virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;//绘制顶点数组
     };
 }

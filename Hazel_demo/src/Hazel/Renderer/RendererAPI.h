@@ -19,7 +19,7 @@ namespace Hazel {
         virtual void SetClearColor(const glm::vec4& color) = 0;//设置清除颜色
         virtual void Clear() = 0;//清除
 
-        virtual void DrawIndexed(const Ref<VertexArray>& vertexArray) = 0;//绘制顶点数组
+        virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t count = 0) = 0;//绘制顶点数组
 
         inline static API GetAPI() { return s_API; }//获取API
         static Scope<RendererAPI> Create();//创建

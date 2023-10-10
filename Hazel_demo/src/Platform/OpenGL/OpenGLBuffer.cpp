@@ -9,6 +9,17 @@ namespace Hazel {
 	// VertexBuffer /////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 
+	//创建一个顶点缓冲区,指针为空,大小为size
+    OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
+    {
+        HZ_PROFILE_FUNCTION();//获取函数签名
+
+        glCreateBuffers(1, &m_RendererID);
+        glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+        glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_STATIC_DRAW);
+    }
+
+	//创建一个顶点缓冲区，指针为vertices，大小为size
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
 	{
 		HZ_PROFILE_FUNCTION();//获取函数签名
@@ -38,6 +49,12 @@ namespace Hazel {
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
+
+	void OpenGLVertexBuffer::SetData(const void* data, uint32_t size)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);//绑定到GL_ARRAY_BUFFER
+        glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);//将数据传入
+    }
 
 	/////////////////////////////////////////////////////////////////////////////
 	// IndexBuffer //////////////////////////////////////////////////////////////
