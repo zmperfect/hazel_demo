@@ -36,13 +36,16 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
     }
 
     {
+        static float rotation = 0.0f;//旋转角度
+        rotation += ts * 50.0f;
+
         HZ_PROFILE_SCOPE("Renderer Draw");
         Hazel::Renderer2D::BeginScene(m_CameraController.GetCamera());//开始渲染场景
-        // Hazel::Renderer2D::DrawRotatedQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, glm::radians(-45.0f), { 0.8f, 0.2f, 0.3f, 1.0f });//绘制旋转矩形，位置，大小，旋转角度，颜色
+        Hazel::Renderer2D::DrawRotatedQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, -45.0f, { 0.8f, 0.2f, 0.3f, 1.0f });//绘制旋转矩形，位置，大小，旋转角度，颜色
         Hazel::Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });
         Hazel::Renderer2D::DrawQuad({ 0.5f, -0.5f }, { 0.5f, 0.75f }, { 0.2f, 0.3f, 0.8f, 1.0f });
-        Hazel::Renderer2D::DrawQuad({ -5.0f, -5.0f, -0.1f }, { 10.0f, 10.0f }, m_CheckerboardTexture, 10.0f);//绘制背景
-        Hazel::Renderer2D::DrawQuad({ -0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f }, m_CheckerboardTexture, 20.0f);//绘制前景
+        Hazel::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, m_CheckerboardTexture, 10.0f);
+        Hazel::Renderer2D::DrawRotatedQuad({ -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, rotation, m_CheckerboardTexture, 20.0f);
         Hazel::Renderer2D::EndScene();//结束渲染场景
     }
 }
