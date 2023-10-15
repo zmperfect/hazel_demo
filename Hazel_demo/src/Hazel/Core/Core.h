@@ -37,12 +37,22 @@
 #endif // 平台检测结束
 
 #ifdef HZ_DEBUG//判断是否为debug模式
+    #if defined(HZ_PLATFORM_WINDOWS)//Windows平台
+        #define HZ_DEBUGBREAK() __debugbreak()//中断程序
+    #elif defined(HZ_PLATFORM_LINUX)//Linux平台
+        #include <signal.h>
+        #define HZ_DEBUGBREAK() raise(SIGTRAP)//中断程序
+    #else//未知平台
+        #error "Platform doesn't support debugbreak yet!"
+    #endif
 	#define HZ_ENABLE_ASSERTS//启用断言
+#else//非Debug模式
+    #define HZ_DEBUGBREAK()//不中断程序
 #endif
 
 #ifdef HZ_ENABLE_ASSERTS//启用断言
-	#define HZ_ASSERT(x, ...) { if(!(x)) { HZ_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }//断言失败，输出错误信息，中断程序
-	#define HZ_CORE_ASSERT(x, ...) { if(!(x)) { HZ_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }//断言失败，输出错误信息，中断程序
+	#define HZ_ASSERT(x, ...) { if(!(x)) { HZ_ERROR("Assertion Failed: {0}", __VA_ARGS__); HZ_DEBUGBREAK(); } }//断言失败，输出错误信息，中断程序
+	#define HZ_CORE_ASSERT(x, ...) { if(!(x)) { HZ_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); HZ_DEBUGBREAK(); } }//断言失败，输出错误信息，中断程序
 #else
 	#define HZ_ASSERT(x, ...)//断言失败，不输出错误信息，不中断程序
 	#define HZ_CORE_ASSERT(x, ...)//断言失败，不输出错误信息，不中断程序
