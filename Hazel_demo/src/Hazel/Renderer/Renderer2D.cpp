@@ -129,7 +129,7 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();
 
-		uint32_t dataSize = (uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase;//数据大小
+		uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);//数据大小
 		s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);//设置方形顶点缓冲区数据
 
 		Flush();//刷新
@@ -137,6 +137,9 @@ namespace Hazel {
 
 	void Renderer2D::Flush()
 	{
+		if(s_Data.QuadIndexCount == 0)//方形索引数量为0
+            return;//没啥要画的
+
 		// 绑定纹理
 		for (uint32_t i = 0; i < s_Data.TextureSlotIndex; i++)
 			s_Data.TextureSlots[i]->Bind(i);
@@ -203,7 +206,6 @@ namespace Hazel {
 		HZ_PROFILE_FUNCTION();
 
         constexpr size_t quadVertexCount = 4;//方形顶点数量
-        constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };//设置一个静态的颜色
         constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } }; //纹理坐标
 
 		//如果方形索引数量大于最大方形索引数量,则刷新并重置
@@ -223,6 +225,9 @@ namespace Hazel {
 
 		if (textureIndex == 0.0f)
 		{
+            if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
+                FlushAndReset();
+
 			textureIndex = (float)s_Data.TextureSlotIndex;//设置纹理索引
 			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;//将纹理放入纹理槽
 			s_Data.TextureSlotIndex++;
@@ -236,7 +241,7 @@ namespace Hazel {
 		for (size_t i = 0; i < quadVertexCount; i++)
 		{
 			s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];//位置
-            s_Data.QuadVertexBufferPtr->Color = color;//颜色
+            s_Data.QuadVertexBufferPtr->Color = tintColor;//颜色
             s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];//纹理坐标
             s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;//纹理索引
             s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;//平铺因子
@@ -298,7 +303,6 @@ namespace Hazel {
 		HZ_PROFILE_FUNCTION();
 
 		constexpr size_t quadVertexCount = 4;//方形顶点数量
-		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };//颜色
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };//纹理坐标
 
 		//如果方形索引数量大于最大方形索引数量,则刷新并重置
@@ -317,6 +321,9 @@ namespace Hazel {
 
 		if (textureIndex == 0.0f)
 		{
+            if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
+                FlushAndReset();
+
 			textureIndex = (float)s_Data.TextureSlotIndex;//纹理索引为纹理槽的索引
             s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;//纹理槽中的纹理为传入的纹理
             s_Data.TextureSlotIndex++;//纹理槽索引加一
@@ -330,7 +337,7 @@ namespace Hazel {
 		for (size_t i = 0; i < quadVertexCount; i++)
 		{
             s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
-            s_Data.QuadVertexBufferPtr->Color = color;
+            s_Data.QuadVertexBufferPtr->Color = tintColor;
             s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];
             s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
             s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;

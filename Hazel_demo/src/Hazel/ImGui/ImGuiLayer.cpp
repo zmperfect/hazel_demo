@@ -64,6 +64,14 @@ namespace Hazel {
         ImGui::DestroyContext();//销毁Imgui上下文
 	}
 
+    void ImGuiLayer::OnEvent(Event& e)
+    {
+        //处理事件
+        ImGuiIO& io = ImGui::GetIO();//获取Imgui的IO
+        e.Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;//判断是否在鼠标事件中，且Imgui是否需要捕获鼠标
+        e.Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;//判断是否在键盘事件中，且Imgui是否需要捕获键盘
+    }
+
 	void ImGuiLayer::Begin()
 	{
         HZ_PROFILE_FUNCTION();//获取函数签名

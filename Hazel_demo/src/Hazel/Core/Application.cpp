@@ -62,9 +62,9 @@ namespace Hazel {
 
 		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it )//从后往前遍历
 		{
-			(*it)->OnEvent(e);//将事件传递给每一个layer
 			if (e.Handled)//如果事件被处理则跳出循环
 				break;
+			(*it)->OnEvent(e);//将事件传递给每一个layer
 		}
 	}
 
