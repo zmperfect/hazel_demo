@@ -22,9 +22,9 @@ namespace Hazel {
 	//渲染数据
 	struct Renderer2DData
 	{
-		const uint32_t MaxQuads = 10000;//最大方形数量
-		const uint32_t MaxVertices = MaxQuads * 4;//最大顶点数量
-		const uint32_t MaxIndices = MaxQuads * 6;//最大索引数量
+		static const uint32_t MaxQuads = 20000;//最大方形数量
+		static const uint32_t MaxVertices = MaxQuads * 4;//最大顶点数量
+		static const uint32_t MaxIndices = MaxQuads * 6;//最大索引数量
 		static const uint32_t MaxTextureSlots = 32; // 最大纹理槽数 TODO: RenderCaps
 
 		Ref<VertexArray> QuadVertexArray;//方形顶点数组
@@ -40,6 +40,8 @@ namespace Hazel {
 		uint32_t TextureSlotIndex = 1; // 纹理槽索引，0 = white texture
 
 		glm::vec4 QuadVertexPositions[4];//方形顶点位置
+
+		Renderer2D::Statistics Stats;//统计
 	};
 
 	static Renderer2DData s_Data;//渲染器2D数据
@@ -140,7 +142,18 @@ namespace Hazel {
 			s_Data.TextureSlots[i]->Bind(i);
 
 		RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);//按索引绘制
+		s_Data.Stats.DrawCalls++;//绘制调用次数++
 	}
+
+	void Renderer2D::FlushAndReset()
+	{
+        EndScene();//结束场景
+
+        s_Data.QuadIndexCount = 0;//方形索引数量
+        s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;//方形顶点缓冲区指针
+
+        s_Data.TextureSlotIndex = 1;//纹理槽索引
+    }
 
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
 	{
@@ -150,6 +163,10 @@ namespace Hazel {
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
 		HZ_PROFILE_FUNCTION();
+
+		//如果方形索引数量大于最大方形索引数量,则刷新并重置
+		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+            FlushAndReset();
 
 		const float textureIndex = 0.0f; // White Texture
 		const float tilingFactor = 1.0f;//平铺因子
@@ -189,6 +206,7 @@ namespace Hazel {
 
 		s_Data.QuadIndexCount += 6;
 
+		s_Data.Stats.QuadCount++;//方形数量++
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
@@ -199,6 +217,10 @@ namespace Hazel {
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		HZ_PROFILE_FUNCTION();
+
+		//如果方形索引数量大于最大方形索引数量,则刷新并重置
+		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+            FlushAndReset();
 
 		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };//设置一个静态的颜色
 
@@ -254,6 +276,7 @@ namespace Hazel {
 
 		s_Data.QuadIndexCount += 6;
 
+		s_Data.Stats.QuadCount++;//方形数量++
 	}
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
@@ -265,6 +288,10 @@ namespace Hazel {
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
 		HZ_PROFILE_FUNCTION();
+
+		//如果方形索引数量大于最大方形索引数量,则刷新并重置
+		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+            FlushAndReset();
 
 		const float textureIndex = 0.0f;//纹理索引
 		const float tilingFactor = 1.0f;//平铺因子
@@ -303,6 +330,8 @@ namespace Hazel {
         s_Data.QuadVertexBufferPtr++;
 
         s_Data.QuadIndexCount += 6;
+
+		s_Data.Stats.QuadCount++;//方形数量++
 	}
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
@@ -313,6 +342,10 @@ namespace Hazel {
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		HZ_PROFILE_FUNCTION();
+
+		//如果方形索引数量大于最大方形索引数量,则刷新并重置
+		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+            FlushAndReset();
 
 		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };//颜色
 
@@ -367,6 +400,17 @@ namespace Hazel {
 
         s_Data.QuadIndexCount += 6;
 
+		s_Data.Stats.QuadCount++;//方形数量++
+	}
+
+	void Renderer2D::ResetStats()
+	{
+        memset(&s_Data.Stats, 0, sizeof(Statistics));//将统计数据清零
+    }
+
+	Renderer2D::Statistics Renderer2D::GetStats()
+	{
+		return s_Data.Stats;
 	}
 
 }
