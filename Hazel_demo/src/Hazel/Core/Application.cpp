@@ -52,6 +52,11 @@ namespace Hazel {
 		layer->OnAttach();//将overlay附加到窗口上
 	}
 
+	void Application::Close()
+    {
+        m_Running = false;
+    }
+
 	void Application::OnEvent(Event& e)
 	{
 		HZ_PROFILE_FUNCTION();//获取函数签名
