@@ -11,6 +11,8 @@ namespace Hazel {
 	protected:
 		Input() = default;
 	public:
+		virtual ~Input() = default;
+
 		Input(const Input&) = delete;//禁止拷贝构造和赋值构造
 		Input& operator=(const Input&) = delete;//禁止拷贝构造和赋值构造
 

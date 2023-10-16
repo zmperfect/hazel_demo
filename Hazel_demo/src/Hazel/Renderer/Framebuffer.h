@@ -18,6 +18,8 @@ namespace Hazel {
     class Framebuffer
     {
     public:
+        virtual ~Framebuffer() = default;
+
         virtual void Bind() = 0;//°ó¶¨
         virtual void Unbind() = 0;//½â°ó
 
