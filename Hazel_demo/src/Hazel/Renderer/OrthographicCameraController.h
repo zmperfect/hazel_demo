@@ -16,6 +16,8 @@ namespace Hazel {
         void OnUpdate(Timestep ts);//更新相机控制器
         void OnEvent(Event& e);//处理事件
 
+        void OnResize(float width, float height);//处理窗口大小改变事件
+
         OrthographicCamera& GetCamera() { return m_Camera; }
         const OrthographicCamera& GetCamera() const { return m_Camera; }
 

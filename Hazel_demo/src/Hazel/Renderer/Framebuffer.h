@@ -21,6 +21,8 @@ namespace Hazel {
         virtual void Bind() = 0;//绑定
         virtual void Unbind() = 0;//解绑
 
+        virtual void Resize(uint32_t width, uint32_t height) = 0;//调整大小
+
         virtual uint32_t GetColorAttachmentRendererID() const = 0;//获取颜色附件渲染器ID
 
         virtual const FramebufferSpecification& GetSpecification() const = 0;//获取规范

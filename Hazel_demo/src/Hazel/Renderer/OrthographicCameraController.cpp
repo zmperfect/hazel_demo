@@ -76,6 +76,12 @@ namespace Hazel {
         dispatcher.Dispatch<WindowResizeEvent>(HZ_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));//分发窗口大小改变事件
     }
 
+    void OrthographicCameraController::OnResize(float width, float height)
+    {
+        m_AspectRatio = width / height;//宽高比等于宽度除以高度
+        m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);//设置相机投影矩阵
+    }
+
     bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& e)
     {
         HZ_PROFILE_FUNCTION();//获取函数签名
@@ -90,8 +96,7 @@ namespace Hazel {
     {
         HZ_PROFILE_FUNCTION();//获取函数签名
 
-        m_AspectRatio = (float)e.GetWidth() / (float)e.GetHeight();//宽高比等于窗口宽度除以窗口高度
-        m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);//设置相机投影矩阵
+        OnResize((float)e.GetWidth(), (float)e.GetHeight());//调用OnResize函数
         return false;
     }
 }
