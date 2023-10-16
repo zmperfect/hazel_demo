@@ -7,6 +7,10 @@
 Sandbox2D::Sandbox2D()
 		: Layer("Sandbox2D"), m_CameraController(1280.0f / 720.0f), m_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
 {
+    Hazel::FramebufferSpecification fbSpec;//帧缓冲区规范
+    fbSpec.Width = 1280;
+    fbSpec.Height = 720;
+    m_Framebuffer = Hazel::Framebuffer::Create(fbSpec);//创建帧缓冲区
 }
 
 void Sandbox2D::OnAttach()
@@ -32,6 +36,7 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
     Hazel::Renderer2D::ResetStats();//重置渲染器统计数据
     {
         HZ_PROFILE_SCOPE("Renderer Prep");
+        m_Framebuffer->Bind();//绑定帧缓冲区
         Hazel::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });//{ 0.1f, 0.1f, 0.1f, 1 }指的是RGBA，即红绿蓝透明度，范围是0~1
         Hazel::RenderCommand::Clear();//清除颜色缓冲区和深度缓冲区
     }
@@ -59,6 +64,7 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
             }
         }
         Hazel::Renderer2D::EndScene();//结束渲染场景
+        m_Framebuffer->Unbind();//解绑帧缓冲区
     }
 }
 
@@ -67,7 +73,7 @@ void Sandbox2D::OnImGuiRender()
     HZ_PROFILE_FUNCTION();//获取函数签名
 
     //注意：将dockingEnabled设置为true来启动dockspace
-    static bool dockingEnabled = false;
+    static bool dockingEnabled = true;
     if (dockingEnabled)
     {
         static bool dockspaceOpen = true;//dockspace是否打开
@@ -140,8 +146,8 @@ void Sandbox2D::OnImGuiRender()
 
         ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));//编辑颜色
 
-        uint32_t textureID = m_CheckerboardTexture->GetRendererID();//获取纹理ID
-        ImGui::Image((void*)textureID, ImVec2{ 256.0f, 256.0f });//显示纹理
+        uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();//获取纹理ID
+        ImGui::Image((void*)textureID, ImVec2{ 1280, 720 });//显示纹理
         ImGui::End();
 
         ImGui::End();//结束设置
@@ -161,7 +167,7 @@ void Sandbox2D::OnImGuiRender()
         ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));//编辑颜色
 
         uint32_t textureID = m_CheckerboardTexture->GetRendererID();//获取纹理ID
-        ImGui::Image((void*)textureID, ImVec2{ 256.0f, 256.0f });//显示纹理
+        ImGui::Image((void*)textureID, ImVec2{ 1280, 720 });//显示纹理
         ImGui::End();//结束设置
     }
 }
