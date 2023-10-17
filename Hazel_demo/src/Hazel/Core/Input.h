@@ -8,31 +8,12 @@ namespace Hazel {
 
 	class Input
 	{
-	protected:
-		Input() = default;
 	public:
-		virtual ~Input() = default;
-
-		Input(const Input&) = delete;//禁止拷贝构造和赋值构造
-		Input& operator=(const Input&) = delete;//禁止拷贝构造和赋值构造
-
-		static bool IsKeyPressed(KeyCode key) { return s_Instance->IsKeyPressedImpl(key); }
-
-		static bool IsMouseButtonPressed(MouseCode button) { return s_Instance->IsMouseButtonPressedImpl(button); }
-		static std::pair<float, float> GetMousePosition() { return s_Instance->GetMousePositionImpl(); }
-		static float GetMouseX() { return s_Instance->GetMouseXImpl(); }
-		static float GetMouseY() { return s_Instance->GetMouseYImpl(); }
-
-		static Scope<Input> Create();//创建一个Input对象
-	protected:
-		virtual bool IsKeyPressedImpl(KeyCode key) = 0;
-
-		virtual bool IsMouseButtonPressedImpl(MouseCode button) = 0;
-		virtual std::pair<float, float> GetMousePositionImpl() = 0;
-		virtual float GetMouseXImpl() = 0;
-		virtual float GetMouseYImpl() = 0;
-	private:
-		static Scope<Input> s_Instance;
+		static bool IsKeyPressed(KeyCode key);//是否按下某个键
+		static bool IsMouseButtonPressed(MouseCode button);//是否按下某个鼠标键
+		static std::pair<float, float> GetMousePosition();//获取鼠标位置
+		static float GetMouseX();//获取鼠标X坐标
+		static float GetMouseY();//获取鼠标Y坐标
 	};
 
 }
