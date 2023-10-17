@@ -30,6 +30,8 @@ namespace Hazel {
 
 		void Close();//关闭Application
 
+		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }//返回ImGuiLayer
+
 		static Application& Get() { return *s_Instance; }
 	private:
 		void Run();//运行Application

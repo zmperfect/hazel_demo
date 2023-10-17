@@ -32,8 +32,9 @@ namespace Hazel {
     {
         HZ_PROFILE_FUNCTION();//获取函数签名
 
-        // Update
-        m_CameraController.OnUpdate(ts);
+        // 视口聚焦时Update
+        if(m_ViewportFocused)
+            m_CameraController.OnUpdate(ts);
 
         // Render
         Hazel::Renderer2D::ResetStats();//重置渲染器统计数据
@@ -150,6 +151,11 @@ namespace Hazel {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });//设置窗口填充
         ImGui::Begin("Viewport");//开始视口
+
+        m_ViewportFocused = ImGui::IsWindowFocused();//视口是否聚焦
+        m_ViewportHovered = ImGui::IsWindowHovered();//视口是否悬停
+        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);//阻止事件
+
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();//获取视口面板大小
         if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize))//如果视口大小改变
         {
