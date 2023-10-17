@@ -32,6 +32,17 @@ namespace Hazel {
     {
         HZ_PROFILE_FUNCTION();//获取函数签名
 
+        // Resize
+        // 修复调整视口大小时Hazelnut的黑色闪烁
+        //将“旧”大小的帧缓冲区渲染到“新”大小的ImGuiPanel上，并将“新”大小存储在m_ViewportSize中。下一帧将首先调整帧缓冲区的大小，因为在更新和渲染之前，m_ViewportSize与m_Framebuffer.Width/Height不同。这将导致从不渲染空（黑色）帧缓冲区。
+        if (Hazel::FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+            m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
+            (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+        {
+            m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+            m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
+        }
+
         // 视口聚焦时Update
         if(m_ViewportFocused)
             m_CameraController.OnUpdate(ts);
@@ -157,12 +168,8 @@ namespace Hazel {
         Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);//阻止事件
 
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();//获取视口面板大小
-        if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize))//如果视口大小改变
-        {
-            m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);//调整帧缓冲区大小
-            m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };//设置视口大小
-            m_CameraController.OnResize(viewportPanelSize.x, viewportPanelSize.y);//调整相机控制器大小
-        }
+        
+        m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };//设置视口大小
 
         uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();//获取纹理ID
         ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
