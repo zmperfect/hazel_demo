@@ -4,6 +4,16 @@
 
 namespace Hazel {
 
+	struct TagComponent//标签组件
+	{
+        std::string Tag;
+
+        TagComponent() = default;
+        TagComponent(const TagComponent&) = default;
+        TagComponent(const std::string& tag)//构造函数
+            : Tag(tag) {}
+    };
+
 	struct TransformComponent//变换组件
 	{
 		glm::mat4 Transform{ 1.0f };

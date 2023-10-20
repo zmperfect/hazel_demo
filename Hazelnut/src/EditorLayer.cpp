@@ -24,9 +24,9 @@ namespace Hazel {
 
         m_ActiveScene = CreateRef<Scene>();//创建场景
 
-        auto square = m_ActiveScene->CreateEntity();//创建实体
-        m_ActiveScene->Reg().emplace<TransformComponent>(square);//将变换组件添加到实体
-        m_ActiveScene->Reg().emplace<SpriteRendererComponent>(square, glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });//将精灵渲染器组件添加到实体
+        // Entity
+        auto square = m_ActiveScene->CreateEntity("Green Square");//创建绿色方形实体
+        square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });//添加精灵渲染器组件
 
         m_SquareEntity = square;//正方形实体
     }
@@ -145,9 +145,16 @@ namespace Hazel {
         ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
         ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 
-
-        auto& squareColor = m_ActiveScene->Reg().get<SpriteRendererComponent>(m_SquareEntity).Color;//获取方块颜色
-        ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));//编辑颜色
+        if (m_SquareEntity)//如果有方块实体
+        {
+            ImGui::Separator();//分割线
+            auto& tag = m_SquareEntity.GetComponent<TagComponent>().Tag;//获取方块实体的标签
+            ImGui::Text("%s", tag.c_str());//显示标签
+            
+            auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;//获取方块实体的颜色
+            ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));//编辑方块颜色
+            ImGui::Separator();//分割线
+        }
 
         ImGui::End();//结束设置
 
