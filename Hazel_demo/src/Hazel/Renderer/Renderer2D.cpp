@@ -167,6 +167,33 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();
 
+		//变换矩阵
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)//平移
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });//缩放
+
+		DrawQuad(transform, color);//变换矩阵，颜色
+	}
+
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	{
+		DrawQuad({ position.x, position.y, 0.0f }, size, texture, tilingFactor, tintColor);
+	}
+
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	{
+		HZ_PROFILE_FUNCTION();
+
+		//变换矩阵
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+
+		DrawQuad(transform, texture, tilingFactor);
+	}
+
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+	{
+		HZ_PROFILE_FUNCTION();
+
 		constexpr size_t quadVertexCount = 4;//方形顶点数量
 		const float textureIndex = 0.0f; // White Texture
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };//纹理坐标
@@ -175,10 +202,6 @@ namespace Hazel {
 		//如果方形索引数量大于最大方形索引数量,则刷新并重置
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
             FlushAndReset();
-
-		//变换矩阵
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)//平移
-            * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });//缩放
 
 		//设置方形顶点缓冲区
 		for (size_t i = 0; i < quadVertexCount; i++)
@@ -196,12 +219,12 @@ namespace Hazel {
 		s_Data.Stats.QuadCount++;//方形数量++
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
-		DrawQuad({ position.x, position.y, 0.0f }, size, texture, tilingFactor, tintColor);//位置(将z设为0)，大小，纹理，平铺因子，颜色
+		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, color);//位置(将z设为0)，大小，旋转角度，颜色
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		HZ_PROFILE_FUNCTION();
 
@@ -233,10 +256,6 @@ namespace Hazel {
 			s_Data.TextureSlotIndex++;
 		}
 
-		//变换矩阵
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-            * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
 		//设置方形顶点缓冲区
 		for (size_t i = 0; i < quadVertexCount; i++)
 		{
@@ -251,11 +270,6 @@ namespace Hazel {
 		s_Data.QuadIndexCount += 6;
 
 		s_Data.Stats.QuadCount++;//方形数量++
-	}
-
-	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
-	{
-		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, color);//位置(将z设为0)，大小，旋转角度，颜色
 	}
 
 	//旋转的方形

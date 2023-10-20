@@ -22,7 +22,10 @@ namespace Hazel {
         // Temp
         Ref<VertexArray> m_SquareVA;
         Ref<Shader> m_FlatColorShader;
-        Ref<Framebuffer> m_Framebuffer;
+        Ref<Framebuffer> m_Framebuffer;//帧缓冲区
+
+        Ref<Scene> m_ActiveScene;//活动场景
+        entt::entity m_SquareEntity;//正方形实体
 
         Ref<Texture2D> m_CheckerboardTexture;
 
