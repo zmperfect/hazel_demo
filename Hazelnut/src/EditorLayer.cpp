@@ -160,14 +160,7 @@ namespace Hazel {
 
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();//获取视口面板大小
         
-        //设置视口大小
-        if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize) && viewportPanelSize.x > 0 && viewportPanelSize.y > 0)
-        {
-            m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
-            m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-
-            m_CameraController.OnResize(viewportPanelSize.x, viewportPanelSize.y);
-        }
+        m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };//设置视口大小
 
         uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();//获取纹理ID
         ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });

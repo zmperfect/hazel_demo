@@ -219,11 +219,6 @@ namespace Hazel {
 		s_Data.Stats.QuadCount++;//方形数量++
 	}
 
-	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
-	{
-		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, color);//位置(将z设为0)，大小，旋转角度，颜色
-	}
-
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		HZ_PROFILE_FUNCTION();
@@ -272,39 +267,22 @@ namespace Hazel {
 		s_Data.Stats.QuadCount++;//方形数量++
 	}
 
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+	{
+		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, color);//位置(将z设为0)，大小，旋转角度，颜色
+	}
+
 	//旋转的方形
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
 		HZ_PROFILE_FUNCTION();
 
-		constexpr size_t quadVertexCount = 4;//方形顶点数量
-		const float textureIndex = 0.0f;//纹理索引
-		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };//纹理坐标
-		const float tilingFactor = 1.0f;//平铺因子
-
-		//如果方形索引数量大于最大方形索引数量,则刷新并重置
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
-            FlushAndReset();
-
-
+		//变换矩阵
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });//转换矩阵
 		
-		//设置方形顶点缓冲区
-		for (size_t i = 0; i < quadVertexCount; i++)
-		{
-            s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
-            s_Data.QuadVertexBufferPtr->Color = color;
-            s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];
-            s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
-            s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-            s_Data.QuadVertexBufferPtr++;
-		}
-
-        s_Data.QuadIndexCount += 6;
-
-		s_Data.Stats.QuadCount++;//方形数量++
+		DrawQuad(transform, color);
 	}
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
@@ -316,51 +294,12 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();
 
-		constexpr size_t quadVertexCount = 4;//方形顶点数量
-		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };//纹理坐标
-
-		//如果方形索引数量大于最大方形索引数量,则刷新并重置
-		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
-            FlushAndReset();
-
-		float textureIndex = 0.0f;//纹理索引
-		for(uint32_t i = 1; i < s_Data.TextureSlotIndex; i++)//遍历纹理槽
-        {
-            if(*s_Data.TextureSlots[i] == *texture)//如果纹理槽中的纹理与传入的纹理相同
-            {
-                textureIndex = (float)i;//纹理索引为纹理槽的索引
-                break;
-            }
-        }
-
-		if (textureIndex == 0.0f)
-		{
-            if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
-                FlushAndReset();
-
-			textureIndex = (float)s_Data.TextureSlotIndex;//纹理索引为纹理槽的索引
-            s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;//纹理槽中的纹理为传入的纹理
-            s_Data.TextureSlotIndex++;//纹理槽索引加一
-		}
-
+		//变换矩阵
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
-		//设置方形顶点缓冲区
-		for (size_t i = 0; i < quadVertexCount; i++)
-		{
-            s_Data.QuadVertexBufferPtr->Position = transform * s_Data.QuadVertexPositions[i];
-            s_Data.QuadVertexBufferPtr->Color = tintColor;
-            s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];
-            s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;
-            s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-            s_Data.QuadVertexBufferPtr++;
-		}
-
-        s_Data.QuadIndexCount += 6;
-
-		s_Data.Stats.QuadCount++;//方形数量++
+		DrawQuad(transform, texture, tilingFactor, tintColor);
 	}
 
 	void Renderer2D::ResetStats()
