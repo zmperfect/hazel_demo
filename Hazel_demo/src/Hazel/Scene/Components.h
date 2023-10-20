@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#include "Hazel/Renderer/Camera.h"
+
 namespace Hazel {
 
 	struct TagComponent//标签组件
@@ -36,4 +38,16 @@ namespace Hazel {
 		SpriteRendererComponent(const glm::vec4& color)//构造函数
             : Color(color) {}
 	};
+
+	struct CameraComponent
+    {
+        Hazel::Camera Camera;
+        bool Primary = true; //是否为主摄像机
+
+        CameraComponent() = default;
+        CameraComponent(const CameraComponent&) = default;
+		CameraComponent(const glm::mat4& projection)
+            : Camera(projection) {}
+    };
+
 }

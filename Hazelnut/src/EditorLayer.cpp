@@ -29,6 +29,13 @@ namespace Hazel {
         square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });//添加精灵渲染器组件
 
         m_SquareEntity = square;//正方形实体
+
+        m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");//创建相机实体
+        m_CameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));//添加相机组件
+
+        m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");//创建剪辑空间实体
+        auto& cc = m_SecondCamera.AddComponent<CameraComponent>(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f));//添加相机组件
+        cc.Primary = false;//不是主相机
     }
 
     void EditorLayer::OnDetach()
@@ -40,25 +47,6 @@ namespace Hazel {
     {
         HZ_PROFILE_FUNCTION();//获取函数签名
 
-        // 视口聚焦时Update
-        if(m_ViewportFocused)
-            m_CameraController.OnUpdate(ts);
-
-        // Render
-        Renderer2D::ResetStats();//重置渲染器统计数据
-        m_Framebuffer->Bind();//绑定帧缓冲区
-        RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });//{ 0.1f, 0.1f, 0.1f, 1 }指的是RGBA，即红绿蓝透明度，范围是0~1
-        RenderCommand::Clear();//清除颜色缓冲区和深度缓冲区
-
-        Renderer2D::BeginScene(m_CameraController.GetCamera());
-
-        //Update scene
-        m_ActiveScene->OnUpdate(ts);
-
-        Renderer2D::EndScene();
-
-        m_Framebuffer->Unbind();
-
         // Resize
         // 修复调整视口大小时Hazelnut的黑色闪烁
         //将“旧”大小的帧缓冲区渲染到“新”大小的ImGuiPanel上，并将“新”大小存储在m_ViewportSize中。下一帧将首先调整帧缓冲区的大小，因为在更新和渲染之前，m_ViewportSize与m_Framebuffer.Width/Height不同。这将导致从不渲染空（黑色）帧缓冲区。
@@ -69,6 +57,21 @@ namespace Hazel {
             m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
             m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
         }
+
+        // 视口聚焦时Update
+        if(m_ViewportFocused)
+            m_CameraController.OnUpdate(ts);
+
+        // Render
+        Renderer2D::ResetStats();//重置渲染器统计数据
+        m_Framebuffer->Bind();//绑定帧缓冲区
+        RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });//{ 0.1f, 0.1f, 0.1f, 1 }指的是RGBA，即红绿蓝透明度，范围是0~1
+        RenderCommand::Clear();//清除颜色缓冲区和深度缓冲区
+
+        //Update scene
+        m_ActiveScene->OnUpdate(ts);
+
+        m_Framebuffer->Unbind();
 
     }
 
@@ -154,6 +157,15 @@ namespace Hazel {
             auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;//获取方块实体的颜色
             ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));//编辑方块颜色
             ImGui::Separator();//分割线
+        }
+
+        ImGui::DragFloat3("Camera Transform",
+            glm::value_ptr(m_CameraEntity.GetComponent<TransformComponent>().Transform[3])); //编辑相机位置
+
+        if(ImGui::Checkbox("Camera A", &m_PrimaryCamera))//编辑相机是否为主相机
+        {
+            m_CameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
+            m_SecondCamera.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
         }
 
         ImGui::End();//结束设置

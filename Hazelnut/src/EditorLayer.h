@@ -26,6 +26,10 @@ namespace Hazel {
 
         Ref<Scene> m_ActiveScene;//活动场景
         Entity m_SquareEntity;//正方形实体
+        Entity m_CameraEntity;//相机实体
+        Entity m_SecondCamera;//第二个相机实体
+
+        bool m_PrimaryCamera = true;//主相机
 
         Ref<Texture2D> m_CheckerboardTexture;
 
