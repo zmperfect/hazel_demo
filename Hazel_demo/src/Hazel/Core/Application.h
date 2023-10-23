@@ -21,7 +21,7 @@ namespace Hazel {
 		Application(const std::string& name = "Hazel App");
 		virtual ~Application();
 
-		void OnEvent(Event& e);
+		void OnEvent(Event& e);//处理事件
 
 		void PushLayer(Layer* layer);//将一个Layer压入LayerStack
 		void PushOverlay(Layer* layer);//将一个Layer压入LayerStack的顶部

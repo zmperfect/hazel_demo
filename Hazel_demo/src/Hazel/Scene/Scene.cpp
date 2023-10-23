@@ -64,10 +64,10 @@ namespace Hazel {
         Camera* mainCamera = nullptr;//主相机
         glm::mat4* cameraTransform = nullptr;//相机转换矩阵
         {
-            auto group = m_Registry.view<TransformComponent, CameraComponent>();//获取所有实体的TransformComponent和CameraComponent组件
-            for (auto entity : group)
+            auto view = m_Registry.view<TransformComponent, CameraComponent>();//获取所有实体的TransformComponent和CameraComponent组件
+            for (auto entity : view)
             {
-                auto& [transform, camera] = group.get<TransformComponent, CameraComponent>(entity);//获取组件
+                auto& [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);//获取组件
 
                 if(camera.Primary)//如果是主相机
                 {
@@ -93,6 +93,23 @@ namespace Hazel {
             Renderer2D::EndScene();//结束渲染
         }
 
+    }
+
+    void Scene::OnViewportResize(uint32_t width, uint32_t height)
+    {
+        m_ViewportWidth = width;
+        m_ViewportHeight = height;
+
+        //Resize non-fixed aspect ratio cameras
+        auto view = m_Registry.view<CameraComponent>();//获取所有实体的CameraComponent组件
+        for (auto entity : view)
+        {
+            auto& cameraComponent = view.get<CameraComponent>(entity);//获取组件
+            if (!cameraComponent.FixedAspectRatio)//如果不是固定宽高比
+            {
+                cameraComponent.Camera.SetViewportSize(width, height);//设置视口大小
+            }
+        }
     }
 
 }

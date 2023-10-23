@@ -31,10 +31,10 @@ namespace Hazel {
         m_SquareEntity = square;//正方形实体
 
         m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");//创建相机实体
-        m_CameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));//添加相机组件
+        m_CameraEntity.AddComponent<CameraComponent>();//添加相机组件
 
         m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");//创建剪辑空间实体
-        auto& cc = m_SecondCamera.AddComponent<CameraComponent>(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f));//添加相机组件
+        auto& cc = m_SecondCamera.AddComponent<CameraComponent>();//添加相机组件
         cc.Primary = false;//不是主相机
     }
 
@@ -56,6 +56,8 @@ namespace Hazel {
         {
             m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
             m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
+
+            m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
         }
 
         // 视口聚焦时Update
@@ -166,6 +168,14 @@ namespace Hazel {
         {
             m_CameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
             m_SecondCamera.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
+        }
+
+        //编辑次相机的正交大小
+        {
+            auto& camera = m_SecondCamera.GetComponent<CameraComponent>().Camera;//获取相机
+        float orthoSize = camera.GetOrthographicSize();//获取正交大小
+        if (ImGui::DragFloat("Camera Ortho Size", &orthoSize))//编辑正交大小
+            camera.SetOrthographicSize(orthoSize);//设置正交大小
         }
 
         ImGui::End();//结束设置
