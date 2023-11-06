@@ -8,7 +8,7 @@ project "Hazel_demo"
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "hzpch.h"
-	pchsource "Hazel_demo/src/hzpch.cpp"
+	pchsource "src/hzpch.cpp"
 
 	files
 	{
@@ -28,8 +28,8 @@ project "Hazel_demo"
  
 	includedirs
 	{
-		"%src",
-		"%vendor/spdlog/include",
+		"src",
+		"vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",

@@ -23,14 +23,6 @@ workspace "Hazel_demo"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
-group "Dependencies"
-	include "vendor/premake"
-	include "Hazel_demo/vendor/GLFW"
-	include "Hazel_demo/vendor/Glad"
-	include "Hazel_demo/vendor/imgui"
-
-group ""
-
 -- Include directories relative to root folder (solution directory)
 -- 包括相对于根文件夹的目录（解决方案目录）
 IncludeDir = {}
@@ -41,6 +33,13 @@ IncludeDir["glm"] = "%{wks.location}/Hazel_demo/vendor/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Hazel_demo/vendor/stb_image"
 IncludeDir["entt"] = "%{wks.location}/Hazel_demo/vendor/entt/include"
 
+group "Dependencies"
+	include "vendor/premake"
+	include "Hazel_demo/vendor/GLFW"
+	include "Hazel_demo/vendor/Glad"
+	include "Hazel_demo/vendor/imgui"
+
+group ""
 
 include "Hazel_demo"
 include "Sandbox"
