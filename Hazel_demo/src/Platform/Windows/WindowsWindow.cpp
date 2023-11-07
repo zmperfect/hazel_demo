@@ -84,64 +84,64 @@ namespace Hazel {
 		// Set GLFW callbacks
 		//这里传了一个Lambda表达式闭包，里面原地生成一个对应事件，然后set成callback event，下同
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				data.Width = width;
-				data.Height = height;
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			data.Width = width;
+			data.Height = height;
 
-				WindowResizeEvent event(width, height);
-				data.EventCallback(event);
-			});
+			WindowResizeEvent event(width, height);
+			data.EventCallback(event);
+		});
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				WindowCloseEvent event;
-				data.EventCallback(event);
-			});
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			WindowCloseEvent event;
+			data.EventCallback(event);
+		});
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				switch (action)
-				{
+			switch (action)
+			{
 				case GLFW_PRESS:
 				{
-					KeyPressedEvent event(static_cast<KeyCode>(key), 0);
+					KeyPressedEvent event(key, 0);
 					data.EventCallback(event);
 					break;
 				}
 				case GLFW_RELEASE:
 				{
-					KeyReleasedEvent event(static_cast<KeyCode>(key));
+					KeyReleasedEvent event(key);
 					data.EventCallback(event);
 					break;
 				}
 				case GLFW_REPEAT:
 				{
-					KeyPressedEvent event(static_cast<KeyCode>(key), 1);
+					KeyPressedEvent event(key, 1);
 					data.EventCallback(event);
 					break;
 				}
-				}
-			});
+			}
+		});
 
 		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				KeyTypedEvent event(static_cast<KeyCode>(keycode));//
-				data.EventCallback(event);
-			});
+			KeyTypedEvent event(static_cast<KeyCode>(keycode));//
+			data.EventCallback(event);
+		});
 
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				switch (action)
-				{
+			switch (action)
+			{
 				case GLFW_PRESS:
 				{
 					MouseButtonPressedEvent event(static_cast<MouseCode>(button));
@@ -154,24 +154,24 @@ namespace Hazel {
 					data.EventCallback(event);
 					break;
 				}
-				}
-			});
+			}
+		});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				MouseScrolledEvent event((float)xOffset, (float)yOffset);
-				data.EventCallback(event);
-			});
+			MouseScrolledEvent event((float)xOffset, (float)yOffset);
+			data.EventCallback(event);
+		});
 
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 
-				MouseMovedEvent event((float)xPos, (float)yPos);
-				data.EventCallback(event);
-			});
+			MouseMovedEvent event((float)xPos, (float)yPos);
+			data.EventCallback(event);
+		});
 	}
 
 	void WindowsWindow::Shutdown()

@@ -54,13 +54,13 @@ namespace Hazel {
                 auto& transform = GetComponent<TransformComponent>().Transform;
                 float speed = 5.0f;
 
-                if (Input::IsKeyPressed(KeyCode::A))
+                if (Input::IsKeyPressed(Key::A))
                     transform[3][0] -= speed * ts;
-                if(Input::IsKeyPressed(KeyCode::D))
+                if(Input::IsKeyPressed(Key::D))
                     transform[3][0] += speed * ts;
-                if (Input::IsKeyPressed(KeyCode::W))
+                if (Input::IsKeyPressed(Key::W))
                     transform[3][1] += speed * ts;
-                if (Input::IsKeyPressed(KeyCode::S))
+                if (Input::IsKeyPressed(Key::S))
                     transform[3][1] -= speed * ts;
             }
         };
@@ -222,8 +222,8 @@ namespace Hazel {
         
         m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };//设置视口大小
 
-        uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();//获取纹理ID
-        ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+        uint64_t textureID = m_Framebuffer->GetColorAttachmentRendererID();//获取纹理ID
+        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });//显示纹理
         ImGui::End();
         ImGui::PopStyleVar();//弹出窗口填充
 

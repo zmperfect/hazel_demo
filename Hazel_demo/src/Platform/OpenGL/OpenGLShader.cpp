@@ -58,7 +58,7 @@ namespace Hazel {
         HZ_PROFILE_FUNCTION();//获取函数签名
 
         std::string result;//结果
-        std::ifstream in(filepath, std::ios::in | std::ios::binary);//打开文件
+        std::ifstream in(filepath, std::ios::in | std::ios::binary); // ifstream closes itself due to RAII
         if (in)//如果打开成功
         {
             in.seekg(0, std::ios::end);//定位到文件末尾
@@ -68,7 +68,6 @@ namespace Hazel {
                 result.resize(size);//调整结果大小
                 in.seekg(0, std::ios::beg);//定位到文件开头
                 in.read(&result[0], size);//读取文件
-                in.close();//关闭文件
             }
             else
             {
