@@ -10,39 +10,8 @@
 
 namespace Hazel {
 
-    static void DoMath(const glm::mat4& transform)
-    {
-
-    }
-
-    static void OntransformConstruct(entt::registry& registry, entt::entity entity)
-    {
-
-    }
-
     Scene::Scene()
     {
-#if ENTT_EXAMPLE_CODE
-        entt::entity entity = m_Registry.create();//创建实体
-        m_Registry.emplace<TransformComponent>(entity);//添加组件
-
-        m_Registry.on_construct<TransformComponent>().connect<&OntransformConstruct>();//注册回调函数
-
-        if (m_Registry.has<TransformComponent>(entity))//检查实体是否有组件
-            TransformComponent& transform = m_Registry.get<TransformComponent>(entity);//获取组件
-
-        auto view = m_Registry.view<TransformComponent>();//获取所有实体的TransformComponent组件
-        for (auto entity : view)
-        {
-            TransformComponent& transform = view.get<TransformComponent>(entity);
-        }
-
-        auto group = m_Registry.group<TransformComponent>(entt::get<MeshComponent>);//获取所有实体的TransformComponent和MeshComponent组件
-        for (auto entity : group)
-        {
-            auto& [transform, mesh] = group.get<TransformComponent, MeshComponent>(entity);
-        }
-#endif
     }
 
     Scene::~Scene()
@@ -64,17 +33,16 @@ namespace Hazel {
         {
             m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
                 {
+                    // TODO: Move to Scene::OnScenePlay
                     if (!nsc.Instance)
                     {
-                        nsc.InstantiateFunction();
+                        nsc.Instance = nsc.InstantiateScript();
                         nsc.Instance->m_Entity = Entity{ entity, this };
 
-                        if(nsc.OnCreateFunction)
-                            nsc.OnCreateFunction(nsc.Instance);
+                        nsc.Instance->OnCreate();
                     }
 
-                    if(nsc.OnUpdateFunction)
-                        nsc.OnUpdateFunction(nsc.Instance, ts);
+                    nsc.Instance->OnUpdate(ts);
                 });
         }
 
@@ -85,7 +53,7 @@ namespace Hazel {
             auto view = m_Registry.view<TransformComponent, CameraComponent>();//获取所有实体的TransformComponent和CameraComponent组件
             for (auto entity : view)
             {
-                auto& [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);//获取组件
+                auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);//获取组件
 
                 if(camera.Primary)//如果是主相机
                 {
@@ -103,7 +71,7 @@ namespace Hazel {
             auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);//获取所有实体的TransformComponent和SpriteRendererComponent组件
             for (auto entity : group)
             {
-                auto& [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);//获取组件
+                auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);//获取组件
 
                 Renderer2D::DrawQuad(transform, sprite.Color);//渲染
             }
