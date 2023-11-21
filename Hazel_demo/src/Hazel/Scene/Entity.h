@@ -41,6 +41,17 @@ namespace Hazel {
         }
 
         operator bool() const { return m_EntityHandle != entt::null; }//重载bool类型
+        operator uint32_t() const { return (uint32_t)m_EntityHandle; }//重载uint32_t类型
+
+        bool operator==(const Entity& other) const//重载==
+        {
+            return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;
+        }
+
+        bool operator!=(const Entity& other) const//重载!=
+        {
+            return !(*this == other);
+        }
     private:
         entt::entity m_EntityHandle{ entt::null };//实体句柄
         Scene* m_Scene = nullptr;//场景指针

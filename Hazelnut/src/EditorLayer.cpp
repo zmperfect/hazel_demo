@@ -68,9 +68,11 @@ namespace Hazel {
             }
         };
 
-        m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+        m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();//绑定主相机控制器
 
-        m_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+        m_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();//绑定剪辑空间控制器
+
+        m_SceneHierarchyPanel.SetContext(m_ActiveScene);//设置场景层次面板的上下文
 
     }
 
@@ -175,6 +177,8 @@ namespace Hazel {
             }
             ImGui::EndMenuBar();//结束菜单栏
         }
+
+        m_SceneHierarchyPanel.OnImGuiRender();//场景层次面板的ImGui渲染
 
         ImGui::Begin("Settings");//开始设置
 
