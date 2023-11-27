@@ -17,7 +17,8 @@ namespace Hazel {
 
 		void OnImGuiRender();
 	private:
-		void DrawEntityNode(Entity entity);
+		void DrawEntityNode(Entity entity);//绘制实体节点
+		void DrawComponents(Entity entity);//绘制组件
 	private:
 		Ref<Scene> m_Context;
 		Entity m_SelectionContext;

@@ -28,6 +28,9 @@ namespace Hazel {
         auto square = m_ActiveScene->CreateEntity("Green Square");//创建绿色方形实体
         square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });//添加精灵渲染器组件
 
+        auto redSquare = m_ActiveScene->CreateEntity("Red Square");//创建红色方形实体
+        redSquare.AddComponent<SpriteRendererComponent>(glm::vec4{ 1.0f, 0.0f, 0.0f, 1.0f });//添加精灵渲染器组件
+
         m_SquareEntity = square;//正方形实体
 
         m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");//创建相机实体
@@ -41,17 +44,17 @@ namespace Hazel {
         class CameraController : public ScriptableEntity
         {
         public:
-            void OnCreate()
+            virtual void OnCreate() override
             {
                 auto& transform = GetComponent<TransformComponent>().Transform;//获取变换组件的变换矩阵
                 transform[3][0] = rand() % 10 - 5.0f;
             }
 
-            void OnDestroy()
+            virtual void OnDestroy() override
             {
             }
 
-            void OnUpdate(Timestep ts)
+            virtual void OnUpdate(Timestep ts) override
             {
                 auto& transform = GetComponent<TransformComponent>().Transform;
 
