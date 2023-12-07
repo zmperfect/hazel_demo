@@ -12,8 +12,8 @@ namespace Hazel {
         SceneCamera();
         virtual ~SceneCamera() = default;
 
-        void SetOrthographic(float size, float nearClip, float farClip);//设置正交投影，size为正交投影的大小，nearClip为近裁剪面，farClip为远裁剪面
         void SetPerspective(float verticalFOV, float nearClip, float farClip);//设置透视投影，verticalFOV为垂直视角，nearClip为近裁剪面，farClip为远裁剪面
+        void SetOrthographic(float size, float nearClip, float farClip);//设置正交投影，size为正交投影的大小，nearClip为近裁剪面，farClip为远裁剪面
 
         void SetViewportSize(uint32_t width, uint32_t height);//设置视口大小，width为宽度，height为高度
 

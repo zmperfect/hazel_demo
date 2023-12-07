@@ -128,22 +128,22 @@ namespace Hazel {
 
                 if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)//如果是透视投影
                 {
-                    float verticalFov = glm::degrees(camera.GetPerspectiveVerticalFOV());//获取透视垂直视角
-                    if (ImGui::DragFloat("Vertical FOV", &verticalFov))//拖拽透视垂直视角
+                    float perspectiveVerticalFov = glm::degrees(camera.GetPerspectiveVerticalFOV());//获取透视垂直视角
+                    if (ImGui::DragFloat("Vertical FOV", &perspectiveVerticalFov))//拖拽透视垂直视角
                     {
-                        camera.SetPerspectiveVerticalFOV(glm::radians(verticalFov));//设置透视垂直视角
+                        camera.SetPerspectiveVerticalFOV(glm::radians(perspectiveVerticalFov));//设置透视垂直视角
                     }
 
-                    float orthoNear = camera.GetPerspectiveNearClip();//获取透视近裁剪面
-                    if (ImGui::DragFloat("Near", &orthoNear))//拖拽透视近裁剪面
+                    float perspectiveOrthoNear = camera.GetPerspectiveNearClip();//获取透视近裁剪面
+                    if (ImGui::DragFloat("Near", &perspectiveOrthoNear))//拖拽透视近裁剪面
                     {
-                        camera.SetPerspectiveNearClip(orthoNear);//设置透视近裁剪面
+                        camera.SetPerspectiveNearClip(perspectiveOrthoNear);//设置透视近裁剪面
                     }
 
-                    float orthoFar = camera.GetPerspectiveFarClip();//获取透视远裁剪面
-                    if (ImGui::DragFloat("Far", &orthoFar))//拖拽透视远裁剪面
+                    float perspectiveOrthoFar = camera.GetPerspectiveFarClip();//获取透视远裁剪面
+                    if (ImGui::DragFloat("Far", &perspectiveOrthoFar))//拖拽透视远裁剪面
                     {
-                        camera.SetPerspectiveFarClip(orthoFar);//设置透视远裁剪面
+                        camera.SetPerspectiveFarClip(perspectiveOrthoFar);//设置透视远裁剪面
                     }
                 }
 

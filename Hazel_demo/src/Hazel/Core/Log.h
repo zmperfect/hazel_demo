@@ -1,8 +1,12 @@
 #pragma once
 
 #include "Hazel/Core/Base.h"
+
+//这里的宏定义是为了在编译器中忽略外部头文件引起的警告
+#pragma warning(push, 0)
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
+#pragma warning(pop)
 
 namespace Hazel {
 

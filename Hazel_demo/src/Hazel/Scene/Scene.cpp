@@ -66,7 +66,7 @@ namespace Hazel {
         
         if (mainCamera)//如果有主相机
         {
-            Renderer2D::BeginScene(mainCamera->GetProjection(), *cameraTransform);//开始渲染
+            Renderer2D::BeginScene(*mainCamera, *cameraTransform);//开始渲染
 
             auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);//获取所有实体的TransformComponent和SpriteRendererComponent组件
             for (auto entity : group)

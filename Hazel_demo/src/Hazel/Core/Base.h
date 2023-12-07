@@ -18,14 +18,8 @@
     #define HZ_DEBUGBREAK()//不中断程序
 #endif
 
-//TODO：使这个宏除了condition之外不接受任何参数
-#ifdef HZ_ENABLE_ASSERTS//启用断言
-	#define HZ_ASSERT(x, ...) { if(!(x)) { HZ_ERROR("Assertion Failed: {0}", __VA_ARGS__); HZ_DEBUGBREAK(); } }//断言失败，输出错误信息，中断程序
-	#define HZ_CORE_ASSERT(x, ...) { if(!(x)) { HZ_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); HZ_DEBUGBREAK(); } }//断言失败，输出错误信息，中断程序
-#else
-	#define HZ_ASSERT(x, ...)//断言失败，不输出错误信息，不中断程序
-	#define HZ_CORE_ASSERT(x, ...)//断言失败，不输出错误信息，不中断程序
-#endif
+#define HZ_EXPAND_MACRO(x) x//展开宏
+#define HZ_STRINGIFY_MACRO(x) #x//将宏转换为字符串
 
 #define BIT(x) (1 << x)//位运算
 
@@ -49,3 +43,6 @@ namespace Hazel {
         return std::make_shared<T>(std::forward<Args>(args)...);
     }
 }
+
+#include "Hazel/Core/Log.h"
+#include "Hazel/Core/Assert.h"

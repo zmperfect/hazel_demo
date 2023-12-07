@@ -10,21 +10,21 @@ namespace Hazel {
         RecalculateProjection();
     }
 
-    void SceneCamera::SetOrthographic(float size, float nearClip, float farClip)
-    {
-        m_ProjectionType = ProjectionType::Orthographic;//投影类型为正交投影
-        m_OrthographicSize = size;//正交投影的大小
-        m_OrthographicNear = nearClip;//正交投影的近裁剪面
-        m_OrthographicFar = farClip;//正交投影的远裁剪面
-        RecalculateProjection();//重新计算投影矩阵
-    }
-
     void SceneCamera::SetPerspective(float verticalFOV, float nearClip, float farClip)
     {
         m_ProjectionType = ProjectionType::Perspective;//投影类型为透视投影
         m_PerspectiveFOV = verticalFOV;//垂直视角
         m_PerspectiveNear = nearClip;//近裁剪面
         m_PerspectiveFar = farClip;//远裁剪面
+        RecalculateProjection();//重新计算投影矩阵
+    }
+
+    void SceneCamera::SetOrthographic(float size, float nearClip, float farClip)
+    {
+        m_ProjectionType = ProjectionType::Orthographic;//投影类型为正交投影
+        m_OrthographicSize = size;//正交投影的大小
+        m_OrthographicNear = nearClip;//正交投影的近裁剪面
+        m_OrthographicFar = farClip;//正交投影的远裁剪面
         RecalculateProjection();//重新计算投影矩阵
     }
 
