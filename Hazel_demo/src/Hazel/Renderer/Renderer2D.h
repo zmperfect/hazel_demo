@@ -45,6 +45,7 @@ namespace Hazel {
         static void ResetStats();//重置统计
         static Statistics GetStats();//获取统计
     private:
-        static void FlushAndReset();//刷新并重置
+        static void StartBatch();//开始批处理
+        static void NextBatch();//下一批处理
     };
 }

@@ -119,10 +119,7 @@ namespace Hazel {
 		s_Data.TextureShader->Bind();//绑定纹理着色器
 		s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());//设置视图投影矩阵
 
-		s_Data.QuadIndexCount = 0;//方形索引数量
-		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;//方形顶点缓冲区指针
-
-		s_Data.TextureSlotIndex = 1;//纹理槽索引
+		StartBatch();//开始批处理
 	}
 
 	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
@@ -134,26 +131,31 @@ namespace Hazel {
 		s_Data.TextureShader->Bind();//绑定纹理着色器
 		s_Data.TextureShader->SetMat4("u_ViewProjection", viewProj);//设置视图投影矩阵
 
-		s_Data.QuadIndexCount = 0;//方形索引数量
-		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;//方形顶点缓冲区指针
-
-		s_Data.TextureSlotIndex = 1;//纹理槽索引
+		StartBatch();//开始批处理
 	}
 
 	void Renderer2D::EndScene()
 	{
 		HZ_PROFILE_FUNCTION();
 
-		uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);//数据大小
-		s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);//设置方形顶点缓冲区数据
-
 		Flush();//刷新
+	}
+
+	void Renderer2D::StartBatch()
+	{
+        s_Data.QuadIndexCount = 0;//方形索引数量
+        s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;//方形顶点缓冲区指针
+
+        s_Data.TextureSlotIndex = 1;//纹理槽索引
 	}
 
 	void Renderer2D::Flush()
 	{
 		if(s_Data.QuadIndexCount == 0)//方形索引数量为0
             return;//没啥要画的
+
+		uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);//数据大小
+		s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);//设置方形顶点缓冲区数据
 
 		// 绑定纹理
 		for (uint32_t i = 0; i < s_Data.TextureSlotIndex; i++)
@@ -163,14 +165,10 @@ namespace Hazel {
 		s_Data.Stats.DrawCalls++;//绘制调用次数++
 	}
 
-	void Renderer2D::FlushAndReset()
+	void Renderer2D::NextBatch()
 	{
-        EndScene();//结束场景
-
-        s_Data.QuadIndexCount = 0;//方形索引数量
-        s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;//方形顶点缓冲区指针
-
-        s_Data.TextureSlotIndex = 1;//纹理槽索引
+		Flush();//刷新
+		StartBatch();//开始批处理
     }
 
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -216,7 +214,7 @@ namespace Hazel {
 
 		//如果方形索引数量大于最大方形索引数量,则刷新并重置
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
-            FlushAndReset();
+            NextBatch();
 
 		//设置方形顶点缓冲区
 		for (size_t i = 0; i < quadVertexCount; i++)
@@ -243,7 +241,7 @@ namespace Hazel {
 
 		//如果方形索引数量大于最大方形索引数量,则刷新并重置
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
-            FlushAndReset();
+            NextBatch();
 
 		float textureIndex = 0.0f;//纹理索引
 		
@@ -259,7 +257,7 @@ namespace Hazel {
 		if (textureIndex == 0.0f)
 		{
             if (s_Data.TextureSlotIndex >= Renderer2DData::MaxTextureSlots)
-                FlushAndReset();
+                NextBatch();
 
 			textureIndex = (float)s_Data.TextureSlotIndex;//设置纹理索引
 			s_Data.TextureSlots[s_Data.TextureSlotIndex] = texture;//将纹理放入纹理槽
