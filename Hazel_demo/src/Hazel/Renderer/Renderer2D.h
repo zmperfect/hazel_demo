@@ -39,8 +39,8 @@ namespace Hazel {
             uint32_t DrawCalls = 0;//绘制调用次数
             uint32_t QuadCount = 0;//矩形数量
 
-            uint32_t GetTotalVertexCount() { return QuadCount * 4; }//顶点数量
-            uint32_t GetTotalIndexCount() { return QuadCount * 6; }//索引数量
+            uint32_t GetTotalVertexCount() const { return QuadCount * 4; }//顶点数量.这个函数是一个常量成员函数，这意味着它不能修改它所属的对象的任何数据成员。这是一种很好的实践，因为它明确地表明了这个函数不会改变对象的状态。
+            uint32_t GetTotalIndexCount() const { return QuadCount * 6; }//索引数量
         };
         static void ResetStats();//重置统计
         static Statistics GetStats();//获取统计

@@ -68,7 +68,7 @@ namespace Hazel {
 		{
 			if (m_Event.GetEventType() == T::GetStaticType())
 			{
-				m_Event.Handled = func(static_cast<T&>(m_Event));
+				m_Event.Handled |= func(static_cast<T&>(m_Event));//通过使用|=而不是=，一旦m_Event.Handled被设置为true，它就永远不会被重置为false。
 				return true;
 			}
 			return false;
