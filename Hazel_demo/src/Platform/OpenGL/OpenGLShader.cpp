@@ -71,7 +71,7 @@ namespace Hazel {
             }
             else
             {
-                HZ_CORE_ASSERT(false, "Could not read from file '{0}'", filepath);//输出错误
+                HZ_CORE_ERROR(false, "Could not read from file '{0}'", filepath);//输出错误
             }
         }
         else//如果打开失败
