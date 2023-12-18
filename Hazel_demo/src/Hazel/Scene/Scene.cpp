@@ -48,7 +48,7 @@ namespace Hazel {
 
         //Render 2D
         Camera* mainCamera = nullptr;//主相机
-        glm::mat4* cameraTransform = nullptr;//相机转换矩阵
+        glm::mat4 cameraTransform;//相机转换矩阵
         {
             auto view = m_Registry.view<TransformComponent, CameraComponent>();//获取所有实体的TransformComponent和CameraComponent组件
             for (auto entity : view)
@@ -58,7 +58,7 @@ namespace Hazel {
                 if(camera.Primary)//如果是主相机
                 {
                     mainCamera = &camera.Camera;//获取相机
-                    cameraTransform = &transform.Transform;//获取相机转换矩阵
+                    cameraTransform = transform.GetTransform();//获取相机转换矩阵
                     break;
                 }
             }
@@ -66,14 +66,14 @@ namespace Hazel {
         
         if (mainCamera)//如果有主相机
         {
-            Renderer2D::BeginScene(*mainCamera, *cameraTransform);//开始渲染
+            Renderer2D::BeginScene(*mainCamera, cameraTransform);//开始渲染
 
             auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);//获取所有实体的TransformComponent和SpriteRendererComponent组件
             for (auto entity : group)
             {
                 auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);//获取组件
 
-                Renderer2D::DrawQuad(transform, sprite.Color);//渲染
+                Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color);//渲染
             }
 
             Renderer2D::EndScene();//结束渲染

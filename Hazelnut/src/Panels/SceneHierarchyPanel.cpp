@@ -1,6 +1,7 @@
 #include "SceneHierarchyPanel.h"
 
-#include "imgui/imgui.h"
+#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -66,6 +67,70 @@ namespace Hazel {
 
     }
 
+    static void DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f)
+    {
+        ImGui::PushID(label.c_str());//压入ID
+
+        ImGui::Columns(2);//设置列数
+        ImGui::SetColumnWidth(0, columnWidth);//设置列宽
+        ImGui::Text(label.c_str());//文本
+        ImGui::NextColumn();//下一列
+
+        ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());//压入多个宽度
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });//压入样式变量
+
+        float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;//行高
+        ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };//按钮大小
+
+        //X轴样式
+        ////压入按钮样式
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+        if (ImGui::Button("X", buttonSize))
+            values.x = resetValue;
+        ImGui::PopStyleColor(3);//弹出样式
+
+        ImGui::SameLine();//同一行
+        ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");//拖拽浮点数
+        ImGui::PopItemWidth();//弹出宽度
+        ImGui::SameLine();//同一行
+
+        //Y轴样式
+        ////压入按钮样式
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+        if (ImGui::Button("Y", buttonSize))
+            values.x = resetValue;
+        ImGui::PopStyleColor(3);//弹出样式
+
+        ImGui::SameLine();//同一行
+        ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");//拖拽浮点数
+        ImGui::PopItemWidth();//弹出宽度
+        ImGui::SameLine();//同一行
+
+        //Z轴样式
+        ////压入按钮样式
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+        if (ImGui::Button("Z", buttonSize))
+            values.x = resetValue;
+        ImGui::PopStyleColor(3);//弹出样式
+
+        ImGui::SameLine();//同一行
+        ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");//拖拽浮点数
+        ImGui::PopItemWidth();//弹出宽度
+        ImGui::SameLine();//同一行
+
+        ImGui::PopStyleVar();//弹出样式变量
+
+        ImGui::Columns(1);//设置列数
+
+        ImGui::PopID();//弹出ID
+    }
+
     void SceneHierarchyPanel::DrawComponents(Entity entity)
     {
         if (entity.HasComponent<TagComponent>())//如果实体有标签组件
@@ -85,11 +150,12 @@ namespace Hazel {
         {
             if (ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Transform"))//如果节点打开
             {
-                auto& transform = entity.GetComponent<TransformComponent>().Transform;//获取变换组件
-
-                ImGui::DragFloat3("Position", glm::value_ptr(transform[3]), 0.1f);//拖拽位置
-                ImGui::DragFloat3("Rotation", glm::value_ptr(transform[3]), 0.1f);//拖拽旋转
-                ImGui::DragFloat3("Scale", glm::value_ptr(transform[3]), 0.1f);//拖拽缩放
+                auto& tc = entity.GetComponent<TransformComponent>();//获取变换组件
+                DrawVec3Control("Translation", tc.Translation);//绘制向量控件
+                glm::vec3 rotation = glm::degrees(tc.Rotation);//旋转转换为角度
+                DrawVec3Control("Rotation", rotation);//绘制向量控件
+                tc.Rotation = glm::radians(rotation);//角度转换为旋转
+                DrawVec3Control("Scale", tc.Scale, 1.0f);//绘制向量控件
 
                 ImGui::TreePop();//关闭节点
             }
