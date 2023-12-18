@@ -33,10 +33,10 @@ namespace Hazel {
 
         m_SquareEntity = square;//正方形实体
 
-        m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");//创建相机实体
+        m_CameraEntity = m_ActiveScene->CreateEntity("Camera A");//创建相机实体A
         m_CameraEntity.AddComponent<CameraComponent>();//添加相机组件
 
-        m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");//创建剪辑空间实体
+        m_SecondCamera = m_ActiveScene->CreateEntity("Camera B");//创建相机实体B
         auto& cc = m_SecondCamera.AddComponent<CameraComponent>();//添加相机组件
         cc.Primary = false;//不是主相机
 
@@ -183,7 +183,7 @@ namespace Hazel {
 
         m_SceneHierarchyPanel.OnImGuiRender();//场景层次面板的ImGui渲染
 
-        ImGui::Begin("Settings");//开始设置
+        ImGui::Begin("Stats");//开始显示统计数据
 
         auto stats = Renderer2D::GetStats();//获取渲染器统计数据
         //显示渲染器统计数据
@@ -192,34 +192,6 @@ namespace Hazel {
         ImGui::Text("Quads: %d", stats.QuadCount);
         ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
         ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
-
-        if (m_SquareEntity)//如果有方块实体
-        {
-            ImGui::Separator();//分割线
-            auto& tag = m_SquareEntity.GetComponent<TagComponent>().Tag;//获取方块实体的标签
-            ImGui::Text("%s", tag.c_str());//显示标签
-            
-            auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;//获取方块实体的颜色
-            ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));//编辑方块颜色
-            ImGui::Separator();//分割线
-        }
-
-        ImGui::DragFloat3("Camera Transform",
-            glm::value_ptr(m_CameraEntity.GetComponent<TransformComponent>().Transform[3])); //编辑相机位置
-
-        if(ImGui::Checkbox("Camera A", &m_PrimaryCamera))//编辑相机是否为主相机
-        {
-            m_CameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
-            m_SecondCamera.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
-        }
-
-        //编辑次相机的正交大小
-        {
-            auto& camera = m_SecondCamera.GetComponent<CameraComponent>().Camera;//获取相机
-        float orthoSize = camera.GetOrthographicSize();//获取正交大小
-        if (ImGui::DragFloat("Camera Ortho Size", &orthoSize))//编辑正交大小
-            camera.SetOrthographicSize(orthoSize);//设置正交大小
-        }
 
         ImGui::End();//结束设置
 

@@ -95,7 +95,7 @@ namespace Hazel {
             }
         }
 
-        if (entity.HasComponent<CameraComponent>())
+        if (entity.HasComponent<CameraComponent>())//如果实体有相机组件
         {
             if (ImGui::TreeNodeEx((void*)typeid(CameraComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Camera"))//如果节点打开
             {
@@ -170,6 +170,16 @@ namespace Hazel {
                     ImGui::Checkbox("Fixed Aspect Ratio", &cameraComponent.FixedAspectRatio);//复选框
                 }
 
+                ImGui::TreePop();//关闭节点
+            }
+        }
+
+        if (entity.HasComponent<SpriteRendererComponent>())//如果实体有精灵渲染器组件
+        {
+            if (ImGui::TreeNodeEx((void*)typeid(SpriteRendererComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Sprite Renderer"))//如果节点打开
+            {
+                auto& spriteRendererComponent = entity.GetComponent<SpriteRendererComponent>();//获取精灵渲染器组件
+                ImGui::ColorEdit4("Color", glm::value_ptr(spriteRendererComponent.Color));//颜色编辑器
                 ImGui::TreePop();//关闭节点
             }
         }
