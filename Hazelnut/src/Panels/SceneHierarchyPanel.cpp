@@ -34,12 +34,45 @@ namespace Hazel {
             m_SelectionContext = {};//清空选择上下文
         }
 
+        //空白处右键菜单
+        if (ImGui::BeginPopupContextWindow(0, 1, false))
+        {
+            if (ImGui::MenuItem("Create Empty Entity"))//如果点击了创建空实体
+            {
+                m_Context->CreateEntity("Empty Entity");//创建空实体
+            }
+
+            ImGui::EndPopup();//结束右键菜单
+        }
+
         ImGui::End();
 
         ImGui::Begin("Properties");//开始属性面板
         if (m_SelectionContext)//如果选择上下文不为空
         {
             DrawComponents(m_SelectionContext);//绘制组件
+
+            if (ImGui::Button("Add Component"))//如果点击了添加组件按钮
+            {
+                ImGui::OpenPopup("AddComponent");//打开添加组件弹窗
+            }
+
+            if (ImGui::BeginPopup("AddComponent"))
+            {
+                if (ImGui::MenuItem("Camera"))//如果点击了相机
+                {
+                        m_SelectionContext.AddComponent<CameraComponent>();//添加相机组件
+                        ImGui::CloseCurrentPopup();//关闭当前弹窗
+                    }
+
+                if (ImGui::MenuItem("Sprite Renderer"))//如果点击了精灵渲染器
+                {
+                        m_SelectionContext.AddComponent<SpriteRendererComponent>();//添加精灵渲染器组件
+                        ImGui::CloseCurrentPopup();//关闭当前弹窗
+                    }
+
+                    ImGui::EndPopup();//结束添加组件弹窗
+            }
         }
 
         ImGui::End();//结束场景层次面板
@@ -56,6 +89,17 @@ namespace Hazel {
             m_SelectionContext = entity;//设置选择上下文
         }
 
+        bool entityDeleted = false;//实体是否被删除
+        if (ImGui::BeginPopupContextItem())//如果右键点击了节点
+        {
+            if (ImGui::MenuItem("Delete Entity"))//如果点击了删除实体
+            {
+                entityDeleted = true;//实体被删除
+            }
+
+            ImGui::EndPopup();//结束右键菜单
+        }
+
         if (opened)//如果节点打开
         {
             ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;//设置节点标志
@@ -63,6 +107,13 @@ namespace Hazel {
             if (opened)//如果节点打开
                 ImGui::TreePop();//关闭节点
             ImGui::TreePop();//关闭节点
+        }
+
+        if (entityDeleted)//如果实体被删除
+        {
+            m_Context->DestroyEntity(entity);//销毁实体
+            if (m_SelectionContext == entity)//如果选择上下文是实体
+                m_SelectionContext = {};//清空选择上下文
         }
 
     }
@@ -146,9 +197,13 @@ namespace Hazel {
             }
         }
 
+        const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap;//节点标志
+
         if (entity.HasComponent<TransformComponent>())
         {
-            if (ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Transform"))//如果节点打开
+            bool open = ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), treeNodeFlags, "Transform");//节点
+
+            if (open)//如果节点打开
             {
                 auto& tc = entity.GetComponent<TransformComponent>();//获取变换组件
                 DrawVec3Control("Translation", tc.Translation);//绘制向量控件
@@ -163,7 +218,7 @@ namespace Hazel {
 
         if (entity.HasComponent<CameraComponent>())//如果实体有相机组件
         {
-            if (ImGui::TreeNodeEx((void*)typeid(CameraComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Camera"))//如果节点打开
+            if (ImGui::TreeNodeEx((void*)typeid(CameraComponent).hash_code(), treeNodeFlags, "Camera"))//如果节点打开
             {
                 auto& cameraComponent = entity.GetComponent<CameraComponent>();//获取相机组件
                 auto& camera = cameraComponent.Camera;//获取相机
@@ -242,11 +297,36 @@ namespace Hazel {
 
         if (entity.HasComponent<SpriteRendererComponent>())//如果实体有精灵渲染器组件
         {
-            if (ImGui::TreeNodeEx((void*)typeid(SpriteRendererComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Sprite Renderer"))//如果节点打开
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+            bool open = ImGui::TreeNodeEx((void*)typeid(SpriteRendererComponent).hash_code(), treeNodeFlags, "Sprite Renderer");//节点
+            ImGui::SameLine(ImGui::GetWindowWidth() - 25.0f);
+            if (ImGui::Button("+", ImVec2{ 20, 20 }))//按钮
+            {
+                ImGui::OpenPopup("ComponentSettings");//打开弹出窗口
+            }
+            ImGui::PopStyleVar();//弹出样式变量
+
+            bool removeComponent = false;//是否移除组件
+            if (ImGui::BeginPopup("ComponentSettings"))//如果弹出窗口打开
+            {
+                if (ImGui::MenuItem("Remove component"))//菜单项
+                {
+                    removeComponent = true;//移除组件
+                }
+
+                ImGui::EndPopup();//关闭弹出窗口
+            }
+
+            if (open)//如果节点打开
             {
                 auto& spriteRendererComponent = entity.GetComponent<SpriteRendererComponent>();//获取精灵渲染器组件
                 ImGui::ColorEdit4("Color", glm::value_ptr(spriteRendererComponent.Color));//颜色编辑器
                 ImGui::TreePop();//关闭节点
+            }
+
+            if (removeComponent)//如果移除组件
+            {
+                entity.RemoveComponent<SpriteRendererComponent>();//移除精灵渲染器组件
             }
         }
     }

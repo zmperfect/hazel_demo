@@ -17,7 +17,9 @@ namespace Hazel {
         T& AddComponent(Args&&... args)//参数包展开
         {
             HZ_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-            return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);//将组件添加到实体
+            T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);//创建组件<
+            m_Scene->OnComponentAdded<T>(*this, component);//调用组件添加事件
+            return component;
         }
 
         template<typename T>
@@ -40,8 +42,9 @@ namespace Hazel {
             m_Scene->m_Registry.remove<T>(m_EntityHandle);//移除组件
         }
 
-        operator bool() const { return m_EntityHandle != entt::null; }//重载bool类型
-        operator uint32_t() const { return (uint32_t)m_EntityHandle; }//重载uint32_t类型
+        operator bool() const { return m_EntityHandle != entt::null; }//重载bool类型,判断实体是否为空
+        operator entt::entity() const { return m_EntityHandle; }//重载entt::entity类型,获取实体句柄
+        operator uint32_t() const { return (uint32_t)m_EntityHandle; }//重载uint32_t类型,获取实体句柄
 
         bool operator==(const Entity& other) const//重载==
         {
