@@ -20,7 +20,9 @@ namespace Hazel {
         void Begin();
         void End();
 
-		void BlockEvents(bool block) { m_BlockEvents = block; }
+		void BlockEvents(bool block) { m_BlockEvents = block; } //设置是否阻塞事件
+
+		void SetDarkThemeColors(); //设置暗色主题颜色
 	private:
 		bool m_BlockEvents = true;
 		float m_Time = 0.0f;

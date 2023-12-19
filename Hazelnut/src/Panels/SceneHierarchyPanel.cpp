@@ -51,28 +51,6 @@ namespace Hazel {
         if (m_SelectionContext)//如果选择上下文不为空
         {
             DrawComponents(m_SelectionContext);//绘制组件
-
-            if (ImGui::Button("Add Component"))//如果点击了添加组件按钮
-            {
-                ImGui::OpenPopup("AddComponent");//打开添加组件弹窗
-            }
-
-            if (ImGui::BeginPopup("AddComponent"))
-            {
-                if (ImGui::MenuItem("Camera"))//如果点击了相机
-                {
-                        m_SelectionContext.AddComponent<CameraComponent>();//添加相机组件
-                        ImGui::CloseCurrentPopup();//关闭当前弹窗
-                    }
-
-                if (ImGui::MenuItem("Sprite Renderer"))//如果点击了精灵渲染器
-                {
-                        m_SelectionContext.AddComponent<SpriteRendererComponent>();//添加精灵渲染器组件
-                        ImGui::CloseCurrentPopup();//关闭当前弹窗
-                    }
-
-                    ImGui::EndPopup();//结束添加组件弹窗
-            }
         }
 
         ImGui::End();//结束场景层次面板
@@ -120,6 +98,9 @@ namespace Hazel {
 
     static void DrawVec3Control(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columnWidth = 100.0f)
     {
+        ImGuiIO& io = ImGui::GetIO();//获取IO
+        auto boldFont = io.Fonts->Fonts[0];//获取粗体字体
+
         ImGui::PushID(label.c_str());//压入ID
 
         ImGui::Columns(2);//设置列数
@@ -135,11 +116,13 @@ namespace Hazel {
 
         //X轴样式
         ////压入按钮样式
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });//压入按钮样式
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });//压入按钮悬停样式
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });//压入按钮激活样式
+        ImGui::PushFont(boldFont);//压入粗体字体
         if (ImGui::Button("X", buttonSize))
             values.x = resetValue;
+        ImGui::PopFont();//弹出字体
         ImGui::PopStyleColor(3);//弹出样式
 
         ImGui::SameLine();//同一行
@@ -152,8 +135,10 @@ namespace Hazel {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+        ImGui::PushFont(boldFont);
         if (ImGui::Button("Y", buttonSize))
             values.x = resetValue;
+        ImGui::PopFont();
         ImGui::PopStyleColor(3);//弹出样式
 
         ImGui::SameLine();//同一行
@@ -182,6 +167,47 @@ namespace Hazel {
         ImGui::PopID();//弹出ID
     }
 
+    template<typename T, typename UIFunction>
+    static void DrawComponent(const std::string& name, Entity entity, UIFunction uiFunction)//绘制组件
+    {
+        const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;//节点标志,默认打开,带框架,允许重叠,带填充
+
+        if (entity.HasComponent<T>())//如果实体有组件
+        {
+            auto& component = entity.GetComponent<T>();//获取组件
+            ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();//获取内容区域可用大小
+
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });//压入样式变量
+            float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;//行高
+            ImGui::Separator();//分割线
+            bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());//节点
+            ImGui::PopStyleVar();//弹出样式变量
+            ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);//同一行
+            if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))//按钮
+            {
+                ImGui::OpenPopup("ComponentSettings");//打开弹出窗口
+            }
+
+            bool removeComponent = false;//是否移除组件
+            if (ImGui::BeginPopup("ComponentSettings"))//如果弹出窗口打开
+            {
+                if (ImGui::MenuItem("Remove Component"))//如果点击了移除组件
+                    entity.RemoveComponent<T>();//移除组件
+
+                ImGui::EndPopup();//结束弹出窗口
+            }
+
+            if (open)//如果节点打开
+            {
+                uiFunction(component);//UI函数
+                ImGui::TreePop();//关闭节点
+            }
+
+            if (removeComponent)//如果移除组件
+                entity.RemoveComponent<T>();//移除组件
+        }
+    }
+
     void SceneHierarchyPanel::DrawComponents(Entity entity)
     {
         if (entity.HasComponent<TagComponent>())//如果实体有标签组件
@@ -191,144 +217,114 @@ namespace Hazel {
             char buffer[256];//缓冲区
             memset(buffer, 0, sizeof(buffer));//清空缓冲区
             strcpy_s(buffer, sizeof(buffer), tag.c_str());//复制标签到缓冲区
-            if (ImGui::InputText("Tag", buffer, sizeof(buffer)))//如果输入标签
+            if (ImGui::InputText("##Tag", buffer, sizeof(buffer)))//如果输入标签，##Tag表示不显示标签
             {
                 tag = std::string(buffer);//设置标签
             }
         }
 
-        const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_AllowItemOverlap;//节点标志
+        ImGui::SameLine();//同一行
+        ImGui::PushItemWidth(-1);//压入宽度
 
-        if (entity.HasComponent<TransformComponent>())
+        if (ImGui::Button("Add Component"))//如果点击了添加组件按钮
         {
-            bool open = ImGui::TreeNodeEx((void*)typeid(TransformComponent).hash_code(), treeNodeFlags, "Transform");//节点
-
-            if (open)//如果节点打开
-            {
-                auto& tc = entity.GetComponent<TransformComponent>();//获取变换组件
-                DrawVec3Control("Translation", tc.Translation);//绘制向量控件
-                glm::vec3 rotation = glm::degrees(tc.Rotation);//旋转转换为角度
-                DrawVec3Control("Rotation", rotation);//绘制向量控件
-                tc.Rotation = glm::radians(rotation);//角度转换为旋转
-                DrawVec3Control("Scale", tc.Scale, 1.0f);//绘制向量控件
-
-                ImGui::TreePop();//关闭节点
-            }
+            ImGui::OpenPopup("AddComponent");//打开弹出窗口
         }
 
-        if (entity.HasComponent<CameraComponent>())//如果实体有相机组件
+        if (ImGui::BeginPopup("AddComponent"))//如果弹出窗口打开
         {
-            if (ImGui::TreeNodeEx((void*)typeid(CameraComponent).hash_code(), treeNodeFlags, "Camera"))//如果节点打开
+            if (ImGui::MenuItem("Camera"))//如果点击了相机
             {
-                auto& cameraComponent = entity.GetComponent<CameraComponent>();//获取相机组件
-                auto& camera = cameraComponent.Camera;//获取相机
+                if (!m_SelectionContext.HasComponent<CameraComponent>())//如果选择的实体没有相机组件
+                    m_SelectionContext.AddComponent<CameraComponent>();//添加相机组件
 
-                ImGui::Checkbox("Primary", &cameraComponent.Primary);//复选框
-
-                const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };//投影类型字符串
-                const char* currentProjectionTypeString = projectionTypeStrings[(int)camera.GetProjectionType()];//当前投影类型字符串
-                if (ImGui::BeginCombo("Projection", currentProjectionTypeString))//投影类型下拉框
-                {
-                    for (int i = 0; i < 2; i++)//遍历投影类型
-                    {
-                        bool isSelected = currentProjectionTypeString == projectionTypeStrings[i];//是否选中
-                        if (ImGui::Selectable(projectionTypeStrings[i], isSelected))//选择投影类型
-                        {
-                            currentProjectionTypeString = projectionTypeStrings[i];//设置当前投影类型字符串
-                            camera.SetProjectionType((SceneCamera::ProjectionType)i);//设置投影类型
-                        }
-
-                        if (isSelected)//如果选中
-                        {
-                            ImGui::SetItemDefaultFocus();//设置默认焦点
-                        }
-                    }
-
-                    ImGui::EndCombo();//结束投影类型下拉框
-                }
-
-                if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)//如果是透视投影
-                {
-                    float perspectiveVerticalFov = glm::degrees(camera.GetPerspectiveVerticalFOV());//获取透视垂直视角
-                    if (ImGui::DragFloat("Vertical FOV", &perspectiveVerticalFov))//拖拽透视垂直视角
-                    {
-                        camera.SetPerspectiveVerticalFOV(glm::radians(perspectiveVerticalFov));//设置透视垂直视角
-                    }
-
-                    float perspectiveOrthoNear = camera.GetPerspectiveNearClip();//获取透视近裁剪面
-                    if (ImGui::DragFloat("Near", &perspectiveOrthoNear))//拖拽透视近裁剪面
-                    {
-                        camera.SetPerspectiveNearClip(perspectiveOrthoNear);//设置透视近裁剪面
-                    }
-
-                    float perspectiveOrthoFar = camera.GetPerspectiveFarClip();//获取透视远裁剪面
-                    if (ImGui::DragFloat("Far", &perspectiveOrthoFar))//拖拽透视远裁剪面
-                    {
-                        camera.SetPerspectiveFarClip(perspectiveOrthoFar);//设置透视远裁剪面
-                    }
-                }
-
-                if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
-                {
-                    float orthoSize = camera.GetOrthographicSize();//获取正交大小
-                    if (ImGui::DragFloat("Size", &orthoSize))//拖拽正交大小
-                    {
-                        camera.SetOrthographicSize(orthoSize);//设置正交大小
-                    }
-
-                    float orthoNear = camera.GetOrthographicNearClip();//获取正交近裁剪面
-                    if (ImGui::DragFloat("Near", &orthoNear))//拖拽正交近裁剪面
-                    {
-                        camera.SetOrthographicNearClip(orthoNear);//设置正交近裁剪面
-                    }
-
-                    float orthoFar = camera.GetOrthographicFarClip();//获取正交远裁剪面
-                    if (ImGui::DragFloat("Far", &orthoFar))//拖拽正交远裁剪面
-                    {
-                        camera.SetOrthographicFarClip(orthoFar);//设置正交远裁剪面
-                    }
-
-                    ImGui::Checkbox("Fixed Aspect Ratio", &cameraComponent.FixedAspectRatio);//复选框
-                }
-
-                ImGui::TreePop();//关闭节点
+                ImGui::CloseCurrentPopup();//关闭当前弹出窗口
             }
+
+            if (ImGui::MenuItem("Sprite Renderer"))//如果点击了精灵渲染器
+            {
+                if (!m_SelectionContext.HasComponent<SpriteRendererComponent>())//如果选择的实体没有精灵渲染器组件
+                    m_SelectionContext.AddComponent<SpriteRendererComponent>();//添加精灵渲染器组件
+
+                ImGui::CloseCurrentPopup();//关闭当前弹出窗口
+            }
+
+            ImGui::EndPopup();//结束弹出窗口
         }
 
-        if (entity.HasComponent<SpriteRendererComponent>())//如果实体有精灵渲染器组件
-        {
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
-            bool open = ImGui::TreeNodeEx((void*)typeid(SpriteRendererComponent).hash_code(), treeNodeFlags, "Sprite Renderer");//节点
-            ImGui::SameLine(ImGui::GetWindowWidth() - 25.0f);
-            if (ImGui::Button("+", ImVec2{ 20, 20 }))//按钮
-            {
-                ImGui::OpenPopup("ComponentSettings");//打开弹出窗口
-            }
-            ImGui::PopStyleVar();//弹出样式变量
+        ImGui::PopItemWidth();//弹出宽度
 
-            bool removeComponent = false;//是否移除组件
-            if (ImGui::BeginPopup("ComponentSettings"))//如果弹出窗口打开
+        DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
+        {
+            DrawVec3Control("Translation", component.Translation);//绘制变换控件
+            glm::vec3 rotation = glm::degrees(component.Rotation);//旋转角度
+            DrawVec3Control("Rotation", rotation);//绘制旋转控件
+            component.Rotation = glm::radians(rotation);//旋转赋值
+            DrawVec3Control("Scale", component.Scale, 1.0f);//绘制缩放控件
+        });//绘制变换组件
+        
+        DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
+        {
+            auto& camera = component.Camera;//获取相机组件
+
+            ImGui::Checkbox("Primary", &component.Primary);//主相机复选框
+            const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };//投影类型字符串(透视，正交)
+            const char* currentProjectionTypeString = projectionTypeStrings[(int)camera.GetProjectionType()];//当前投影类型字符串
+            if (ImGui::BeginCombo("Projection", currentProjectionTypeString))//如果投影类型下拉框打开
             {
-                if (ImGui::MenuItem("Remove component"))//菜单项
+                for (int i = 0; i < 2; i++)//遍历投影类型
                 {
-                    removeComponent = true;//移除组件
+                    bool isSelected = currentProjectionTypeString == projectionTypeStrings[i];//是否选中
+                    if (ImGui::Selectable(projectionTypeStrings[i], isSelected))//如果选择了投影类型
+                    {
+                        currentProjectionTypeString = projectionTypeStrings[i];//设置当前投影类型
+                        camera.SetProjectionType((SceneCamera::ProjectionType)i);//设置投影类型
+                    }
+
+                    if (isSelected)//如果选中
+                        ImGui::SetItemDefaultFocus();//设置默认焦点
                 }
 
-                ImGui::EndPopup();//关闭弹出窗口
+                ImGui::EndCombo();//结束投影类型下拉框
             }
 
-            if (open)//如果节点打开
+            if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)//如果是透视投影
             {
-                auto& spriteRendererComponent = entity.GetComponent<SpriteRendererComponent>();//获取精灵渲染器组件
-                ImGui::ColorEdit4("Color", glm::value_ptr(spriteRendererComponent.Color));//颜色编辑器
-                ImGui::TreePop();//关闭节点
+                float perspectiveVerticalFOV = glm::degrees(camera.GetPerspectiveVerticalFOV());//垂直视角
+                if (ImGui::DragFloat("Vertical FOV", &perspectiveVerticalFOV))//拖拽浮点数
+                    camera.SetPerspectiveVerticalFOV(glm::radians(perspectiveVerticalFOV));//设置垂直视角
+
+                float perspectiveNear = camera.GetPerspectiveNearClip();//近裁剪面
+                if (ImGui::DragFloat("Near", &perspectiveNear))//拖拽浮点数
+                    camera.SetPerspectiveNearClip(perspectiveNear);//设置近裁剪面
+
+                float perspectiveFar = camera.GetPerspectiveFarClip();//远裁剪面
+                if (ImGui::DragFloat("Far", &perspectiveFar))//拖拽浮点数
+                    camera.SetPerspectiveFarClip(perspectiveFar);//设置远裁剪面
             }
 
-            if (removeComponent)//如果移除组件
+            if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)//如果是正交投影
             {
-                entity.RemoveComponent<SpriteRendererComponent>();//移除精灵渲染器组件
+                float orthographicSize = camera.GetOrthographicSize();//正交大小
+                if (ImGui::DragFloat("Size", &orthographicSize))//拖拽浮点数
+                    camera.SetOrthographicSize(orthographicSize);//设置正交大小
+
+                float orthographicNear = camera.GetOrthographicNearClip();//近裁剪面
+                if (ImGui::DragFloat("Near", &orthographicNear))//拖拽浮点数
+                    camera.SetOrthographicNearClip(orthographicNear);//设置近裁剪面
+
+                float orthographicFar = camera.GetOrthographicFarClip();//远裁剪面
+                if (ImGui::DragFloat("Far", &orthographicFar))//拖拽浮点数
+                    camera.SetOrthographicFarClip(orthographicFar);//设置远裁剪面
+
+                ImGui::Checkbox("Fixed Aspect Ratio", &component.FixedAspectRatio);//固定宽高比复选框
             }
-        }
+        });//绘制相机组件
+
+        DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component)
+        {
+            ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));//颜色编辑器
+        });//绘制精灵渲染器组件
     }
 
 }

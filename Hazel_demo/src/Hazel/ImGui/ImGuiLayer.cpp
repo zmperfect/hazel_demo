@@ -33,6 +33,9 @@ namespace Hazel {
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
+        io.Fonts->AddFontFromFileTTF("assets/fonts/opensans/OpenSans-Bold.ttf", 18.0f);//从文件添加粗体
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/opensans/OpenSans-Regular.ttf", 18.0f);//设置默认字体
+
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsClassic();
@@ -45,11 +48,13 @@ namespace Hazel {
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
 
-        Application& app = Application::Get();
-        GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
+        SetDarkThemeColors();//设置暗色主题颜色
+
+        Application& app = Application::Get();//获取应用
+        GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());//获取窗口
 
         // Setup Platform/Renderer bindings
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplGlfw_InitForOpenGL(window, true);//初始化GLFW的Implementation
 
 		//初始化OpenGL3的Implementation，根据版本号来决定哪些功能可以被开放，详情可以看imgui源代码
 		ImGui_ImplOpenGL3_Init("#version 410");
@@ -103,6 +108,37 @@ namespace Hazel {
             ImGui::RenderPlatformWindowsDefault();
             glfwMakeContextCurrent(backup_current_context);
         }
+    }
+
+    void ImGuiLayer::SetDarkThemeColors()
+    {
+        auto colors = ImGui::GetStyle().Colors;//获取颜色
+        colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f };//设置窗口背景颜色
+
+        // Headers
+        colors[ImGuiCol_Header] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };//设置头部颜色
+        colors[ImGuiCol_HeaderHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };//设置头部悬停颜色
+        colors[ImGuiCol_HeaderActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };//设置头部激活颜色
+
+        // Buttons
+        colors[ImGuiCol_Button] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };//设置按钮颜色
+        colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };//设置按钮悬停颜色
+        colors[ImGuiCol_ButtonActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };//设置按钮激活颜色
+
+        // Frame BG
+        colors[ImGuiCol_FrameBg] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };//设置框架背景颜色
+        colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };//设置框架背景悬停颜色
+        colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };//设置框架背景激活颜色
+
+        // Tabs
+        colors[ImGuiCol_Tab] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };//设置标签颜色
+        colors[ImGuiCol_TabHovered] = ImVec4{ 0.38f, 0.3805f, 0.381f, 1.0f };//设置标签悬停颜色
+        colors[ImGuiCol_TabActive] = ImVec4{ 0.28f, 0.2805f, 0.281f, 1.0f };//设置标签激活颜色
+
+        // Title
+        colors[ImGuiCol_TitleBg] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };//设置标题背景颜色
+        colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };//设置标题背景激活颜色
+        colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };//设置标题背景折叠颜色
     }
 
 }

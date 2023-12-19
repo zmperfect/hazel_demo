@@ -162,11 +162,17 @@ namespace Hazel {
 
         //DockSpace
         ImGuiIO& io = ImGui::GetIO();//获取ImGuiIO
-        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+        ImGuiStyle& style = ImGui::GetStyle();//获取ImGuiStyle
+        float minWinSizeX = style.WindowMinSize.x;//获取窗口最小宽度
+        style.WindowMinSize.x = 370.0f;//设置窗口最小宽度
+
+        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)//如果启用了停靠
         {
             ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");//获取dockspace的ID
             ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), opt_flags);//设置dockspace
         }
+
+        style.WindowMinSize.x = minWinSizeX;//恢复窗口最小宽度
 
         if (ImGui::BeginMenuBar())//开始菜单栏
         {
