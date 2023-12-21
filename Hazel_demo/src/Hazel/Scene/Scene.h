@@ -26,7 +26,8 @@ namespace Hazel {
         entt::registry m_Registry;//实体注册表
         uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;//视口宽高
 
-        friend class Entity;
-        friend class SceneHierarchyPanel;
+        friend class Entity;//实体
+        friend class SceneSerializer;//场景序列化
+        friend class SceneHierarchyPanel;//场景层级面板
     };
 }

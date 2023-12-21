@@ -4,6 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Hazel/Scene/SceneSerializer.h"
+
 namespace Hazel {
 
     EditorLayer::EditorLayer()
@@ -24,6 +26,7 @@ namespace Hazel {
 
         m_ActiveScene = CreateRef<Scene>();//创建场景
 
+#if 0
         // Entity
         auto square = m_ActiveScene->CreateEntity("Green Square");//创建绿色方形实体
         square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });//添加精灵渲染器组件
@@ -74,6 +77,7 @@ namespace Hazel {
         m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();//绑定主相机控制器
 
         m_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();//绑定剪辑空间控制器
+#endif
 
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);//设置场景层次面板的上下文
 
@@ -180,7 +184,20 @@ namespace Hazel {
             {
                 //禁用全屏将允许窗口移动到其他窗口的前面，
                 //如果没有更精细的窗口深度/z控制，我们现在无法撤消。
-                //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);
+                //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);1
+
+                if (ImGui::MenuItem("Serialize"))//序列化
+                {
+                    SceneSerializer serializer(m_ActiveScene);//创建场景序列化器
+                    serializer.Serialize("assets/scenes/Example.hazel");//序列化场景
+                }
+
+                if (ImGui::MenuItem("Deserialize"))//反序列化
+                {
+                    SceneSerializer serializer(m_ActiveScene);//创建场景序列化器
+                    serializer.Deserialize("assets/scenes/Example.hazel");//反序列化场景
+                }
+
                 if (ImGui::MenuItem("Exit")) Application::Get().Close();//退出
                 ImGui::EndMenu();//结束菜单
             }

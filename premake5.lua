@@ -32,12 +32,14 @@ IncludeDir["ImGui"] = "%{wks.location}/Hazel_demo/vendor/imgui"
 IncludeDir["glm"] = "%{wks.location}/Hazel_demo/vendor/glm"
 IncludeDir["stb_image"] = "%{wks.location}/Hazel_demo/vendor/stb_image"
 IncludeDir["entt"] = "%{wks.location}/Hazel_demo/vendor/entt/include"
+IncludeDir["yaml_cpp"] = "%{wks.location}/Hazel_demo/vendor/yaml-cpp/include"
 
 group "Dependencies"
 	include "vendor/premake"
 	include "Hazel_demo/vendor/GLFW"
 	include "Hazel_demo/vendor/Glad"
 	include "Hazel_demo/vendor/imgui"
+	include "Hazel_demo/vendor/yaml-cpp"
 
 group ""
 
