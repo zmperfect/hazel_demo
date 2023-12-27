@@ -17,6 +17,7 @@ namespace Hazel {
     void SceneHierarchyPanel::SetContext(const Ref<Scene>& scene)
     {
         m_Context = scene;//设置上下文
+        m_SelectionContext = {};//清空选择上下文
     }
 
     void SceneHierarchyPanel::OnImGuiRender()

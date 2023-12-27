@@ -6,6 +6,8 @@
 
 #include "Hazel/Scene/SceneSerializer.h"
 
+#include "Hazel/Utils/PlatformUtils.h"
+
 namespace Hazel {
 
     EditorLayer::EditorLayer()
@@ -185,18 +187,14 @@ namespace Hazel {
                 //禁用全屏将允许窗口移动到其他窗口的前面，
                 //如果没有更精细的窗口深度/z控制，我们现在无法撤消。
                 //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);1
+                if (ImGui::MenuItem("New", "Ctrl+N"))//新建
+                    NewScene();
 
-                if (ImGui::MenuItem("Serialize"))//序列化
-                {
-                    SceneSerializer serializer(m_ActiveScene);//创建场景序列化器
-                    serializer.Serialize("assets/scenes/Example.hazel");//序列化场景
-                }
+                if (ImGui::MenuItem("Open...", "Ctrl+O"))//打开
+                    OpenScene();
 
-                if (ImGui::MenuItem("Deserialize"))//反序列化
-                {
-                    SceneSerializer serializer(m_ActiveScene);//创建场景序列化器
-                    serializer.Deserialize("assets/scenes/Example.hazel");//反序列化场景
-                }
+                if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))//另存为
+                    SaveSceneAs();
 
                 if (ImGui::MenuItem("Exit")) Application::Get().Close();//退出
                 ImGui::EndMenu();//结束菜单
@@ -240,7 +238,76 @@ namespace Hazel {
 
     void EditorLayer::OnEvent(Event& e)
     {
-        m_CameraController.OnEvent(e);
+        m_CameraController.OnEvent(e);//相机控制器的事件
+
+        EventDispatcher dispatcher(e);//事件分发器
+        dispatcher.Dispatch<KeyPressedEvent>(HZ_BIND_EVENT_FN(EditorLayer::OnKeyPressed));//按键按下事件
     }
+
+    bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
+    {
+        //快捷键
+        if (e.GetRepeatCount() > 0)
+            return false;
+
+        bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);//是否按下了Ctrl
+        bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);//是否按下了Shift
+        switch (e.GetKeyCode())
+        {
+            case Key::N:
+            {
+                if (control)
+                    NewScene();
+
+                break;
+            }
+            case Key::O:
+            {
+                if (control)
+                    OpenScene();
+
+                break;
+            }
+            case Key::S:
+            {
+                if (control && shift)
+                    SaveSceneAs();
+
+                break;
+            }
+        }
+    }
+
+    void EditorLayer::NewScene()
+    {
+        m_ActiveScene = CreateRef<Scene>();
+        m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+        m_SceneHierarchyPanel.SetContext(m_ActiveScene);//设置场景层次面板的上下文
+    }
+
+    void EditorLayer::OpenScene()
+    {
+        std::string filepath = FileDialogs::OpenFile("Hazel Scene (*.hazel)\0*.hazel\0");//按照过滤打开后缀为.hazel的文件
+        if (!filepath.empty())
+        {
+            m_ActiveScene = CreateRef<Scene>();
+            m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+            m_SceneHierarchyPanel.SetContext(m_ActiveScene);//设置场景层次面板的上下文
+
+            SceneSerializer serializer(m_ActiveScene);//场景序列器存储场景
+            serializer.Deserialize(filepath);//反序列化
+        }
+    }
+
+    void EditorLayer::SaveSceneAs()
+    {
+        std::string filepath = FileDialogs::SaveFile("Hazel Scene (*.hazel)\0*.hazel\0");//按照过滤保存后缀为.hazel的文件
+        if (!filepath.empty())
+        {
+            SceneSerializer serializer(m_ActiveScene);//场景序列器存储场景
+            serializer.Serialize(filepath);//序列化
+        }
+    }
+
 
 }
