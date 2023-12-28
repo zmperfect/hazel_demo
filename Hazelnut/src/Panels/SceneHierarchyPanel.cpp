@@ -6,6 +6,13 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Hazel/Scene/Components.h"
+#include <cstring>
+
+//Microsoft C++编译器不支持C++标准库，需要一下的定义来忽略关于std::strncpy()的警告
+
+#ifdef _MSVC_LANG   //如果是Microsoft C++编译器
+    #define _CRT_SECURE_NO_WARNINGS//忽略关于std::strncpy()的警告
+#endif
 
 namespace Hazel {
 
@@ -217,7 +224,7 @@ namespace Hazel {
 
             char buffer[256];//缓冲区
             memset(buffer, 0, sizeof(buffer));//清空缓冲区
-            strcpy_s(buffer, sizeof(buffer), tag.c_str());//复制标签到缓冲区
+            std::strncpy(buffer, tag.c_str(), sizeof(buffer));//复制标签到缓冲区
             if (ImGui::InputText("##Tag", buffer, sizeof(buffer)))//如果输入标签，##Tag表示不显示标签
             {
                 tag = std::string(buffer);//设置标签

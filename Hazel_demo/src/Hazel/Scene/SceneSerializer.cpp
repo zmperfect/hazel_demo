@@ -19,6 +19,7 @@ namespace YAML {
             node.push_back(rhs.x);//x压入节点
             node.push_back(rhs.y);//y压入节点
             node.push_back(rhs.z);//z压入节点
+            node.SetStyle(EmitterStyle::Flow);//设置风格为流
             return node;
         }
 
@@ -44,6 +45,7 @@ namespace YAML {
             node.push_back(rhs.y);
             node.push_back(rhs.z);
             node.push_back(rhs.w);
+            node.SetStyle(EmitterStyle::Flow);//设置风格为流
             return node;
         }
 
@@ -184,11 +186,7 @@ namespace Hazel {
 
     bool SceneSerializer::Deserialize(const std::string& filepath)
     {
-        std::ifstream stream(filepath);//输入文件流
-        std::stringstream strStream;//字符串流
-        strStream << stream.rdbuf();//读取缓冲区
-
-        YAML::Node data = YAML::Load(strStream.str());//加载字符串流
+        YAML::Node data = YAML::LoadFile(filepath);//从文件路径加载数据
         if (!data["Scene"])//如果没有场景
             return false;
 
