@@ -22,3 +22,7 @@
 	url  = https://gitee.com/ljr1998/yaml-cpp
 	path = Hazel_demo/vendor/yaml-cpp
 
+[submodule "Hazel_demo / vendor/ImGuizmo"]
+	url  = https://gitee.com/ljr1998/imguizmo
+	path = Hazel_demo / vendor/ImGuizmo
+
