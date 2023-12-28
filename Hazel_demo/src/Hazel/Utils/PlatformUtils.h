@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <optional>
 
 namespace Hazel {
 
@@ -8,8 +9,8 @@ namespace Hazel {
     {
     public:
         //如果取消，这些返回空字符串
-        static std::string OpenFile(const char* filter);//打开文件
-        static std::string SaveFile(const char* filter);//保存文件
+        static std::optional<std::string> OpenFile(const char* filter);//打开文件
+        static std::optional<std::string> SaveFile(const char* filter);//保存文件
     };
 
 }

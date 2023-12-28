@@ -1,6 +1,7 @@
 #include "hzpch.h"
 #include "Hazel/Utils/PlatformUtils.h"
 
+#include <sstream>
 #include <commdlg.h> //Common Dialog APIs
 #include <GLFW/glfw3.h>
 
@@ -12,7 +13,7 @@
 
 namespace Hazel {
 
-    std::string FileDialogs::OpenFile(const char* filter)
+    std::optional<std::string> FileDialogs::OpenFile(const char* filter)
     {
         OPENFILENAMEA ofn;//打开文件名，A表示ANSI字符集
         CHAR szFile[260] = { 0 };//文件名
@@ -32,11 +33,11 @@ namespace Hazel {
         {
             return ofn.lpstrFile;//返回文件名
         }
-        return std::string();//返回空字符串
+        return std::nullopt;//返回空
 
     }
 
-    std::string FileDialogs::SaveFile(const char* filter)
+    std::optional<std::string> FileDialogs::SaveFile(const char* filter)
     {
         OPENFILENAMEA ofn;//打开文件名，A表示ANSI字符集
         CHAR szFile[260] = { 0 };//文件名
@@ -51,10 +52,13 @@ namespace Hazel {
         ofn.nFilterIndex = 1;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
+        // 设置默认文件名
+        ofn.lpstrDefExt  = strchr(filter, '\0') + 1;//指向一个以NULL结尾的字符串，用于指定默认的扩展名。如果用户指定的文件名没有扩展名，那么缺省的扩展名就会被加到文件名后面。如果用户指定的文件名已经有扩展名，那么这个缺省扩展名就不会被加到文件名后面。如果这个成员为NULL，那么缺省扩展名将不会被加到文件名后面。
+
         if (GetSaveFileNameA(&ofn) == TRUE)
         {
             return ofn.lpstrFile;//返回文件名
         }
-        return std::string();//返回空字符串
+        return std::nullopt;//返回空
     }
 }
