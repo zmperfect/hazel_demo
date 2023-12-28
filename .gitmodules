@@ -26,3 +26,7 @@
 	url  = https://gitee.com/ljr1998/imguizmo
 	path = Hazel_demo / vendor/ImGuizmo
 
+[submodule "Hazel_demo/vendor/ImGuizmo"]
+	url  = https://gitee.com/ljr1998/imguizmo
+	path = Hazel_demo/vendor/ImGuizmo
+
