@@ -245,7 +245,8 @@ namespace Hazel {
             {
                 if (!m_SelectionContext.HasComponent<CameraComponent>())//如果选择的实体没有相机组件
                     m_SelectionContext.AddComponent<CameraComponent>();//添加相机组件
-
+                else
+                    HZ_CORE_WARN("This entity already has a camera component!");
                 ImGui::CloseCurrentPopup();//关闭当前弹出窗口
             }
 
@@ -253,7 +254,8 @@ namespace Hazel {
             {
                 if (!m_SelectionContext.HasComponent<SpriteRendererComponent>())//如果选择的实体没有精灵渲染器组件
                     m_SelectionContext.AddComponent<SpriteRendererComponent>();//添加精灵渲染器组件
-
+                else
+                    HZ_CORE_WARN("This entity already has a sprite renderer component!");
                 ImGui::CloseCurrentPopup();//关闭当前弹出窗口
             }
 
