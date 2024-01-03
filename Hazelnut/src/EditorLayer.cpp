@@ -8,6 +8,10 @@
 
 #include "Hazel/Utils/PlatformUtils.h"
 
+#include "ImGuizmo.h"
+
+#include "Hazel/Math/Math.h"
+
 namespace Hazel {
 
     EditorLayer::EditorLayer()
@@ -221,7 +225,7 @@ namespace Hazel {
 
         m_ViewportFocused = ImGui::IsWindowFocused();//视口是否聚焦
         m_ViewportHovered = ImGui::IsWindowHovered();//视口是否悬停
-        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);//阻止事件
+        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);//阻止事件,当视口不聚焦和不悬停时
 
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();//获取视口面板大小
         
@@ -229,6 +233,51 @@ namespace Hazel {
 
         uint64_t textureID = m_Framebuffer->GetColorAttachmentRendererID();//获取纹理ID
         ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });//显示纹理
+
+        //Gizmos
+        Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();//获取选中的实体
+        if (selectedEntity && m_GizmoType != -1)
+        {
+            ImGuizmo::SetOrthographic(false);//设置正交投影
+            ImGuizmo::SetDrawlist();//设置绘制列表
+
+            float windowWidth = (float)ImGui::GetWindowWidth();//获取窗口宽度
+            float windowHeight = (float)ImGui::GetWindowHeight();//获取窗口高度
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);//设置矩形
+
+            // Camera
+            auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();//获取主相机实体
+            const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;//获取相机组件
+            const glm::mat4& cameraProjection = camera.GetProjection();//获取相机投影矩阵
+            glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());//获取相机视图矩阵
+
+            // Entity Transform
+            auto& tc = selectedEntity.GetComponent<TransformComponent>();//获取实体的变换组件
+            glm::mat4 transform = tc.GetTransform();//获取变换矩阵
+
+            // Snapping
+            bool snap = Input::IsKeyPressed(Key::LeftControl);//是否按下了Ctrl
+            float snapValue = 0.5f;//平移/缩放可捕捉到0.5米
+            // Snap to 45 degrees for rotation
+            if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+                snapValue = 45.0f;
+
+            float snapValues[3] = { snapValue, snapValue, snapValue };//捕捉值
+
+            ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);//这个函数会根据用户的输入（如鼠标拖动）来修改 transform矩阵，从而改变对象的位置、旋转或缩放。
+
+            if (ImGuizmo::IsUsing())
+            {
+                glm::vec3 translation, rotation, scale;//平移、旋转、缩放
+                Math::DecomposeTransform(transform, translation, rotation, scale);//分解变换矩阵
+
+                glm::vec3 deltaRotation = rotation - tc.Rotation;//旋转差值
+                tc.Translation = translation;//设置平移
+                tc.Rotation += deltaRotation;//设置旋转
+                tc.Scale = scale;//设置缩放
+            }
+        }
+
         ImGui::End();
         ImGui::PopStyleVar();//弹出窗口填充
 
@@ -275,6 +324,20 @@ namespace Hazel {
 
                 break;
             }
+
+            //Gizmos的快捷键
+            case Key::Q:
+                m_GizmoType = -1;
+                break;
+            case Key::W:
+                m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+                break;
+            case Key::E:
+                m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+                break;
+            case Key::R:
+                m_GizmoType = ImGuizmo::OPERATION::SCALE;
+                break;
         }
     }
 

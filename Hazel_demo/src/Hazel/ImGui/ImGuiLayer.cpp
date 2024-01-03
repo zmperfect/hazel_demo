@@ -11,6 +11,8 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+#include "ImGuizmo.h"
+
 namespace Hazel {
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
@@ -87,6 +89,7 @@ namespace Hazel {
         ImGui_ImplOpenGL3_NewFrame();//初始化OpenGL3的Implementation
         ImGui_ImplGlfw_NewFrame();//初始化GLFW的Implementation
         ImGui::NewFrame();//初始化Imgui
+        ImGuizmo::BeginFrame();//初始化ImGuizmo
 	}
 
     void ImGuiLayer::End()

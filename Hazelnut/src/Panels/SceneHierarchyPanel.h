@@ -15,6 +15,8 @@ namespace Hazel {
 		void SetContext(const Ref<Scene>& scene);
 
 		void OnImGuiRender();
+
+		Entity GetSelectedEntity() const { return m_SelectionContext;  }//获取选择的实体
 	private:
 		void DrawEntityNode(Entity entity);//绘制实体节点
 		void DrawComponents(Entity entity);//绘制组件

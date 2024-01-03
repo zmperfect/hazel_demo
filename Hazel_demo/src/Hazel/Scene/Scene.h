@@ -18,7 +18,9 @@ namespace Hazel {
         void DestroyEntity(Entity entity);//销毁实体
 
         void OnUpdate(Timestep ts);
-        void OnViewportResize(uint32_t width, uint32_t height);
+        void OnViewportResize(uint32_t width, uint32_t height);//视口调整大小
+
+        Entity GetPrimaryCameraEntity();//获取主相机实体
     private:
         template<typename T>
         void OnComponentAdded(Entity entity, T& component);//组件添加事件

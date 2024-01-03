@@ -3,6 +3,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define GLM_ENABLE_EXPERIMENTAL //启用实验性功能
+#include <glm/gtx/quaternion.hpp>//四元数
+
 #include "ScriptableEntity.h"
 #include "SceneCamera.h"
 
@@ -31,9 +34,7 @@ namespace Hazel {
 
 		glm::mat4 GetTransform() const//获取变换矩阵
         {
-            glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), Rotation.x, { 1, 0, 0 })//绕x轴旋转
-                * glm::rotate(glm::mat4(1.0f), Rotation.y, { 0, 1, 0 })//绕y轴旋转
-                * glm::rotate(glm::mat4(1.0f), Rotation.z, { 0, 0, 1 });//绕z轴旋转
+            glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));//四元数转换为旋转矩阵
 
             return glm::translate(glm::mat4(1.0f), Translation)//平移
                 * rotation//旋转
