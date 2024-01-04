@@ -32,7 +32,7 @@ namespace Hazel {
         m_Registry.destroy(entity);
     }
 
-    void Scene::OnUpdate(Timestep ts)
+    void Scene::OnUpdateRuntime(Timestep ts)
     {
         //Update Scripts
         {
@@ -84,6 +84,21 @@ namespace Hazel {
             Renderer2D::EndScene();//结束渲染
         }
 
+    }
+
+    void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
+    {
+        Renderer2D::BeginScene(camera);//开始渲染
+
+        auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);//获取所有实体的TransformComponent和SpriteRendererComponent组件
+        for (auto entity : group)
+        {
+            auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);//获取组件
+
+            Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color);//渲染
+        }
+
+        Renderer2D::EndScene();//结束渲染
     }
 
     void Scene::OnViewportResize(uint32_t width, uint32_t height)

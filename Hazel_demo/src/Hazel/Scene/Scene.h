@@ -1,8 +1,9 @@
 #pragma once
 
-#include "entt.hpp"
-
 #include "Hazel/Core/Timestep.h"
+#include "Hazel/Renderer/EditorCamera.h"
+
+#include "entt.hpp"
 
 namespace Hazel {
 
@@ -17,7 +18,8 @@ namespace Hazel {
         Entity CreateEntity(const std::string& name = std::string());//创建实体
         void DestroyEntity(Entity entity);//销毁实体
 
-        void OnUpdate(Timestep ts);
+        void OnUpdateRuntime(Timestep ts);//运行时更新
+        void OnUpdateEditor(Timestep ts, EditorCamera& camera);//编辑器更新
         void OnViewportResize(uint32_t width, uint32_t height);//视口调整大小
 
         Entity GetPrimaryCameraEntity();//获取主相机实体

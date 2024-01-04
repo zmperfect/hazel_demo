@@ -134,6 +134,18 @@ namespace Hazel {
 		StartBatch();//开始批处理
 	}
 
+	void Renderer2D::BeginScene(const EditorCamera& camera)
+	{
+		HZ_PROFILE_FUNCTION();//性能分析
+		
+		glm::mat4 viewProj = camera.GetViewProjection();//视图投影矩阵
+
+		s_Data.TextureShader->Bind();//绑定纹理着色器
+		s_Data.TextureShader->SetMat4("u_ViewProjection", viewProj);//设置视图投影矩阵
+
+		StartBatch();//开始批处理
+	}
+
 	void Renderer2D::EndScene()
 	{
 		HZ_PROFILE_FUNCTION();
