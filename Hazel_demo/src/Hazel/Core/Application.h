@@ -38,7 +38,7 @@ namespace Hazel {
 		bool OnWindowClose(WindowCloseEvent& e);//处理窗口关闭事件
 		bool OnWindowResize(WindowResizeEvent& e);//处理窗口大小改变事件)
 	private:
-		std::unique_ptr<Window> m_Window;
+		Scope<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		bool m_Minimized = false;
