@@ -59,7 +59,7 @@ namespace Hazel {
 			{ ShaderDataType::Float2, "a_TexCoord" },
 			{ ShaderDataType::Float, "a_TexIndex" },
 			{ ShaderDataType::Float, "a_TilingFactor" }
-			});
+		});
 		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);//添加方形顶点缓冲区
 
 		s_Data.QuadVertexBufferBase = new QuadVertex[s_Data.MaxVertices];//创建方形顶点缓冲区基地址

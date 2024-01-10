@@ -26,6 +26,7 @@ namespace Hazel {
         m_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
         
         FramebufferSpecification fbSpec;//帧缓冲区规范
+        fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };//帧缓冲区纹理格式
         fbSpec.Width = 1280;
         fbSpec.Height = 720;
         m_Framebuffer = Framebuffer::Create(fbSpec);//创建帧缓冲区
