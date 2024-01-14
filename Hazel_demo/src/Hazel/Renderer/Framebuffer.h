@@ -9,7 +9,8 @@ namespace Hazel {
         None = 0,
 
         // Color
-        RGBA8,
+        RGBA8,//四通道8位
+        RED_INTEGER,//红色整数
 
         // Depth/stencil
         DEPTH24STENCIL8,
@@ -57,6 +58,7 @@ namespace Hazel {
         virtual void Unbind() = 0;//解绑
 
         virtual void Resize(uint32_t width, uint32_t height) = 0;//调整大小
+        virtual int ReadPixel(uint32_t attachmentIndex, int x, int y) = 0;//读取像素
 
         virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;//获取颜色附件渲染器ID
 

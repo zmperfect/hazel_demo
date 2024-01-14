@@ -24,16 +24,16 @@ namespace Hazel {
             glBindTexture(TextureTarget(multisampled), id);//绑定纹理
         }
 
-        static void AttachColorTexture(uint32_t id, int samples, GLenum format, uint32_t width, uint32_t height, int index)//附加颜色纹理
+        static void AttachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, uint32_t width, uint32_t height, int index)//附加颜色纹理
         {
             bool multisampled = samples > 1;//是否是多重采样
             if (multisampled)//如果是多重采样
             {
-                glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, GL_FALSE);//创建多重采样纹理
+                glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_FALSE);//创建多重采样纹理
             }
             else
             {
-                glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);//创建纹理
+                glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);//创建纹理
                 
                 //设置纹理参数
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //设置了纹理的缩小过滤方式为线性过滤
@@ -129,7 +129,10 @@ namespace Hazel {
                 switch (m_ColorAttachmentSpecifications[i].TextureFormat)
                 {
                 case FramebufferTextureFormat::RGBA8:
-                    Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_RGBA8, m_Specification.Width, m_Specification.Height, i);
+                    Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_RGBA8, GL_RGBA, m_Specification.Width, m_Specification.Height, i);
+                    break;
+                case FramebufferTextureFormat::RED_INTEGER:
+                    Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_R32I, GL_RED_INTEGER, m_Specification.Width, m_Specification.Height, i);
                     break;
                 }
             }
@@ -188,6 +191,17 @@ namespace Hazel {
         m_Specification.Height = height;
 
         Invalidate();
+    }
+
+    int OpenGLFramebuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
+    {
+        HZ_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
+
+        glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
+        int pixelData;
+        glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
+        return pixelData;
+
     }
 
 }

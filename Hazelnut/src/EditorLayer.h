@@ -46,6 +46,7 @@ namespace Hazel {
 
         bool m_ViewportFocused = false, m_ViewportHovered = false;//视口聚焦，视口悬停
         glm::vec2 m_ViewportSize = { 0.0f, 0.0f };//视口大小
+        glm::vec2 m_ViewportBounds[2];//视口边界
 
         glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 

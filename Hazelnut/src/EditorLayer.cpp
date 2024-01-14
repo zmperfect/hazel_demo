@@ -26,7 +26,7 @@ namespace Hazel {
         m_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
         
         FramebufferSpecification fbSpec;//帧缓冲区规范
-        fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };//帧缓冲区纹理格式
+        fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };//帧缓冲区纹理格式，颜色RGBA8，颜色RED_INTEGER，深度
         fbSpec.Width = 1280;
         fbSpec.Height = 720;
         m_Framebuffer = Framebuffer::Create(fbSpec);//创建帧缓冲区
@@ -130,6 +130,20 @@ namespace Hazel {
         //Update scene
         m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);//活动场景更新
 
+        auto[mx, my] = ImGui::GetMousePos();//获取鼠标位置
+        mx -= m_ViewportBounds[0].x;//减去视口边界
+        my -= m_ViewportBounds[0].y;//减去视口边界
+        glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];//视口大小
+        my = viewportSize.y - my;//视口大小减去鼠标位置
+        int mouseX = (int)mx;//鼠标X
+        int mouseY = (int)my;//鼠标Y
+
+        if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+        {
+            int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);//读取像素
+            HZ_CORE_WARN("Pixel Data: {0}", pixelData);//输出像素数据
+        }
+
         m_Framebuffer->Unbind();
 
     }
@@ -228,6 +242,7 @@ namespace Hazel {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });//设置窗口填充
         ImGui::Begin("Viewport");//开始视口
+        auto viewportOffset = ImGui::GetCursorPos();//获取视口偏移(包括tab bar)
 
         m_ViewportFocused = ImGui::IsWindowFocused();//视口是否聚焦
         m_ViewportHovered = ImGui::IsWindowHovered();//视口是否悬停
@@ -237,8 +252,18 @@ namespace Hazel {
         
         m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };//设置视口大小
 
-        uint64_t textureID = m_Framebuffer->GetColorAttachmentRendererID();//获取纹理ID
+        uint64_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);//获取纹理ID
         ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });//显示纹理
+
+        //窗口边界设置
+        auto windowSize = ImGui::GetWindowSize();//获取窗口大小
+        ImVec2 minBound = ImGui::GetWindowPos();//获取窗口最小边界
+        minBound.x += viewportOffset.x;//加上视口偏移
+        minBound.y += viewportOffset.y;
+
+        ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };//计算窗口最大边界
+        m_ViewportBounds[0] = { minBound.x, minBound.y };//设置视口最小边界
+        m_ViewportBounds[1] = { maxBound.x, maxBound.y };//设置视口最大边界
 
         //Gizmos
         Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();//获取选中的实体
