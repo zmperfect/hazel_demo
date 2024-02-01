@@ -24,7 +24,7 @@ namespace Hazel {
         HZ_PROFILE_FUNCTION();//获取函数签名
 
         m_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
-        
+    
         FramebufferSpecification fbSpec;//帧缓冲区规范
         fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };//帧缓冲区纹理格式，颜色RGBA8，颜色RED_INTEGER，深度
         fbSpec.Width = 1280;
@@ -126,6 +126,9 @@ namespace Hazel {
         m_Framebuffer->Bind();//绑定帧缓冲区
         RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });//{ 0.1f, 0.1f, 0.1f, 1 }指的是RGBA，即红绿蓝透明度，范围是0~1
         RenderCommand::Clear();//清除颜色缓冲区和深度缓冲区
+
+        //Clear our entity ID attachment to -1
+        m_Framebuffer->ClearAttachment(1, -1);//清除帧缓冲区的附件
 
         //Update scene
         m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);//活动场景更新
