@@ -21,6 +21,7 @@ namespace Hazel {
         virtual void SetInt(const std::string& name, int value) override;//设置int类型的uniform
         virtual void SetIntArray(const std::string& name, int* values, uint32_t count) override;//设置int数组类型的uniform
         virtual void SetFloat(const std::string& name, float value) override;//设置float类型的uniform
+        virtual void SetFloat2(const std::string& name, const glm::vec2& value) override;//设置float2类型的uniform
         virtual void SetFloat3(const std::string & name, const glm::vec3 & value) override;//设置float3类型的uniform
         virtual void SetFloat4(const std::string & name, const glm::vec4 & value) override;//设置float4类型的uniform
         virtual void SetMat4(const std::string & name, const glm::mat4 & value) override;//设置mat4类型的uniform
