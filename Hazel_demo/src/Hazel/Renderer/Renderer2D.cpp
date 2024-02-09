@@ -17,6 +17,9 @@ namespace Hazel {
 		glm::vec2 TexCoord;//纹理坐标
 		float TexIndex;//纹理索引
 		float TilingFactor;//平铺因子
+
+		// Editor-only
+		int EntityID;//实体ID
 	};
 
 	//渲染数据
@@ -54,11 +57,12 @@ namespace Hazel {
 
 		s_Data.QuadVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(QuadVertex));//创建方形顶点缓冲区
 		s_Data.QuadVertexBuffer->SetLayout({//设置方形顶点缓冲区布局
-			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float4, "a_Color" },
-			{ ShaderDataType::Float2, "a_TexCoord" },
-			{ ShaderDataType::Float, "a_TexIndex" },
-			{ ShaderDataType::Float, "a_TilingFactor" }
+            { ShaderDataType::Float3, "a_Position"		},
+            { ShaderDataType::Float4, "a_Color"			},
+            { ShaderDataType::Float2, "a_TexCoord"    },
+            { ShaderDataType::Float,  "a_TexIndex"      },
+            { ShaderDataType::Float,  "a_TilingFactor"  },
+            { ShaderDataType::Int,    "a_EntityID"			}
 		});
 		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);//添加方形顶点缓冲区
 
@@ -215,7 +219,7 @@ namespace Hazel {
 		DrawQuad(transform, texture, tilingFactor, tintColor);
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID)
 	{
 		HZ_PROFILE_FUNCTION();
 
@@ -236,6 +240,7 @@ namespace Hazel {
             s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];//纹理坐标
             s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;//纹理索引
             s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;//平铺因子
+			s_Data.QuadVertexBufferPtr->EntityID = entityID;//实体ID
             s_Data.QuadVertexBufferPtr++;
 		}
 
@@ -244,7 +249,7 @@ namespace Hazel {
 		s_Data.Stats.QuadCount++;//方形数量++
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
 	{
 		HZ_PROFILE_FUNCTION();
 
@@ -284,6 +289,7 @@ namespace Hazel {
             s_Data.QuadVertexBufferPtr->TexCoord = textureCoords[i];//纹理坐标
             s_Data.QuadVertexBufferPtr->TexIndex = textureIndex;//纹理索引
             s_Data.QuadVertexBufferPtr->TilingFactor = tilingFactor;//平铺因子
+			s_Data.QuadVertexBufferPtr->EntityID = entityID;//实体ID
             s_Data.QuadVertexBufferPtr++;
 		}
 
@@ -325,6 +331,11 @@ namespace Hazel {
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
 		DrawQuad(transform, texture, tilingFactor, tintColor);
+	}
+
+	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+	{
+		DrawQuad(transform, src.Color, entityID);
 	}
 
 	void Renderer2D::ResetStats()

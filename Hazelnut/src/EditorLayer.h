@@ -38,6 +38,8 @@ namespace Hazel {
         Entity m_CameraEntity;//相机实体
         Entity m_SecondCamera;//第二个相机实体
 
+        Entity m_HoveredEntity;//悬停实体
+
         bool m_PrimaryCamera = true;//主相机
 
         EditorCamera m_EditorCamera;//编辑器相机

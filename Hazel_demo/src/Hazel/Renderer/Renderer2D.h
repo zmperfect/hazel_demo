@@ -7,6 +7,8 @@
 #include "Hazel/Renderer/Camera.h"
 #include "Hazel/Renderer/EditorCamera.h"
 
+#include "Hazel/Scene/Components.h"
+
 namespace Hazel {
 
     class Renderer2D
@@ -27,13 +29,15 @@ namespace Hazel {
         static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));//绘制矩形，带纹理，带重复因子，带颜色色调
         static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));//绘制矩形，带纹理，带重复因子，带颜色色调
 
-        static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
-        static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));//变换矩阵，纹理，重复因子，颜色色调
+        static void DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
+        static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f), int entityID = -1);//变换矩阵，纹理，重复因子，颜色色调
 
         static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);//绘制旋转矩形
         static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);//绘制旋转矩形
         static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));//绘制旋转矩形，带纹理，带重复因子，带颜色色调
         static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));//绘制旋转矩形，带纹理，带重复因子，带颜色色调
+
+        static void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID = -1);//绘制精灵
 
         // Stats
         struct Statistics

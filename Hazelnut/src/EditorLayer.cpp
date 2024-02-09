@@ -144,7 +144,7 @@ namespace Hazel {
         if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
         {
             int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);//读取像素
-            HZ_CORE_WARN("Pixel Data: {0}", pixelData);//输出像素数据
+            m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
         }
 
         m_Framebuffer->Unbind();
@@ -232,6 +232,11 @@ namespace Hazel {
         m_SceneHierarchyPanel.OnImGuiRender();//场景层次面板的ImGui渲染
 
         ImGui::Begin("Stats");//开始显示统计数据
+
+        std::string name = "None";//名称
+        if (m_HoveredEntity)//如果悬停实体存在
+            name = m_HoveredEntity.GetComponent<TagComponent>().Tag;//获取悬停实体的标签组件的标签
+        ImGui::Text("Hovered Entity: %s", name.c_str());//显示悬停实体的名称
 
         auto stats = Renderer2D::GetStats();//获取渲染器统计数据
         //显示渲染器统计数据

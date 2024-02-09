@@ -78,7 +78,7 @@ namespace Hazel {
             {
                 auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);//获取组件
 
-                Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color);//渲染
+                Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);//渲染
             }
 
             Renderer2D::EndScene();//结束渲染
@@ -95,7 +95,7 @@ namespace Hazel {
         {
             auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);//获取组件
 
-            Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color);//渲染
+            Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);//渲染
         }
 
         Renderer2D::EndScene();//结束渲染
