@@ -250,7 +250,13 @@ namespace Hazel {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });//设置窗口填充
         ImGui::Begin("Viewport");//开始视口
-        auto viewportOffset = ImGui::GetCursorPos();//获取视口偏移(包括tab bar)
+
+        // 窗口设置
+        auto viewportMinRegion = ImGui::GetWindowContentRegionMin();//获取窗口内容区域最小值
+        auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();//获取窗口内容区域最大值
+        auto viewportOffset = ImGui::GetWindowPos();//获取窗口位置
+        m_ViewportBounds[0] = { viewportOffset.x + viewportMinRegion.x, viewportOffset.y + viewportMinRegion.y };//设置视口最小边界
+        m_ViewportBounds[1] = { viewportOffset.x + viewportMaxRegion.x, viewportOffset.y + viewportMaxRegion.y };//设置视口最大边界
 
         m_ViewportFocused = ImGui::IsWindowFocused();//视口是否聚焦
         m_ViewportHovered = ImGui::IsWindowHovered();//视口是否悬停
@@ -263,16 +269,6 @@ namespace Hazel {
         uint64_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);//获取纹理ID
         ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });//显示纹理
 
-        //窗口边界设置
-        auto windowSize = ImGui::GetWindowSize();//获取窗口大小
-        ImVec2 minBound = ImGui::GetWindowPos();//获取窗口最小边界
-        minBound.x += viewportOffset.x;//加上视口偏移
-        minBound.y += viewportOffset.y;
-
-        ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };//计算窗口最大边界
-        m_ViewportBounds[0] = { minBound.x, minBound.y };//设置视口最小边界
-        m_ViewportBounds[1] = { maxBound.x, maxBound.y };//设置视口最大边界
-
         //Gizmos
         Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();//获取选中的实体
         if (selectedEntity && m_GizmoType != -1)
@@ -280,9 +276,7 @@ namespace Hazel {
             ImGuizmo::SetOrthographic(false);//设置正交投影
             ImGuizmo::SetDrawlist();//设置绘制列表
 
-            float windowWidth = (float)ImGui::GetWindowWidth();//获取窗口宽度
-            float windowHeight = (float)ImGui::GetWindowHeight();//获取窗口高度
-            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);//设置矩形
+            ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);//设置矩形
 
             // Camera
             
