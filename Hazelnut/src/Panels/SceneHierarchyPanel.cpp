@@ -64,6 +64,11 @@ namespace Hazel {
         ImGui::End();//结束场景层次面板
     }
 
+    void SceneHierarchyPanel::SetSelectedEntity(Entity entity)
+    {
+        m_SelectionContext = entity;//设置选择上下文
+    }
+
     void SceneHierarchyPanel::DrawEntityNode(Entity entity)
     {
         auto& tag = entity.GetComponent<TagComponent>().Tag;//获取标签组件

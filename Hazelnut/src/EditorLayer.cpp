@@ -331,6 +331,7 @@ namespace Hazel {
 
         EventDispatcher dispatcher(e);//事件分发器
         dispatcher.Dispatch<KeyPressedEvent>(HZ_BIND_EVENT_FN(EditorLayer::OnKeyPressed));//按键按下事件
+        dispatcher.Dispatch<MouseButtonPressedEvent>(HZ_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));//鼠标按下事件
     }
 
     bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
@@ -391,6 +392,16 @@ namespace Hazel {
                 break;
             }
         }
+    }
+
+    bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+    {
+        if (e.GetMouseButton() == Mouse::ButtonLeft)
+        {
+            if (m_ViewportHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(Key::LeftAlt))
+                m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
+        }
+        return false;
     }
 
     void EditorLayer::NewScene()
