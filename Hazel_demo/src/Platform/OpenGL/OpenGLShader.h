@@ -42,10 +42,20 @@ namespace Hazel {
     private:
         std::string ReadFile(const std::string& filePath);//从文件中读取shader
         std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);//预处理shader
-        void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);//编译shader
+
+        void CompileOrGetVulkanBinaries(const std::unordered_map<GLenum, std::string>& shaderSources);
+        void CompileOrGetOpenGLBinaries();
+        void CreateProgram();
+        void Reflect(GLenum stage, const std::vector<uint32_t>& shaderData);
     private:
         uint32_t m_RendererID;//shader的id
+        std::string m_FilePath;//shader的文件路径
         std::string m_Name;//shader的名字
+
+        std::unordered_map<GLenum, std::vector<uint32_t>> m_VulkanSPIRV;
+        std::unordered_map<GLenum, std::vector<uint32_t>> m_OpenGLSPIRV;
+
+        std::unordered_map<GLenum, std::string> m_OpenGLSourceCode;
     };
 
 }

@@ -15,10 +15,22 @@ int main(int argc, char** argv);//main函数的声明
 
 namespace Hazel {
 
+	struct ApplicationCommandLineArgs//Application的命令行参数
+	{
+        int Count = 0;
+        char** Args = nullptr;
+
+		const char* operator[](int index) const
+		{
+			HZ_CORE_ASSERT(index < Count);
+			return Args[index];
+		}
+    };
+
 	class Application
 	{
 	public:
-		Application(const std::string& name = "Hazel App");
+		Application(const std::string& name = "Hazel App", ApplicationCommandLineArgs args = ApplicationCommandLineArgs());
 		virtual ~Application();
 
 		void OnEvent(Event& e);//处理事件
@@ -33,11 +45,14 @@ namespace Hazel {
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }//返回ImGuiLayer
 
 		static Application& Get() { return *s_Instance; }
+
+		ApplicationCommandLineArgs GetCommandLineArgs() const { return m_CommandLineArgs; }
 	private:
 		void Run();//运行Application
 		bool OnWindowClose(WindowCloseEvent& e);//处理窗口关闭事件
 		bool OnWindowResize(WindowResizeEvent& e);//处理窗口大小改变事件)
 	private:
+		ApplicationCommandLineArgs m_CommandLineArgs;
 		Scope<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
@@ -51,6 +66,6 @@ namespace Hazel {
 	};
 
 	// To be defined in CLIENT
-	Application* CreateApplication();
+	Application* CreateApplication(ApplicationCommandLineArgs args);
 
 }

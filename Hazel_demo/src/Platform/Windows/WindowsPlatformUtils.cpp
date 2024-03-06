@@ -12,7 +12,7 @@
 
 namespace Hazel {
 
-    std::optional<std::string> FileDialogs::OpenFile(const char* filter)
+    std::string FileDialogs::OpenFile(const char* filter)
     {
         OPENFILENAMEA ofn;//打开文件名，A表示ANSI字符集
         CHAR szFile[260] = { 0 };//文件名
@@ -27,7 +27,7 @@ namespace Hazel {
 
         if (GetCurrentDirectoryA(256, currentDir) == 0)//获取当前目录
         {
-            return std::nullopt;//返回空
+            return std::string();//返回空
         }
 
         ofn.lpstrFilter = filter; //指定文件名筛选字符串，该字段决定了对话框中“文件类型”下拉式列表框中的内容，字符串可以由多组内容组成，每组包括一个说明字符串和一个筛选字符串，字符串的最后用两个0结束（即两个NULL字符）。如下面的字符串将在列表框中显示两项内容，选择不同项目的时候分别列出“* .txt”文件或者所有文件“* .*" ：
@@ -39,11 +39,11 @@ namespace Hazel {
         {
             return ofn.lpstrFile;//返回文件名
         }
-        return std::nullopt;//返回空
+        return std::string();//返回空
 
     }
 
-    std::optional<std::string> FileDialogs::SaveFile(const char* filter)
+    std::string FileDialogs::SaveFile(const char* filter)
     {
         OPENFILENAMEA ofn;//打开文件名，A表示ANSI字符集
         CHAR szFile[260] = { 0 };//文件名
@@ -57,7 +57,7 @@ namespace Hazel {
         ofn.nMaxFile = sizeof(szFile);
         if (GetCurrentDirectoryA(256, currentDir) == 0)
         {
-            return std::nullopt;//返回空
+            return std::string();//返回空
         }
         ofn.lpstrFilter = filter;
         ofn.nFilterIndex = 1;
@@ -70,6 +70,6 @@ namespace Hazel {
         {
             return ofn.lpstrFile;//返回文件名
         }
-        return std::nullopt;//返回空
+        return std::string();//返回空
     }
 }

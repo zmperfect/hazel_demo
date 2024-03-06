@@ -3,9 +3,11 @@
 
 #include "Hazel/Renderer/VertexArray.h"
 #include "Hazel/Renderer/Shader.h"
+#include "Hazel/Renderer/UniformBuffer.h"
 #include "Hazel/Renderer/RenderCommand.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Hazel {
 
@@ -45,6 +47,13 @@ namespace Hazel {
 		glm::vec4 QuadVertexPositions[4];//方形顶点位置
 
 		Renderer2D::Statistics Stats;//统计
+
+		struct CameraData
+		{
+			glm::mat4 ViewProjection;//视图投影矩阵
+		};
+		CameraData CameraBuffer;//相机缓冲区
+		Ref<UniformBuffer> CameraUniformBuffer;//相机统一缓冲区
 	};
 
 	static Renderer2DData s_Data;//渲染器2D数据
@@ -99,8 +108,6 @@ namespace Hazel {
 			samplers[i] = i;
 
 		s_Data.TextureShader = Shader::Create("assets/shaders/Texture.glsl");//创建纹理着色器
-		s_Data.TextureShader->Bind();//绑定纹理着色器
-		s_Data.TextureShader->SetIntArray("u_Textures", samplers, s_Data.MaxTextureSlots);//设置纹理槽
 
 		// Set first texture slot to 0
 		s_Data.TextureSlots[0] = s_Data.WhiteTexture;
@@ -109,6 +116,8 @@ namespace Hazel {
 		s_Data.QuadVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };//右下角
 		s_Data.QuadVertexPositions[2] = { 0.5f, 0.5f, 0.0f, 1.0f };//右上角
 		s_Data.QuadVertexPositions[3] = { -0.5f, 0.5f, 0.0f, 1.0f };//左上角
+
+		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(Renderer2DData::CameraData), 0);//创建相机统一缓冲区
 	}
 
 	void Renderer2D::Shutdown()
@@ -130,10 +139,8 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();
 
-		glm::mat4 viewProj = camera.GetProjection() * glm::inverse(transform);//视图投影矩阵
-
-		s_Data.TextureShader->Bind();//绑定纹理着色器
-		s_Data.TextureShader->SetMat4("u_ViewProjection", viewProj);//设置视图投影矩阵
+		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);//设置相机缓冲区视图投影矩阵
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));//设置相机统一缓冲区数据
 
 		StartBatch();//开始批处理
 	}
@@ -142,10 +149,8 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();//性能分析
 		
-		glm::mat4 viewProj = camera.GetViewProjection();//视图投影矩阵
-
-		s_Data.TextureShader->Bind();//绑定纹理着色器
-		s_Data.TextureShader->SetMat4("u_ViewProjection", viewProj);//设置视图投影矩阵
+		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();//设置相机缓冲区视图投影矩阵
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));//设置相机统一缓冲区数据
 
 		StartBatch();//开始批处理
 	}
@@ -177,6 +182,7 @@ namespace Hazel {
 		for (uint32_t i = 0; i < s_Data.TextureSlotIndex; i++)
 			s_Data.TextureSlots[i]->Bind(i);
 
+		s_Data.TextureShader->Bind();//绑定纹理着色器
 		RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);//按索引绘制
 		s_Data.Stats.DrawCalls++;//绘制调用次数++
 	}

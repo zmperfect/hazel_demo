@@ -6,254 +6,441 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <shaderc/shaderc.hpp>
+#include <spirv_cross/spirv_cross.hpp>
+#include <spirv_cross/spirv_glsl.hpp>
+
+#include "Hazel/Core/Time.h"
+
 namespace Hazel {
 
-    static GLenum ShaderTypeFromString(const std::string& type)//类型读取TODO: change to switch case
-    {
-        if (type == "vertex")
-            return GL_VERTEX_SHADER;//顶点着色器
-        if (type == "fragment" || type == "pixel")
-            return GL_FRAGMENT_SHADER;//片段着色器
+    namespace Utils {
 
-        HZ_CORE_ASSERT(false, "Unknown shader type!");//未知着色器类型
-        return 0;
+        static GLenum ShaderTypeFromString(const std::string& type)
+        {
+            if (type == "vertex")
+                return GL_VERTEX_SHADER;
+            if (type == "fragment" || type == "pixel")
+                return GL_FRAGMENT_SHADER;
+
+            HZ_CORE_ASSERT(false, "Unknown shader type!");
+            return 0;
+        }
+
+        static shaderc_shader_kind GLShaderStageToShaderC(GLenum stage)
+        {
+            switch (stage)
+            {
+            case GL_VERTEX_SHADER:   return shaderc_glsl_vertex_shader;
+            case GL_FRAGMENT_SHADER: return shaderc_glsl_fragment_shader;
+            }
+            HZ_CORE_ASSERT(false);
+            return (shaderc_shader_kind)0;
+        }
+
+        static const char* GLShaderStageToString(GLenum stage)
+        {
+            switch (stage)
+            {
+            case GL_VERTEX_SHADER:   return "GL_VERTEX_SHADER";
+            case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
+            }
+            HZ_CORE_ASSERT(false);
+            return nullptr;
+        }
+
+        static const char* GetCacheDirectory()
+        {
+            // TODO: make sure the assets directory is valid
+            return "assets/cache/shader/opengl";
+        }
+
+        static void CreateCacheDirectoryIfNeeded()
+        {
+            std::string cacheDirectory = GetCacheDirectory();
+            if (!std::filesystem::exists(cacheDirectory))
+                std::filesystem::create_directories(cacheDirectory);
+        }
+
+        static const char* GLShaderStageCachedOpenGLFileExtension(uint32_t stage)
+        {
+            switch (stage)
+            {
+            case GL_VERTEX_SHADER:    return ".cached_opengl.vert";
+            case GL_FRAGMENT_SHADER:  return ".cached_opengl.frag";
+            }
+            HZ_CORE_ASSERT(false);
+            return "";
+        }
+
+        static const char* GLShaderStageCachedVulkanFileExtension(uint32_t stage)
+        {
+            switch (stage)
+            {
+            case GL_VERTEX_SHADER:    return ".cached_vulkan.vert";
+            case GL_FRAGMENT_SHADER:  return ".cached_vulkan.frag";
+            }
+            HZ_CORE_ASSERT(false);
+            return "";
+        }
+
+
     }
 
-    OpenGLShader::OpenGLShader(const std::string& filePath)//从文件加载着色器
+    OpenGLShader::OpenGLShader(const std::string& filepath)
+        : m_FilePath(filepath)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
-        std::string source = ReadFile(filePath);//读取文件
-        auto shaderSources = PreProcess(source);//预处理
-        Compile(shaderSources);//编译
+        Utils::CreateCacheDirectoryIfNeeded();
 
-        //从文件名中提取着色器名称
-        auto lastSlash = filePath.find_last_of("/\\");//查找最后一个斜杠
-        lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;//如果没有斜杠，从0开始，否则从斜杠后开始
-        auto lastDot = filePath.rfind('.');//查找最后一个点
-        auto count = lastDot == std::string::npos ? filePath.size() - lastSlash : lastDot - lastSlash;//如果没有点，从斜杠后开始，否则从点前开始
-        m_Name = filePath.substr(lastSlash, count);//获取名称
+        std::string source = ReadFile(filepath);
+        auto shaderSources = PreProcess(source);
+
+        {
+            Timer timer;
+            CompileOrGetVulkanBinaries(shaderSources);
+            CompileOrGetOpenGLBinaries();
+            CreateProgram();
+            HZ_CORE_WARN("Shader creation took {0} ms", timer.ElapsedMillis());
+        }
+
+        // Extract name from filepath
+        auto lastSlash = filepath.find_last_of("/\\");
+        lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
+        auto lastDot = filepath.rfind('.');
+        auto count = lastDot == std::string::npos ? filepath.size() - lastSlash : lastDot - lastSlash;
+        m_Name = filepath.substr(lastSlash, count);
     }
 
-    OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)//从源码加载着色器
+    OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
         : m_Name(name)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
-        std::unordered_map<GLenum, std::string> sources;//着色器源码
-        sources[GL_VERTEX_SHADER] = vertexSrc;//顶点着色器
-        sources[GL_FRAGMENT_SHADER] = fragmentSrc;//片段着色器
-        Compile(sources);//编译
+        std::unordered_map<GLenum, std::string> sources;
+        sources[GL_VERTEX_SHADER] = vertexSrc;
+        sources[GL_FRAGMENT_SHADER] = fragmentSrc;
+
+        CompileOrGetVulkanBinaries(sources);
+        CompileOrGetOpenGLBinaries();
+        CreateProgram();
     }
 
     OpenGLShader::~OpenGLShader()
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
         glDeleteProgram(m_RendererID);
     }
 
     std::string OpenGLShader::ReadFile(const std::string& filepath)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
-        std::string result;//结果
+        std::string result;
         std::ifstream in(filepath, std::ios::in | std::ios::binary); // ifstream closes itself due to RAII
-        if (in)//如果打开成功
+        if (in)
         {
-            in.seekg(0, std::ios::end);//定位到文件末尾
-            size_t size = in.tellg();//获取文件大小
-            if (size != 1)
+            in.seekg(0, std::ios::end);
+            size_t size = in.tellg();
+            if (size != -1)
             {
-                result.resize(size);//调整结果大小
-                in.seekg(0, std::ios::beg);//定位到文件开头
-                in.read(&result[0], size);//读取文件
+                result.resize(size);
+                in.seekg(0, std::ios::beg);
+                in.read(&result[0], size);
             }
             else
             {
-                HZ_CORE_ERROR(false, "Could not read from file '{0}'", filepath);//输出错误
+                HZ_CORE_ERROR("Could not read from file '{0}'", filepath);
             }
         }
-        else//如果打开失败
+        else
         {
-            HZ_CORE_ERROR("Could not open file '{0}'", filepath);//输出错误
+            HZ_CORE_ERROR("Could not open file '{0}'", filepath);
         }
 
-        return result;//返回结果
+        return result;
     }
 
     std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
-        std::unordered_map<GLenum, std::string> shaderSources;//着色器源码
+        std::unordered_map<GLenum, std::string> shaderSources;
 
-        const char* typeToken = "#type";//类型标记
-        size_t typeTokenLength = strlen(typeToken);//类型标记长度
-        size_t pos = source.find(typeToken, 0);//查找类型标记
-        while (pos != std::string::npos)//npos 是一个常数，用来表示不存在的位置,string::npos代表字符串到头了结束了
+        const char* typeToken = "#type";
+        size_t typeTokenLength = strlen(typeToken);
+        size_t pos = source.find(typeToken, 0); //Start of shader type declaration line
+        while (pos != std::string::npos)
         {
-            size_t eol = source.find_first_of("\r\n", pos);//查找换行符
-            HZ_CORE_ASSERT(eol != std::string::npos, "Syntax error");//如果换行符不是字符串结尾，输出错误
-            size_t begin = pos + typeTokenLength + 1;//开始位置(在"#type"之后)
-            std::string type = source.substr(begin, eol - begin);//获取类型
-            HZ_CORE_ASSERT(ShaderTypeFromString(type), "Invalid shader type specified");//如果类型无效，输出错误
+            size_t eol = source.find_first_of("\r\n", pos); //End of shader type declaration line
+            HZ_CORE_ASSERT(eol != std::string::npos, "Syntax error");
+            size_t begin = pos + typeTokenLength + 1; //Start of shader type name (after "#type " keyword)
+            std::string type = source.substr(begin, eol - begin);
+            HZ_CORE_ASSERT(Utils::ShaderTypeFromString(type), "Invalid shader type specified");
 
-            size_t nextLinePos = source.find_first_not_of("\r\n", eol); //shader代码的开始位置(位于shader type描述符的下一行)
-            HZ_CORE_ASSERT(nextLinePos != std::string::npos, "Syntax error");//如果开始位置不是字符串结尾，输出错误
-            pos = source.find(typeToken, nextLinePos);//Start of next shader type declaration line
-            shaderSources[ShaderTypeFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);//shader code 获取
+            size_t nextLinePos = source.find_first_not_of("\r\n", eol); //Start of shader code after shader type declaration line
+            HZ_CORE_ASSERT(nextLinePos != std::string::npos, "Syntax error");
+            pos = source.find(typeToken, nextLinePos); //Start of next shader type declaration line
+
+            shaderSources[Utils::ShaderTypeFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
         }
+
         return shaderSources;
     }
 
-    void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
+    void OpenGLShader::CompileOrGetVulkanBinaries(const std::unordered_map<GLenum, std::string>& shaderSources)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        GLuint program = glCreateProgram();
 
-        GLint program = glCreateProgram();//创建着色器程序
-        HZ_CORE_ASSERT(shaderSources.size() <= 2, "We only support 2 shaders for now");//如果着色器数量大于2，输出错误
-        std::array<GLenum, 2> glShaderIDs;//着色器ID数组
-        int glShaderIDIndex = 0;//着色器ID数组索引
-        for (auto& kv : shaderSources)
+        shaderc::Compiler compiler;
+        shaderc::CompileOptions options;
+        options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_2);
+        const bool optimize = true;
+        if (optimize)
+            options.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+        std::filesystem::path cacheDirectory = Utils::GetCacheDirectory();
+
+        auto& shaderData = m_VulkanSPIRV;
+        shaderData.clear();
+        for (auto&& [stage, source] : shaderSources)
         {
-            GLenum type = kv.first;//着色器类型
-            const std::string& source = kv.second;//着色器源码
-            GLuint shader = glCreateShader(type);//创建着色器
-            const GLchar* sourceCStr = source.c_str();//返回着色器源码字符串的首地址
-            glShaderSource(shader, 1, &sourceCStr, 0);//设置着色器源码
+            std::filesystem::path shaderFilePath = m_FilePath;
+            std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + Utils::GLShaderStageCachedVulkanFileExtension(stage));
 
-            glCompileShader(shader);//编译着色器
-
-            GLint isCompiled = 0;//是否编译成功
-            glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);//获取编译状态
-            if (isCompiled == GL_FALSE)//如果编译失败
+            std::ifstream in(cachedPath, std::ios::in | std::ios::binary);
+            if (in.is_open())
             {
-                GLint maxLength = 0;//最大长度
-                glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);//获取日志长度
+                in.seekg(0, std::ios::end);
+                auto size = in.tellg();
+                in.seekg(0, std::ios::beg);
 
-                std::vector<GLchar> infoLog(maxLength);//日志
-                glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);//获取日志
-
-                glDeleteShader(shader);//删除着色器
-
-                HZ_CORE_ERROR("{0}", infoLog.data());//输出错误
-                HZ_CORE_ASSERT(false, "Shader compilation failure!");//断言着色器编译失败
-                break;
+                auto& data = shaderData[stage];
+                data.resize(size / sizeof(uint32_t));
+                in.read((char*)data.data(), size);
             }
+            else
+            {
+                shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), m_FilePath.c_str(), options);
+                if (module.GetCompilationStatus() != shaderc_compilation_status_success)
+                {
+                    HZ_CORE_ERROR(module.GetErrorMessage());
+                    HZ_CORE_ASSERT(false);
+                }
 
-            glAttachShader(program, shader);//附加着色器
-            glShaderIDs[glShaderIDIndex++] = shader;//设置着色器ID
+                shaderData[stage] = std::vector<uint32_t>(module.cbegin(), module.cend());
+
+                std::ofstream out(cachedPath, std::ios::out | std::ios::binary);
+                if (out.is_open())
+                {
+                    auto& data = shaderData[stage];
+                    out.write((char*)data.data(), data.size() * sizeof(uint32_t));
+                    out.flush();
+                    out.close();
+                }
+            }
         }
 
-        m_RendererID = program;//设置着色器程序ID
+        for (auto&& [stage, data] : shaderData)
+            Reflect(stage, data);
+    }
 
-        //Link our program
-        glLinkProgram(program);//链接着色器程序
+    void OpenGLShader::CompileOrGetOpenGLBinaries()
+    {
+        auto& shaderData = m_OpenGLSPIRV;
 
-        //Note the different functions here: glGetProgram* instead of glGetShader*.
-        GLint isLinked = 0;//是否链接成功
-        glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);//获取链接状态
-        if (isLinked == GL_FALSE)//如果链接失败
+        shaderc::Compiler compiler;
+        shaderc::CompileOptions options;
+        options.SetTargetEnvironment(shaderc_target_env_opengl, shaderc_env_version_opengl_4_5);
+        const bool optimize = false;
+        if (optimize)
+            options.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+        std::filesystem::path cacheDirectory = Utils::GetCacheDirectory();
+
+        shaderData.clear();
+        m_OpenGLSourceCode.clear();
+        for (auto&& [stage, spirv] : m_VulkanSPIRV)
         {
-            GLint maxLength = 0;//最大长度
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);//获取日志长度
+            std::filesystem::path shaderFilePath = m_FilePath;
+            std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + Utils::GLShaderStageCachedOpenGLFileExtension(stage));
 
-            //maxLength 包含NULL字符 
-            std::vector<GLchar> infoLog(maxLength);//日志
-            glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);//获取日志
+            std::ifstream in(cachedPath, std::ios::in | std::ios::binary);
+            if (in.is_open())
+            {
+                in.seekg(0, std::ios::end);
+                auto size = in.tellg();
+                in.seekg(0, std::ios::beg);
 
-            //We don't need the program anymore.
-            glDeleteProgram(program);//删除着色器程序
+                auto& data = shaderData[stage];
+                data.resize(size / sizeof(uint32_t));
+                in.read((char*)data.data(), size);
+            }
+            else
+            {
+                spirv_cross::CompilerGLSL glslCompiler(spirv);
+                m_OpenGLSourceCode[stage] = glslCompiler.compile();
+                auto& source = m_OpenGLSourceCode[stage];
 
-            for (auto id : glShaderIDs)//遍历着色器ID
-                glDeleteShader(id);//删除着色器
+                shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, Utils::GLShaderStageToShaderC(stage), m_FilePath.c_str());
+                if (module.GetCompilationStatus() != shaderc_compilation_status_success)
+                {
+                    HZ_CORE_ERROR(module.GetErrorMessage());
+                    HZ_CORE_ASSERT(false);
+                }
 
-            HZ_CORE_ERROR("{0}", infoLog.data());//输出错误
-            HZ_CORE_ASSERT(false, "Shader link failure!");//断言着色器链接失败
-            return;
-        }
+                shaderData[stage] = std::vector<uint32_t>(module.cbegin(), module.cend());
 
-        for (auto id : glShaderIDs)//遍历着色器ID
-        {
-            glDetachShader(program, id);//分离着色器
-            glDeleteShader(id);//删除着色器
+                std::ofstream out(cachedPath, std::ios::out | std::ios::binary);
+                if (out.is_open())
+                {
+                    auto& data = shaderData[stage];
+                    out.write((char*)data.data(), data.size() * sizeof(uint32_t));
+                    out.flush();
+                    out.close();
+                }
+            }
         }
     }
 
+    void OpenGLShader::CreateProgram()
+    {
+        GLuint program = glCreateProgram();
 
+        std::vector<GLuint> shaderIDs;
+        for (auto&& [stage, spirv] : m_OpenGLSPIRV)
+        {
+            GLuint shaderID = shaderIDs.emplace_back(glCreateShader(stage));
+            glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, spirv.data(), spirv.size() * sizeof(uint32_t));
+            glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
+            glAttachShader(program, shaderID);
+        }
+
+        glLinkProgram(program);
+
+        GLint isLinked;
+        glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
+        if (isLinked == GL_FALSE)
+        {
+            GLint maxLength;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+
+            std::vector<GLchar> infoLog(maxLength);
+            glGetProgramInfoLog(program, maxLength, &maxLength, infoLog.data());
+            HZ_CORE_ERROR("Shader linking failed ({0}):\n{1}", m_FilePath, infoLog.data());
+
+            glDeleteProgram(program);
+
+            for (auto id : shaderIDs)
+                glDeleteShader(id);
+        }
+
+        for (auto id : shaderIDs)
+        {
+            glDetachShader(program, id);
+            glDeleteShader(id);
+        }
+
+        m_RendererID = program;
+    }
+
+    void OpenGLShader::Reflect(GLenum stage, const std::vector<uint32_t>& shaderData)
+    {
+        spirv_cross::Compiler compiler(shaderData);
+        spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+        HZ_CORE_TRACE("OpenGLShader::Reflect - {0} {1}", Utils::GLShaderStageToString(stage), m_FilePath);
+        HZ_CORE_TRACE("    {0} uniform buffers", resources.uniform_buffers.size());
+        HZ_CORE_TRACE("    {0} resources", resources.sampled_images.size());
+
+        HZ_CORE_TRACE("Uniform buffers:");
+        for (const auto& resource : resources.uniform_buffers)
+        {
+            const auto& bufferType = compiler.get_type(resource.base_type_id);
+            uint32_t bufferSize = compiler.get_declared_struct_size(bufferType);
+            uint32_t binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
+            int memberCount = bufferType.member_types.size();
+
+            HZ_CORE_TRACE("  {0}", resource.name);
+            HZ_CORE_TRACE("    Size = {0}", bufferSize);
+            HZ_CORE_TRACE("    Binding = {0}", binding);
+            HZ_CORE_TRACE("    Members = {0}", memberCount);
+        }
+    }
 
     void OpenGLShader::Bind() const
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
         glUseProgram(m_RendererID);
     }
 
     void OpenGLShader::Unbind() const
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
         glUseProgram(0);
     }
 
     void OpenGLShader::SetInt(const std::string& name, int value)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
-        UploadUniformInt(name, value);//上传整型,设置uniform
+        UploadUniformInt(name, value);
     }
 
     void OpenGLShader::SetIntArray(const std::string& name, int* values, uint32_t count)
     {
-        UploadUniformIntArray(name, values, count);//上传整型数组,设置uniform
+        UploadUniformIntArray(name, values, count);
     }
 
     void OpenGLShader::SetFloat(const std::string& name, float value)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
-        UploadUniformFloat(name, value);//上传浮点型,设置uniform
+        UploadUniformFloat(name, value);
     }
 
     void OpenGLShader::SetFloat2(const std::string& name, const glm::vec2& value)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
-        UploadUniformFloat2(name, value);//上传浮点型,设置uniform
+        UploadUniformFloat2(name, value);
     }
 
     void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
-        UploadUniformFloat3(name, value);//上传浮点型,设置uniform
+        UploadUniformFloat3(name, value);
     }
 
     void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
-        UploadUniformFloat4(name, value);//上传浮点型,设置uniform
+        UploadUniformFloat4(name, value);
     }
 
     void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
     {
-        HZ_PROFILE_FUNCTION();//获取函数签名
+        HZ_PROFILE_FUNCTION();
 
-        UploadUniformMat4(name, value);//上传矩阵,设置uniform
+        UploadUniformMat4(name, value);
     }
 
     void OpenGLShader::UploadUniformInt(const std::string& name, int value)
     {
-        GLint location = glGetUniformLocation(m_RendererID, name.c_str());//获取uniform位置
+        GLint location = glGetUniformLocation(m_RendererID, name.c_str());
         glUniform1i(location, value);
     }
 
     void OpenGLShader::UploadUniformIntArray(const std::string& name, int* values, uint32_t count)
     {
-        GLint location = glGetUniformLocation(m_RendererID, name.c_str());//获取uniform位置
-        glUniform1iv(location, count, values);//上传整型数组
+        GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+        glUniform1iv(location, count, values);
     }
 
     void OpenGLShader::UploadUniformFloat(const std::string& name, float value)

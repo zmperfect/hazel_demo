@@ -33,6 +33,14 @@ namespace Hazel {
 
         m_ActiveScene = CreateRef<Scene>();//创建场景
 
+        auto commandLineArgs = Application::Get().GetCommandLineArgs();//获取命令行参数
+        if (commandLineArgs.Count > 1)
+        {
+            auto sceneFilePath = commandLineArgs[1];//获取命令行参数的第一个参数
+            SceneSerializer serializer(m_ActiveScene);//场景序列器存储场景
+            serializer.Deserialize(sceneFilePath);//反序列化
+        }
+
         m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);//创建编辑器相机
 
 #if 0
@@ -413,25 +421,25 @@ namespace Hazel {
 
     void EditorLayer::OpenScene()
     {
-        std::optional<std::string> filepath = FileDialogs::OpenFile("Hazel Scene (*.hazel)\0*.hazel\0");//按照过滤打开后缀为.hazel的文件
-        if (filepath)
+        std::string filepath = FileDialogs::OpenFile("Hazel Scene (*.hazel)\0*.hazel\0");//按照过滤打开后缀为.hazel的文件
+        if (!filepath.empty())
         {
             m_ActiveScene = CreateRef<Scene>();
             m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
             m_SceneHierarchyPanel.SetContext(m_ActiveScene);//设置场景层次面板的上下文
 
             SceneSerializer serializer(m_ActiveScene);//场景序列器存储场景
-            serializer.Deserialize(*filepath);//反序列化
+            serializer.Deserialize(filepath);//反序列化
         }
     }
 
     void EditorLayer::SaveSceneAs()
     {
-        std::optional<std::string> filepath = FileDialogs::SaveFile("Hazel Scene (*.hazel)\0*.hazel\0");//按照过滤保存后缀为.hazel的文件
-        if (filepath)
+        std::string filepath = FileDialogs::SaveFile("Hazel Scene (*.hazel)\0*.hazel\0");//按照过滤保存后缀为.hazel的文件
+        if (!filepath.empty())
         {
             SceneSerializer serializer(m_ActiveScene);//场景序列器存储场景
-            serializer.Serialize(*filepath);//序列化
+            serializer.Serialize(filepath);//序列化
         }
     }
 
