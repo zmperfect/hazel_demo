@@ -25,6 +25,5 @@ namespace Hazel {
 		void SetDarkThemeColors(); //设置暗色主题颜色
 	private:
 		bool m_BlockEvents = true;
-		float m_Time = 0.0f;
 	};
 }
