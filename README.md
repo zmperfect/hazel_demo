@@ -12,6 +12,10 @@ Hazel主要是一个早期的交互式应用程序和Windows渲染引擎。目�
 
 
 
+**1.下载仓库**
+
+
+
 可以使用git将仓库克隆到本地目标：
 
 
@@ -23,6 +27,20 @@ git clone --recursive https://gitee.com/ljr1998/hazel_demo.git
 
 
 确保您执行 `--recursive` 来获取所有的子模块！
+
+
+
+**2. Configuring the dependencies:**
+
+1. 运行脚本文件夹中的 `Setup.bat` 文件。如果还没有项目所需的前置条件，则将下载。
+
+2. 其中一个前置条件是 `Vulkan SDK`。如果没有安装，脚本将执行 `VulkanSDK.exe` 文件，并提示用户安装 SDK。
+3. 安装完成后，再次运行 `Setup.bat` 文件。如果 Vulkan SDK 安装正确，脚本就会下载 Vulkan SDK 调试库。(这可能需要较长的时间）
+4. 下载并解压文件后，`Win-GenProjects.bat` 脚本文件将自动执行，然后生成 Visual Studio 解决方案文件供用户使用。
+
+
+
+如果进行了更改，或想要重新生成项目文件，请重新运行脚本文件夹中的 `Win-GenProjects.bat `脚本文件。
 
 
 

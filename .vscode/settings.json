@@ -58,5 +58,6 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "D:/vs2022dev/LJR/Hazel_demo/Hazel_demo/vendor/GLFW"
 }
