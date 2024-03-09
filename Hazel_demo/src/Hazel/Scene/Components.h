@@ -3,60 +3,64 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define GLM_ENABLE_EXPERIMENTAL //ÆôÓÃÊµÑéÐÔ¹¦ÄÜ
-#include <glm/gtx/quaternion.hpp>//ËÄÔªÊý
+#define GLM_ENABLE_EXPERIMENTAL //ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½Ô¹ï¿½ï¿½ï¿½
+#include <glm/gtx/quaternion.hpp>//ï¿½ï¿½Ôªï¿½ï¿½
 
 #include "ScriptableEntity.h"
 #include "SceneCamera.h"
+#include "Hazel/Renderer/Texture.h"
+
 
 namespace Hazel {
 
-	struct TagComponent//±êÇ©×é¼þ
+	struct TagComponent//ï¿½ï¿½Ç©ï¿½ï¿½ï¿½
 	{
         std::string Tag;
 
         TagComponent() = default;
         TagComponent(const TagComponent&) = default;
-        TagComponent(const std::string& tag)//¹¹Ôìº¯Êý
+        TagComponent(const std::string& tag)//ï¿½ï¿½ï¿½ìº¯ï¿½ï¿½
             : Tag(tag) {}
     };
 
-	struct TransformComponent//±ä»»×é¼þ
+	struct TransformComponent//ï¿½ä»»ï¿½ï¿½ï¿½
 	{
-		glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };//Æ½ÒÆ
-		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };//Ðý×ª
-		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };//Ëõ·Å
+		glm::vec3 Translation = { 0.0f, 0.0f, 0.0f };//Æ½ï¿½ï¿½
+		glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };//ï¿½ï¿½×ª
+		glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };//ï¿½ï¿½ï¿½ï¿½
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
-		TransformComponent(const glm::vec3& translation)//¹¹Ôìº¯Êý
+		TransformComponent(const glm::vec3& translation)//ï¿½ï¿½ï¿½ìº¯ï¿½ï¿½
             : Translation(translation) {}
 
-		glm::mat4 GetTransform() const//»ñÈ¡±ä»»¾ØÕó
+		glm::mat4 GetTransform() const//ï¿½ï¿½È¡ï¿½ä»»ï¿½ï¿½ï¿½ï¿½
         {
-            glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));//ËÄÔªÊý×ª»»ÎªÐý×ª¾ØÕó
+            glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));//ï¿½ï¿½Ôªï¿½ï¿½×ªï¿½ï¿½Îªï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½
 
-            return glm::translate(glm::mat4(1.0f), Translation)//Æ½ÒÆ
-                * rotation//Ðý×ª
-                * glm::scale(glm::mat4(1.0f), Scale);//Ëõ·Å
+            return glm::translate(glm::mat4(1.0f), Translation)//Æ½ï¿½ï¿½
+                * rotation//ï¿½ï¿½×ª
+                * glm::scale(glm::mat4(1.0f), Scale);//ï¿½ï¿½ï¿½ï¿½
         }
 	};
 
 	struct SpriteRendererComponent
 	{
 		glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };
+		Ref<Texture2D> Texture;
+		float TilingFactor = 1.0f;
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
-		SpriteRendererComponent(const glm::vec4& color)//¹¹Ôìº¯Êý
+		SpriteRendererComponent(const glm::vec4& color)//ï¿½ï¿½ï¿½ìº¯ï¿½ï¿½
             : Color(color) {}
 	};
 
 	struct CameraComponent
     {
         SceneCamera Camera;
-        bool Primary = true; //ÊÇ·ñÎªÖ÷ÉãÏñ»ú
-		bool FixedAspectRatio = false;//ÊÇ·ñ¹Ì¶¨¿í¸ß±È
+        bool Primary = true; //ï¿½Ç·ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		bool FixedAspectRatio = false;//ï¿½Ç·ï¿½Ì¶ï¿½ï¿½ï¿½ï¿½ß±ï¿½
 
         CameraComponent() = default;
         CameraComponent(const CameraComponent&) = default;
@@ -66,14 +70,14 @@ namespace Hazel {
 	{
 		ScriptableEntity* Instance = nullptr;
 
-		ScriptableEntity*(*InstantiateScript)();//ÊµÀý»¯½Å±¾
-        void(*DestroyScript)(NativeScriptComponent*);//Ïú»Ù½Å±¾
+		ScriptableEntity*(*InstantiateScript)();//Êµï¿½ï¿½ï¿½ï¿½ï¿½Å±ï¿½
+        void(*DestroyScript)(NativeScriptComponent*);//ï¿½ï¿½ï¿½Ù½Å±ï¿½
 
 		template<typename T>
 		void Bind()
 		{
-			InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };//ÊµÀý»¯½Å±¾
-			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };//Ïú»Ù½Å±¾
+			InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };//Êµï¿½ï¿½ï¿½ï¿½ï¿½Å±ï¿½
+			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };//ï¿½ï¿½ï¿½Ù½Å±ï¿½
 		}
 	};
 }
