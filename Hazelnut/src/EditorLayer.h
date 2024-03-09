@@ -2,6 +2,7 @@
 
 #include "Hazel.h"
 #include "Panels/SceneHierarchyPanel.h"
+#include "Panels/ContentBrowserPanel.h"
 
 #include "Hazel/Renderer/EditorCamera.h"
 
@@ -32,30 +33,31 @@ namespace Hazel {
         // Temp
         Ref<VertexArray> m_SquareVA;
         Ref<Shader> m_FlatColorShader;
-        Ref<Framebuffer> m_Framebuffer;//Ö¡»º³åÇø
+        Ref<Framebuffer> m_Framebuffer;//å¸§ç¼“å†²åŒº
 
-        Ref<Scene> m_ActiveScene;//»î¶¯³¡¾°
-        Entity m_SquareEntity;//Õı·½ĞÎÊµÌå
-        Entity m_CameraEntity;//Ïà»úÊµÌå
-        Entity m_SecondCamera;//µÚ¶ş¸öÏà»úÊµÌå
+        Ref<Scene> m_ActiveScene;//æ´»åŠ¨åœºæ™¯
+        Entity m_SquareEntity;//æ­£æ–¹å½¢å®ä½“
+        Entity m_CameraEntity;//ç›¸æœºå®ä½“
+        Entity m_SecondCamera;//ç¬¬äºŒä¸ªç›¸æœºå®ä½“
 
-        Entity m_HoveredEntity;//ĞüÍ£ÊµÌå
+        Entity m_HoveredEntity;//æ‚¬åœå®ä½“
 
-        bool m_PrimaryCamera = true;//Ö÷Ïà»ú
+        bool m_PrimaryCamera = true;//ä¸»ç›¸æœº
 
-        EditorCamera m_EditorCamera;//±à¼­Æ÷Ïà»ú
+        EditorCamera m_EditorCamera;//ç¼–è¾‘å™¨ç›¸æœº
 
         Ref<Texture2D> m_CheckerboardTexture;
 
-        bool m_ViewportFocused = false, m_ViewportHovered = false;//ÊÓ¿Ú¾Û½¹£¬ÊÓ¿ÚĞüÍ£
-        glm::vec2 m_ViewportSize = { 0.0f, 0.0f };//ÊÓ¿Ú´óĞ¡
-        glm::vec2 m_ViewportBounds[2];//ÊÓ¿Ú±ß½ç
+        bool m_ViewportFocused = false, m_ViewportHovered = false;//è§†å£èšç„¦ï¼Œè§†å£æ‚¬åœ
+        glm::vec2 m_ViewportSize = { 0.0f, 0.0f };//è§†å£å¤§å°
+        glm::vec2 m_ViewportBounds[2];//è§†å£è¾¹ç•Œ
 
         glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 
-        int m_GizmoType = -1;//GizmoÀàĞÍ
+        int m_GizmoType = -1;//Gizmoç±»å‹
 
-        // Ãæ°å
-        SceneHierarchyPanel m_SceneHierarchyPanel;//³¡¾°²ã´ÎÃæ°å
+        // é¢æ¿
+        SceneHierarchyPanel m_SceneHierarchyPanel;//åœºæ™¯å±‚æ¬¡é¢æ¿
+        ContentBrowserPanel m_ContentBrowserPanel;//å†…å®¹æµè§ˆé¢æ¿
     };
 }

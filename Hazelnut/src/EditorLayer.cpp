@@ -237,7 +237,9 @@ namespace Hazel {
             ImGui::EndMenuBar();//结束菜单栏
         }
 
+        // 面板渲染
         m_SceneHierarchyPanel.OnImGuiRender();//场景层次面板的ImGui渲染
+        m_ContentBrowserPanel.OnImGuiRender();//内容浏览面板的ImGui渲染
 
         ImGui::Begin("Stats");//开始显示统计数据
 
