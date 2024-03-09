@@ -129,8 +129,8 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();
 
-		s_Data.TextureShader->Bind();//绑定纹理着色器
-		s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());//设置视图投影矩阵
+		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjectionMatrix();//设置相机缓冲区视图投影矩阵
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));//设置相机统一缓冲区数据
 
 		StartBatch();//开始批处理
 	}
