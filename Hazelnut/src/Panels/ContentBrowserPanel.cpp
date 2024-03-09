@@ -6,10 +6,10 @@
 namespace Hazel {
 
     // 一旦有了项目，就改变这个路径
-    static const std::filesystem::path s_AssetPath = "assets";
+    extern const std::filesystem::path g_AssetPath = "assets";
 
     ContentBrowserPanel::ContentBrowserPanel()
-        : m_CurrentDirectory(s_AssetPath)
+        : m_CurrentDirectory(g_AssetPath)
     {
         m_DirectoryIcon = Texture2D::Create("Resources/Icons/ContentBrowser/DirectoryIcon.png");
         m_FileIcon = Texture2D::Create("Resources/Icons/ContentBrowser/FileIcon.png");
@@ -21,7 +21,7 @@ namespace Hazel {
         ImGui::Begin("Content Browser"); // 开始一个新的 ImGui 窗口，标题为 "Content Browser"
 
         // 如果当前目录不是 assets 目录，显示"<-"按钮，点击后将当前目录设置为其父目录，实现返回上一级目录的功能
-        if (m_CurrentDirectory != std::filesystem::path(s_AssetPath))
+        if (m_CurrentDirectory != std::filesystem::path(g_AssetPath))
         {
             if (ImGui::Button("<-"))
             {
@@ -45,11 +45,24 @@ namespace Hazel {
         for (auto& directoryEntry : std::filesystem::directory_iterator(m_CurrentDirectory))
         {
             const auto& path = directoryEntry.path();
-            auto relativePath = std::filesystem::relative(path, s_AssetPath);
+            auto relativePath = std::filesystem::relative(path, g_AssetPath);// 获取相对路径
             std::string filenameString = relativePath.filename().string();
 
+            ImGui::PushID(filenameString.c_str());// 设置按钮的 ID
             Ref<Texture2D> icon = directoryEntry.is_directory() ? m_DirectoryIcon : m_FileIcon;//设置图标
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0, 0, 0, 0 });// 设置按钮的颜色
             ImGui::ImageButton((ImTextureID)icon->GetRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });//设置按钮
+
+            // 拖放
+            if (ImGui::BeginDragDropSource())
+			{
+				const wchar_t* itemPath = relativePath.c_str();
+				ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));// 设置拖放的数据
+				ImGui::EndDragDropSource();
+			}
+
+			ImGui::PopStyleColor();
+
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
             {
                 if (directoryEntry.is_directory())
@@ -58,6 +71,8 @@ namespace Hazel {
             ImGui::TextWrapped(filenameString.c_str());//设置文本
 
             ImGui::NextColumn();
+
+            ImGui::PopID();
         }
 
         ImGui::Columns(1);// 设置列数为1，结束列布局
