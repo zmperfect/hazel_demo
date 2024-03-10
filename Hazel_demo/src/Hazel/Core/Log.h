@@ -1,5 +1,8 @@
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/string_cast.hpp"
+
 #include "Hazel/Core/Base.h"
 
 //这里的宏定义是为了在编译器中忽略外部头文件引起的警告
@@ -21,6 +24,27 @@ namespace Hazel {
 		static Ref<spdlog::logger> s_CoreLogger;
 		static Ref<spdlog::logger> s_ClientLogger;
 	};
+}
+
+// 将 glm 库中的向量（vec）对象输出到输出流中
+template<typename OStream, glm::length_t L, typename T, glm::qualifier Q>
+inline OStream& operator<<(OStream& os, const glm::vec<L, T, Q>& vector)
+{
+    return os << glm::to_string(vector);
+}
+
+//将 glm 库中的矩阵（mat）对象输出到输出流中
+template<typename OStream, glm::length_t C, glm::length_t R, typename T, glm::qualifier Q>
+inline OStream& operator<<(OStream& os, const glm::mat<C, R, T, Q>& matrix)
+{
+    return os << glm::to_string(matrix);
+}
+
+//将 glm 库中的四元数（quat）对象输出到输出流中
+template<typename OStream, typename T, glm::qualifier Q>
+inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternio)
+{
+    return os << glm::to_string(quaternio);
 }
 
 // Core log macros
