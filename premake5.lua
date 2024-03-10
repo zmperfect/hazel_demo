@@ -26,6 +26,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
 	include "vendor/premake"
+	include "Hazel_demo/vendor/Box2D"
 	include "Hazel_demo/vendor/GLFW"
 	include "Hazel_demo/vendor/Glad"
 	include "Hazel_demo/vendor/imgui"

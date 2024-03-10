@@ -19,14 +19,13 @@
 	branch = master
 
 [submodule "Hazel_demo/vendor/yaml-cpp"]
-	url  = https://gitee.com/ljr1998/yaml-cpp
 	path = Hazel_demo/vendor/yaml-cpp
-
-[submodule "Hazel_demo / vendor/ImGuizmo"]
-	url  = https://gitee.com/ljr1998/imguizmo
-	path = Hazel_demo / vendor/ImGuizmo
+	url  = https://gitee.com/ljr1998/yaml-cpp
 
 [submodule "Hazel_demo/vendor/ImGuizmo"]
-	url  = https://gitee.com/ljr1998/imguizmo
 	path = Hazel_demo/vendor/ImGuizmo
+	url  = https://gitee.com/ljr1998/imguizmo.git
 
+[submodule "Hazel_demo/vendor/Box2D"]
+	path = Hazel_demo/vendor/Box2D
+	url  = https://gitee.com/ljr1998/box2d.git

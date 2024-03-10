@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Hazel/Core/Base.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
-
-#include "Hazel/Core/Base.h"
 
 //这里的宏定义是为了在编译器中忽略外部头文件引起的警告
 #pragma warning(push, 0)
@@ -42,9 +42,9 @@ inline OStream& operator<<(OStream& os, const glm::mat<C, R, T, Q>& matrix)
 
 //将 glm 库中的四元数（quat）对象输出到输出流中
 template<typename OStream, typename T, glm::qualifier Q>
-inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternio)
+inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 {
-    return os << glm::to_string(quaternio);
+    return os << glm::to_string(quaternion);
 }
 
 // Core log macros

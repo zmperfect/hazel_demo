@@ -23,54 +23,54 @@ namespace Hazel {
 
     void EditorLayer::OnAttach()
     {
-        HZ_PROFILE_FUNCTION();//»ñÈ¡º¯ÊıÇ©Ãû
+        HZ_PROFILE_FUNCTION();//è·å–å‡½æ•°ç­¾å
 
-        m_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");//´´½¨ÆåÅÌÎÆÀí
-        m_IconPlay = Texture2D::Create("Resources/Icons/PlayButton.png");//´´½¨²¥·Å°´Å¥ÎÆÀí
-        m_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");//´´½¨Í£Ö¹°´Å¥ÎÆÀí
+        m_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");//åˆ›å»ºæ£‹ç›˜çº¹ç†
+        m_IconPlay = Texture2D::Create("Resources/Icons/PlayButton.png");//åˆ›å»ºæ’­æ”¾æŒ‰é’®çº¹ç†
+        m_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");//åˆ›å»ºåœæ­¢æŒ‰é’®çº¹ç†
     
-        FramebufferSpecification fbSpec;//Ö¡»º³åÇø¹æ·¶
-        fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };//Ö¡»º³åÇøÎÆÀí¸ñÊ½£¬ÑÕÉ«RGBA8£¬ÑÕÉ«RED_INTEGER£¬Éî¶È
+        FramebufferSpecification fbSpec;//å¸§ç¼“å†²åŒºè§„èŒƒ
+        fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };//å¸§ç¼“å†²åŒºçº¹ç†æ ¼å¼ï¼Œé¢œè‰²RGBA8ï¼Œé¢œè‰²RED_INTEGERï¼Œæ·±åº¦
         fbSpec.Width = 1280;
         fbSpec.Height = 720;
-        m_Framebuffer = Framebuffer::Create(fbSpec);//´´½¨Ö¡»º³åÇø
+        m_Framebuffer = Framebuffer::Create(fbSpec);//åˆ›å»ºå¸§ç¼“å†²åŒº
 
-        m_ActiveScene = CreateRef<Scene>();//´´½¨³¡¾°
+        m_ActiveScene = CreateRef<Scene>();//åˆ›å»ºåœºæ™¯
 
-        auto commandLineArgs = Application::Get().GetCommandLineArgs();//»ñÈ¡ÃüÁîĞĞ²ÎÊı
+        auto commandLineArgs = Application::Get().GetCommandLineArgs();//è·å–å‘½ä»¤è¡Œå‚æ•°
         if (commandLineArgs.Count > 1)
         {
-            auto sceneFilePath = commandLineArgs[1];//»ñÈ¡ÃüÁîĞĞ²ÎÊıµÄµÚÒ»¸ö²ÎÊı
-            SceneSerializer serializer(m_ActiveScene);//³¡¾°ĞòÁĞÆ÷´æ´¢³¡¾°
-            serializer.Deserialize(sceneFilePath);//·´ĞòÁĞ»¯
+            auto sceneFilePath = commandLineArgs[1];//è·å–å‘½ä»¤è¡Œå‚æ•°çš„ç¬¬ä¸€ä¸ªå‚æ•°
+            SceneSerializer serializer(m_ActiveScene);//åœºæ™¯åºåˆ—å™¨å­˜å‚¨åœºæ™¯
+            serializer.Deserialize(sceneFilePath);//ååºåˆ—åŒ–
         }
 
-        m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);//´´½¨±à¼­Æ÷Ïà»ú
+        m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 1000.0f);//åˆ›å»ºç¼–è¾‘å™¨ç›¸æœº
 
 #if 0
         // Entity
-        auto square = m_ActiveScene->CreateEntity("Green Square");//´´½¨ÂÌÉ«·½ĞÎÊµÌå
-        square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });//Ìí¼Ó¾«ÁéäÖÈ¾Æ÷×é¼ş
+        auto square = m_ActiveScene->CreateEntity("Green Square");//åˆ›å»ºç»¿è‰²æ–¹å½¢å®ä½“
+        square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });//æ·»åŠ ç²¾çµæ¸²æŸ“å™¨ç»„ä»¶
 
-        auto redSquare = m_ActiveScene->CreateEntity("Red Square");//´´½¨ºìÉ«·½ĞÎÊµÌå
-        redSquare.AddComponent<SpriteRendererComponent>(glm::vec4{ 1.0f, 0.0f, 0.0f, 1.0f });//Ìí¼Ó¾«ÁéäÖÈ¾Æ÷×é¼ş
+        auto redSquare = m_ActiveScene->CreateEntity("Red Square");//åˆ›å»ºçº¢è‰²æ–¹å½¢å®ä½“
+        redSquare.AddComponent<SpriteRendererComponent>(glm::vec4{ 1.0f, 0.0f, 0.0f, 1.0f });//æ·»åŠ ç²¾çµæ¸²æŸ“å™¨ç»„ä»¶
 
-        m_SquareEntity = square;//Õı·½ĞÎÊµÌå
+        m_SquareEntity = square;//æ­£æ–¹å½¢å®ä½“
 
-        m_CameraEntity = m_ActiveScene->CreateEntity("Camera A");//´´½¨Ïà»úÊµÌåA
-        m_CameraEntity.AddComponent<CameraComponent>();//Ìí¼ÓÏà»ú×é¼ş
+        m_CameraEntity = m_ActiveScene->CreateEntity("Camera A");//åˆ›å»ºç›¸æœºå®ä½“A
+        m_CameraEntity.AddComponent<CameraComponent>();//æ·»åŠ ç›¸æœºç»„ä»¶
 
-        m_SecondCamera = m_ActiveScene->CreateEntity("Camera B");//´´½¨Ïà»úÊµÌåB
-        auto& cc = m_SecondCamera.AddComponent<CameraComponent>();//Ìí¼ÓÏà»ú×é¼ş
-        cc.Primary = false;//²»ÊÇÖ÷Ïà»ú
+        m_SecondCamera = m_ActiveScene->CreateEntity("Camera B");//åˆ›å»ºç›¸æœºå®ä½“B
+        auto& cc = m_SecondCamera.AddComponent<CameraComponent>();//æ·»åŠ ç›¸æœºç»„ä»¶
+        cc.Primary = false;//ä¸æ˜¯ä¸»ç›¸æœº
 
-        //½Å±¾Àà²âÊÔ
+        //è„šæœ¬ç±»æµ‹è¯•
         class CameraController : public ScriptableEntity
         {
         public:
             virtual void OnCreate() override
             {
-                auto& translation = GetComponent<TransformComponent>().Translation;//»ñÈ¡±ä»»×é¼şµÄ±ä»»ÏòÁ¿
+                auto& translation = GetComponent<TransformComponent>().Translation;//è·å–å˜æ¢ç»„ä»¶çš„å˜æ¢å‘é‡
                 translation.x = rand() % 10 - 5.0f;
             }
 
@@ -95,46 +95,46 @@ namespace Hazel {
             }
         };
 
-        m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();//°ó¶¨Ö÷Ïà»ú¿ØÖÆÆ÷
+        m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();//ç»‘å®šä¸»ç›¸æœºæ§åˆ¶å™¨
 
-        m_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();//°ó¶¨¼ô¼­¿Õ¼ä¿ØÖÆÆ÷
+        m_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();//ç»‘å®šå‰ªè¾‘ç©ºé—´æ§åˆ¶å™¨
 #endif
 
-        m_SceneHierarchyPanel.SetContext(m_ActiveScene);//ÉèÖÃ³¡¾°²ã´ÎÃæ°åµÄÉÏÏÂÎÄ
+        m_SceneHierarchyPanel.SetContext(m_ActiveScene);//è®¾ç½®åœºæ™¯å±‚æ¬¡é¢æ¿çš„ä¸Šä¸‹æ–‡
 
     }
 
     void EditorLayer::OnDetach()
     {
-        HZ_PROFILE_FUNCTION();//»ñÈ¡º¯ÊıÇ©Ãû
+        HZ_PROFILE_FUNCTION();//è·å–å‡½æ•°ç­¾å
     }
 
     void EditorLayer::OnUpdate(Timestep ts)
     {
-        HZ_PROFILE_FUNCTION();//»ñÈ¡º¯ÊıÇ©Ãû
+        HZ_PROFILE_FUNCTION();//è·å–å‡½æ•°ç­¾å
 
         // Resize
-        // ĞŞ¸´µ÷ÕûÊÓ¿Ú´óĞ¡Ê±HazelnutµÄºÚÉ«ÉÁË¸
-        //½«¡°¾É¡±´óĞ¡µÄÖ¡»º³åÇøäÖÈ¾µ½¡°ĞÂ¡±´óĞ¡µÄImGuiPanelÉÏ£¬²¢½«¡°ĞÂ¡±´óĞ¡´æ´¢ÔÚm_ViewportSizeÖĞ¡£ÏÂÒ»Ö¡½«Ê×ÏÈµ÷ÕûÖ¡»º³åÇøµÄ´óĞ¡£¬ÒòÎªÔÚ¸üĞÂºÍäÖÈ¾Ö®Ç°£¬m_ViewportSizeÓëm_Framebuffer.Width/Height²»Í¬¡£Õâ½«µ¼ÖÂ´Ó²»äÖÈ¾¿Õ£¨ºÚÉ«£©Ö¡»º³åÇø¡£
+        // ä¿®å¤è°ƒæ•´è§†å£å¤§å°æ—¶Hazelnutçš„é»‘è‰²é—ªçƒ
+        //å°†â€œæ—§â€å¤§å°çš„å¸§ç¼“å†²åŒºæ¸²æŸ“åˆ°â€œæ–°â€å¤§å°çš„ImGuiPanelä¸Šï¼Œå¹¶å°†â€œæ–°â€å¤§å°å­˜å‚¨åœ¨m_ViewportSizeä¸­ã€‚ä¸‹ä¸€å¸§å°†é¦–å…ˆè°ƒæ•´å¸§ç¼“å†²åŒºçš„å¤§å°ï¼Œå› ä¸ºåœ¨æ›´æ–°å’Œæ¸²æŸ“ä¹‹å‰ï¼Œm_ViewportSizeä¸m_Framebuffer.Width/Heightä¸åŒã€‚è¿™å°†å¯¼è‡´ä»ä¸æ¸²æŸ“ç©ºï¼ˆé»‘è‰²ï¼‰å¸§ç¼“å†²åŒºã€‚
         if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
             m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
             (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
         {
-            m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);//µ÷ÕûÖ¡»º³åÇø´óĞ¡
-            m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);//Ïà»ú¿ØÖÆÆ÷µ÷Õû´óĞ¡
+            m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);//è°ƒæ•´å¸§ç¼“å†²åŒºå¤§å°
+            m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);//ç›¸æœºæ§åˆ¶å™¨è°ƒæ•´å¤§å°
 
-            m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);//Ïà»úÊÓ¿Ú´óĞ¡
-            m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);//³¡¾°ÊÓ¿Ú´óĞ¡µ÷Õû
+            m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);//ç›¸æœºè§†å£å¤§å°
+            m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);//åœºæ™¯è§†å£å¤§å°è°ƒæ•´
         }
 
         // Render
-        Renderer2D::ResetStats();//ÖØÖÃäÖÈ¾Æ÷Í³¼ÆÊı¾İ
-        m_Framebuffer->Bind();//°ó¶¨Ö¡»º³åÇø
-        RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });//{ 0.1f, 0.1f, 0.1f, 1 }Ö¸µÄÊÇRGBA£¬¼´ºìÂÌÀ¶Í¸Ã÷¶È£¬·¶Î§ÊÇ0~1
-        RenderCommand::Clear();//Çå³ıÑÕÉ«»º³åÇøºÍÉî¶È»º³åÇø
+        Renderer2D::ResetStats();//é‡ç½®æ¸²æŸ“å™¨ç»Ÿè®¡æ•°æ®
+        m_Framebuffer->Bind();//ç»‘å®šå¸§ç¼“å†²åŒº
+        RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });//{ 0.1f, 0.1f, 0.1f, 1 }æŒ‡çš„æ˜¯RGBAï¼Œå³çº¢ç»¿è“é€æ˜åº¦ï¼ŒèŒƒå›´æ˜¯0~1
+        RenderCommand::Clear();//æ¸…é™¤é¢œè‰²ç¼“å†²åŒºå’Œæ·±åº¦ç¼“å†²åŒº
 
         //Clear our entity ID attachment to -1
-        m_Framebuffer->ClearAttachment(1, -1);//Çå³ıÖ¡»º³åÇøµÄ¸½¼ş
+        m_Framebuffer->ClearAttachment(1, -1);//æ¸…é™¤å¸§ç¼“å†²åŒºçš„é™„ä»¶
 
         switch (m_SceneState)
         {
@@ -155,17 +155,17 @@ namespace Hazel {
             }
         }
 
-        auto[mx, my] = ImGui::GetMousePos();//»ñÈ¡Êó±êÎ»ÖÃ
-        mx -= m_ViewportBounds[0].x;//¼õÈ¥ÊÓ¿Ú±ß½ç
-        my -= m_ViewportBounds[0].y;//¼õÈ¥ÊÓ¿Ú±ß½ç
-        glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];//ÊÓ¿Ú´óĞ¡
-        my = viewportSize.y - my;//ÊÓ¿Ú´óĞ¡¼õÈ¥Êó±êÎ»ÖÃ
-        int mouseX = (int)mx;//Êó±êX
-        int mouseY = (int)my;//Êó±êY
+        auto[mx, my] = ImGui::GetMousePos();//è·å–é¼ æ ‡ä½ç½®
+        mx -= m_ViewportBounds[0].x;//å‡å»è§†å£è¾¹ç•Œ
+        my -= m_ViewportBounds[0].y;//å‡å»è§†å£è¾¹ç•Œ
+        glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];//è§†å£å¤§å°
+        my = viewportSize.y - my;//è§†å£å¤§å°å‡å»é¼ æ ‡ä½ç½®
+        int mouseX = (int)mx;//é¼ æ ‡X
+        int mouseY = (int)my;//é¼ æ ‡Y
 
         if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
         {
-            int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);//¶ÁÈ¡ÏñËØ
+            int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);//è¯»å–åƒç´ 
             m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
         }
 
@@ -175,128 +175,128 @@ namespace Hazel {
 
     void EditorLayer::OnImGuiRender()
     {
-        HZ_PROFILE_FUNCTION();//»ñÈ¡º¯ÊıÇ©Ãû
+        HZ_PROFILE_FUNCTION();//è·å–å‡½æ•°ç­¾å
 
-        //×¢Òâ£º½«dockingEnabledÉèÖÃÎªtrueÀ´Æô¶¯dockspace
+        //æ³¨æ„ï¼šå°†dockingEnabledè®¾ç½®ä¸ºtrueæ¥å¯åŠ¨dockspace
         
-        static bool dockspaceOpen = true;//dockspaceÊÇ·ñ´ò¿ª
-        static bool opt_fullscreen_persistant = true;//ÊÇ·ñÈ«ÆÁ 
+        static bool dockspaceOpen = true;//dockspaceæ˜¯å¦æ‰“å¼€
+        static bool opt_fullscreen_persistant = true;//æ˜¯å¦å…¨å± 
         bool opt_fullscreen = opt_fullscreen_persistant;
-        static ImGuiDockNodeFlags opt_flags = ImGuiDockNodeFlags_None;//dockspaceµÄ±êÖ¾
+        static ImGuiDockNodeFlags opt_flags = ImGuiDockNodeFlags_None;//dockspaceçš„æ ‡å¿—
 
-        //ÎÒÃÇÊ¹ÓÃImGuiWindowFlags_NoDocking±êÖ¾Ê¹¸¸´°¿Ú²»¿ÉÍ£¿¿µ½£¬
-        //ÒòÎªÁ½¸ö¶Ô½ÓÄ¿±ê±Ë´ËÖ®¼ä»áºÜ»ìÂÒ¡£
+        //æˆ‘ä»¬ä½¿ç”¨ImGuiWindowFlags_NoDockingæ ‡å¿—ä½¿çˆ¶çª—å£ä¸å¯åœé åˆ°ï¼Œ
+        //å› ä¸ºä¸¤ä¸ªå¯¹æ¥ç›®æ ‡å½¼æ­¤ä¹‹é—´ä¼šå¾ˆæ··ä¹±ã€‚
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
         if (opt_fullscreen)
         {
-            ImGuiViewport* viewport = ImGui::GetMainViewport();//»ñÈ¡Ö÷ÊÓ¿Ú
-            ImGui::SetNextWindowPos(viewport->Pos);//ÉèÖÃÏÂÒ»¸ö´°¿ÚµÄÎ»ÖÃ
-            ImGui::SetNextWindowSize(viewport->Size);//ÉèÖÃÏÂÒ»¸ö´°¿ÚµÄ´óĞ¡
-            ImGui::SetNextWindowViewport(viewport->ID);//ÉèÖÃÏÂÒ»¸ö´°¿ÚµÄÊÓ¿Ú
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);//ÉèÖÃ´°¿ÚÔ²½Ç
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);//ÉèÖÃ´°¿Ú±ß¿ò´óĞ¡
-            window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;//ÉèÖÃ´°¿Ú±êÖ¾
-            window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;//ÉèÖÃ´°¿Ú±êÖ¾
+            ImGuiViewport* viewport = ImGui::GetMainViewport();//è·å–ä¸»è§†å£
+            ImGui::SetNextWindowPos(viewport->Pos);//è®¾ç½®ä¸‹ä¸€ä¸ªçª—å£çš„ä½ç½®
+            ImGui::SetNextWindowSize(viewport->Size);//è®¾ç½®ä¸‹ä¸€ä¸ªçª—å£çš„å¤§å°
+            ImGui::SetNextWindowViewport(viewport->ID);//è®¾ç½®ä¸‹ä¸€ä¸ªçª—å£çš„è§†å£
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);//è®¾ç½®çª—å£åœ†è§’
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);//è®¾ç½®çª—å£è¾¹æ¡†å¤§å°
+            window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;//è®¾ç½®çª—å£æ ‡å¿—
+            window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;//è®¾ç½®çª—å£æ ‡å¿—
         }
 
-        //µ±Ê¹ÓÃImGuiDockNodeFlags_PassthruCentralNode±êÖ¾Ê±£¬ÎÒÃÇÏ£ÍûdockspaceÔÚ´°¿ÚÖĞÌî³äÕû¸öÇøÓò¡£
+        //å½“ä½¿ç”¨ImGuiDockNodeFlags_PassthruCentralNodeæ ‡å¿—æ—¶ï¼Œæˆ‘ä»¬å¸Œæœ›dockspaceåœ¨çª—å£ä¸­å¡«å……æ•´ä¸ªåŒºåŸŸã€‚
         if (opt_flags & ImGuiDockNodeFlags_PassthruCentralNode)
                 window_flags |= ImGuiWindowFlags_NoBackground;
 
-        //Importance£º¼´Ê¹Begin()·µ»Øfalse£¬Ò²»á¼ÌĞø
-        //ÒòÎªÎÒÃÇÏëÈÃdockspaceÒ»Ö±´¦ÓÚ»îÔ¾×´Ì¬¡£
-        //Èç¹ûdockspace´¦ÓÚ·Ç»îÔ¾×´Ì¬£¬ËùÓĞÍ£¿¿µ½ËüµÄ»î¶¯´°¿Ú½«Ê§È¥ËüÃÇµÄ¸¸´°¿Ú²¢±»È¡ÏûÍ£¿¿¡£
-        //ÎÒÃÇ²»ÄÜ±£Áô»î¶¯´°¿ÚºÍ·Ç»î¶¯Í£¿¿Ö®¼äµÄ¶Ô½Ó¹ØÏµ£¬·ñÔò 
-        //ÈÎºÎdockspace/ÉèÖÃµÄ¸ü¸Ä¶¼»áµ¼ÖÂ´°¿Ú±»À§ÔÚlimboÖĞ£¬ÓÀÔ¶²»¿É¼û¡£
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));//ÉèÖÃ´°¿ÚÌî³ä
-        ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);//¿ªÊ¼dockspace
-        ImGui::PopStyleVar();//µ¯³ö´°¿ÚÌî³ä
+        //Importanceï¼šå³ä½¿Begin()è¿”å›falseï¼Œä¹Ÿä¼šç»§ç»­
+        //å› ä¸ºæˆ‘ä»¬æƒ³è®©dockspaceä¸€ç›´å¤„äºæ´»è·ƒçŠ¶æ€ã€‚
+        //å¦‚æœdockspaceå¤„äºéæ´»è·ƒçŠ¶æ€ï¼Œæ‰€æœ‰åœé åˆ°å®ƒçš„æ´»åŠ¨çª—å£å°†å¤±å»å®ƒä»¬çš„çˆ¶çª—å£å¹¶è¢«å–æ¶ˆåœé ã€‚
+        //æˆ‘ä»¬ä¸èƒ½ä¿ç•™æ´»åŠ¨çª—å£å’Œéæ´»åŠ¨åœé ä¹‹é—´çš„å¯¹æ¥å…³ç³»ï¼Œå¦åˆ™ 
+        //ä»»ä½•dockspace/è®¾ç½®çš„æ›´æ”¹éƒ½ä¼šå¯¼è‡´çª—å£è¢«å›°åœ¨limboä¸­ï¼Œæ°¸è¿œä¸å¯è§ã€‚
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));//è®¾ç½®çª—å£å¡«å……
+        ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);//å¼€å§‹dockspace
+        ImGui::PopStyleVar();//å¼¹å‡ºçª—å£å¡«å……
 
         if (opt_fullscreen)
-            ImGui::PopStyleVar(2);//µ¯³ö´°¿ÚÔ²½ÇºÍ±ß¿ò´óĞ¡
+            ImGui::PopStyleVar(2);//å¼¹å‡ºçª—å£åœ†è§’å’Œè¾¹æ¡†å¤§å°
 
         //DockSpace
-        ImGuiIO& io = ImGui::GetIO();//»ñÈ¡ImGuiIO
-        ImGuiStyle& style = ImGui::GetStyle();//»ñÈ¡ImGuiStyle
-        float minWinSizeX = style.WindowMinSize.x;//»ñÈ¡´°¿Ú×îĞ¡¿í¶È
-        style.WindowMinSize.x = 370.0f;//ÉèÖÃ´°¿Ú×îĞ¡¿í¶È
+        ImGuiIO& io = ImGui::GetIO();//è·å–ImGuiIO
+        ImGuiStyle& style = ImGui::GetStyle();//è·å–ImGuiStyle
+        float minWinSizeX = style.WindowMinSize.x;//è·å–çª—å£æœ€å°å®½åº¦
+        style.WindowMinSize.x = 370.0f;//è®¾ç½®çª—å£æœ€å°å®½åº¦
 
-        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)//Èç¹ûÆôÓÃÁËÍ£¿¿
+        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)//å¦‚æœå¯ç”¨äº†åœé 
         {
-            ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");//»ñÈ¡dockspaceµÄID
-            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), opt_flags);//ÉèÖÃdockspace
+            ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");//è·å–dockspaceçš„ID
+            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), opt_flags);//è®¾ç½®dockspace
         }
 
-        style.WindowMinSize.x = minWinSizeX;//»Ö¸´´°¿Ú×îĞ¡¿í¶È
+        style.WindowMinSize.x = minWinSizeX;//æ¢å¤çª—å£æœ€å°å®½åº¦
 
-        if (ImGui::BeginMenuBar())//¿ªÊ¼²Ëµ¥À¸
+        if (ImGui::BeginMenuBar())//å¼€å§‹èœå•æ 
         {
             if (ImGui::BeginMenu("File"))
             {
-                //½ûÓÃÈ«ÆÁ½«ÔÊĞí´°¿ÚÒÆ¶¯µ½ÆäËû´°¿ÚµÄÇ°Ãæ£¬
-                //Èç¹ûÃ»ÓĞ¸ü¾«Ï¸µÄ´°¿ÚÉî¶È/z¿ØÖÆ£¬ÎÒÃÇÏÖÔÚÎŞ·¨³·Ïû¡£
+                //ç¦ç”¨å…¨å±å°†å…è®¸çª—å£ç§»åŠ¨åˆ°å…¶ä»–çª—å£çš„å‰é¢ï¼Œ
+                //å¦‚æœæ²¡æœ‰æ›´ç²¾ç»†çš„çª—å£æ·±åº¦/zæ§åˆ¶ï¼Œæˆ‘ä»¬ç°åœ¨æ— æ³•æ’¤æ¶ˆã€‚
                 //ImGui::MenuItem("Fullscreen", NULL, &opt_fullscreen_persistant);1
-                if (ImGui::MenuItem("New", "Ctrl+N"))//ĞÂ½¨
+                if (ImGui::MenuItem("New", "Ctrl+N"))//æ–°å»º
                     NewScene();
 
-                if (ImGui::MenuItem("Open...", "Ctrl+O"))//´ò¿ª
+                if (ImGui::MenuItem("Open...", "Ctrl+O"))//æ‰“å¼€
                     OpenScene();
 
-                if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))//Áí´æÎª
+                if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))//å¦å­˜ä¸º
                     SaveSceneAs();
 
-                if (ImGui::MenuItem("Exit")) Application::Get().Close();//ÍË³ö
-                ImGui::EndMenu();//½áÊø²Ëµ¥
+                if (ImGui::MenuItem("Exit")) Application::Get().Close();//é€€å‡º
+                ImGui::EndMenu();//ç»“æŸèœå•
             }
-            ImGui::EndMenuBar();//½áÊø²Ëµ¥À¸
+            ImGui::EndMenuBar();//ç»“æŸèœå•æ 
         }
 
-        // Ãæ°åäÖÈ¾
-        m_SceneHierarchyPanel.OnImGuiRender();//³¡¾°²ã´ÎÃæ°åµÄImGuiäÖÈ¾
-        m_ContentBrowserPanel.OnImGuiRender();//ÄÚÈİä¯ÀÀÃæ°åµÄImGuiäÖÈ¾
+        // é¢æ¿æ¸²æŸ“
+        m_SceneHierarchyPanel.OnImGuiRender();//åœºæ™¯å±‚æ¬¡é¢æ¿çš„ImGuiæ¸²æŸ“
+        m_ContentBrowserPanel.OnImGuiRender();//å†…å®¹æµè§ˆé¢æ¿çš„ImGuiæ¸²æŸ“
 
-        ImGui::Begin("Stats");//¿ªÊ¼ÏÔÊ¾Í³¼ÆÊı¾İ
+        ImGui::Begin("Stats");//å¼€å§‹æ˜¾ç¤ºç»Ÿè®¡æ•°æ®
 
-        std::string name = "None";//Ãû³Æ
-        if (m_HoveredEntity)//Èç¹ûĞüÍ£ÊµÌå´æÔÚ
-            name = m_HoveredEntity.GetComponent<TagComponent>().Tag;//»ñÈ¡ĞüÍ£ÊµÌåµÄ±êÇ©×é¼şµÄ±êÇ©
-        ImGui::Text("Hovered Entity: %s", name.c_str());//ÏÔÊ¾ĞüÍ£ÊµÌåµÄÃû³Æ
+        std::string name = "None";//åç§°
+        if (m_HoveredEntity)//å¦‚æœæ‚¬åœå®ä½“å­˜åœ¨
+            name = m_HoveredEntity.GetComponent<TagComponent>().Tag;//è·å–æ‚¬åœå®ä½“çš„æ ‡ç­¾ç»„ä»¶çš„æ ‡ç­¾
+        ImGui::Text("Hovered Entity: %s", name.c_str());//æ˜¾ç¤ºæ‚¬åœå®ä½“çš„åç§°
 
-        auto stats = Renderer2D::GetStats();//»ñÈ¡äÖÈ¾Æ÷Í³¼ÆÊı¾İ
-        //ÏÔÊ¾äÖÈ¾Æ÷Í³¼ÆÊı¾İ
+        auto stats = Renderer2D::GetStats();//è·å–æ¸²æŸ“å™¨ç»Ÿè®¡æ•°æ®
+        //æ˜¾ç¤ºæ¸²æŸ“å™¨ç»Ÿè®¡æ•°æ®
         ImGui::Text("Renderer2D Stats:");
         ImGui::Text("Draw Calls: %d", stats.DrawCalls);
         ImGui::Text("Quads: %d", stats.QuadCount);
         ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
         ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 
-        ImGui::End();//½áÊøÉèÖÃ
+        ImGui::End();//ç»“æŸè®¾ç½®
 
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });//ÉèÖÃ´°¿ÚÌî³ä
-        ImGui::Begin("Viewport");//¿ªÊ¼ÊÓ¿Ú
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });//è®¾ç½®çª—å£å¡«å……
+        ImGui::Begin("Viewport");//å¼€å§‹è§†å£
 
-        // ´°¿ÚÉèÖÃ
-        auto viewportMinRegion = ImGui::GetWindowContentRegionMin();//»ñÈ¡´°¿ÚÄÚÈİÇøÓò×îĞ¡Öµ
-        auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();//»ñÈ¡´°¿ÚÄÚÈİÇøÓò×î´óÖµ
-        auto viewportOffset = ImGui::GetWindowPos();//»ñÈ¡´°¿ÚÎ»ÖÃ
-        m_ViewportBounds[0] = { viewportOffset.x + viewportMinRegion.x, viewportOffset.y + viewportMinRegion.y };//ÉèÖÃÊÓ¿Ú×îĞ¡±ß½ç
-        m_ViewportBounds[1] = { viewportOffset.x + viewportMaxRegion.x, viewportOffset.y + viewportMaxRegion.y };//ÉèÖÃÊÓ¿Ú×î´ó±ß½ç
+        // çª—å£è®¾ç½®
+        auto viewportMinRegion = ImGui::GetWindowContentRegionMin();//è·å–çª—å£å†…å®¹åŒºåŸŸæœ€å°å€¼
+        auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();//è·å–çª—å£å†…å®¹åŒºåŸŸæœ€å¤§å€¼
+        auto viewportOffset = ImGui::GetWindowPos();//è·å–çª—å£ä½ç½®
+        m_ViewportBounds[0] = { viewportOffset.x + viewportMinRegion.x, viewportOffset.y + viewportMinRegion.y };//è®¾ç½®è§†å£æœ€å°è¾¹ç•Œ
+        m_ViewportBounds[1] = { viewportOffset.x + viewportMaxRegion.x, viewportOffset.y + viewportMaxRegion.y };//è®¾ç½®è§†å£æœ€å¤§è¾¹ç•Œ
 
-        m_ViewportFocused = ImGui::IsWindowFocused();//ÊÓ¿ÚÊÇ·ñ¾Û½¹
-        m_ViewportHovered = ImGui::IsWindowHovered();//ÊÓ¿ÚÊÇ·ñĞüÍ£
-        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);//×èÖ¹ÊÂ¼ş,µ±ÊÓ¿Ú²»¾Û½¹ºÍ²»ĞüÍ£Ê±
+        m_ViewportFocused = ImGui::IsWindowFocused();//è§†å£æ˜¯å¦èšç„¦
+        m_ViewportHovered = ImGui::IsWindowHovered();//è§†å£æ˜¯å¦æ‚¬åœ
+        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused && !m_ViewportHovered);//é˜»æ­¢äº‹ä»¶,å½“è§†å£ä¸èšç„¦å’Œä¸æ‚¬åœæ—¶
 
-        ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();//»ñÈ¡ÊÓ¿ÚÃæ°å´óĞ¡
+        ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();//è·å–è§†å£é¢æ¿å¤§å°
         
-        m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };//ÉèÖÃÊÓ¿Ú´óĞ¡
+        m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };//è®¾ç½®è§†å£å¤§å°
 
-        uint64_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);//»ñÈ¡ÎÆÀíID
-        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });//ÏÔÊ¾ÎÆÀí
+        uint64_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);//è·å–çº¹ç†ID
+        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });//æ˜¾ç¤ºçº¹ç†
 
-        // ÍÏ·Å
+        // æ‹–æ”¾
         if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) //½ÓÊÜÍÏ·ÅµÄÊı¾İ
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) //æ¥å—æ‹–æ”¾çš„æ•°æ®
 			{
 				const wchar_t* path = (const wchar_t*)payload->Data;
 				OpenScene(std::filesystem::path(g_AssetPath) / path);
@@ -306,63 +306,63 @@ namespace Hazel {
 
 
         //Gizmos
-        Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();//»ñÈ¡Ñ¡ÖĞµÄÊµÌå
+        Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();//è·å–é€‰ä¸­çš„å®ä½“
         if (selectedEntity && m_GizmoType != -1)
         {
-            ImGuizmo::SetOrthographic(false);//ÉèÖÃÕı½»Í¶Ó°
-            ImGuizmo::SetDrawlist();//ÉèÖÃ»æÖÆÁĞ±í
+            ImGuizmo::SetOrthographic(false);//è®¾ç½®æ­£äº¤æŠ•å½±
+            ImGuizmo::SetDrawlist();//è®¾ç½®ç»˜åˆ¶åˆ—è¡¨
 
-            ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);//ÉèÖÃ¾ØĞÎ
+            ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);//è®¾ç½®çŸ©å½¢
 
             // Camera
             
-            //´Ó»î¶¯³¡¾°ÖĞ»ñÈ¡Ïà»úÊµÌå
+            //ä»æ´»åŠ¨åœºæ™¯ä¸­è·å–ç›¸æœºå®ä½“
             //auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-            //const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;//»ñÈ¡Ïà»ú×é¼ş
-            //const glm::mat4& cameraProjection = camera.GetProjection();//»ñÈ¡Í¶Ó°¾ØÕó
-            //glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());//»ñÈ¡Ïà»ú±ä»»¾ØÕó
+            //const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;//è·å–ç›¸æœºç»„ä»¶
+            //const glm::mat4& cameraProjection = camera.GetProjection();//è·å–æŠ•å½±çŸ©é˜µ
+            //glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());//è·å–ç›¸æœºå˜æ¢çŸ©é˜µ
 
             //Editor Camera
-            const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();//»ñÈ¡Í¶Ó°¾ØÕó
-            glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();//»ñÈ¡Ïà»ú±ä»»¾ØÕó
+            const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();//è·å–æŠ•å½±çŸ©é˜µ
+            glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();//è·å–ç›¸æœºå˜æ¢çŸ©é˜µ
 
             // Entity Transform
-            auto& tc = selectedEntity.GetComponent<TransformComponent>();//»ñÈ¡ÊµÌåµÄ±ä»»×é¼ş
-            glm::mat4 transform = tc.GetTransform();//»ñÈ¡±ä»»¾ØÕó
+            auto& tc = selectedEntity.GetComponent<TransformComponent>();//è·å–å®ä½“çš„å˜æ¢ç»„ä»¶
+            glm::mat4 transform = tc.GetTransform();//è·å–å˜æ¢çŸ©é˜µ
 
             // Snapping
-            bool snap = Input::IsKeyPressed(Key::LeftControl);//ÊÇ·ñ°´ÏÂÁËCtrl
-            float snapValue = 0.5f;//Æ½ÒÆ/Ëõ·Å¿É²¶×½µ½0.5Ã×
+            bool snap = Input::IsKeyPressed(Key::LeftControl);//æ˜¯å¦æŒ‰ä¸‹äº†Ctrl
+            float snapValue = 0.5f;//å¹³ç§»/ç¼©æ”¾å¯æ•æ‰åˆ°0.5ç±³
             // Snap to 45 degrees for rotation
             if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
                 snapValue = 45.0f;
 
-            float snapValues[3] = { snapValue, snapValue, snapValue };//²¶×½Öµ
+            float snapValues[3] = { snapValue, snapValue, snapValue };//æ•æ‰å€¼
 
-            ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);//Õâ¸öº¯Êı»á¸ù¾İÓÃ»§µÄÊäÈë£¨ÈçÊó±êÍÏ¶¯£©À´ĞŞ¸Ä transform¾ØÕó£¬´Ó¶ø¸Ä±ä¶ÔÏóµÄÎ»ÖÃ¡¢Ğı×ª»òËõ·Å¡£
+            ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);//è¿™ä¸ªå‡½æ•°ä¼šæ ¹æ®ç”¨æˆ·çš„è¾“å…¥ï¼ˆå¦‚é¼ æ ‡æ‹–åŠ¨ï¼‰æ¥ä¿®æ”¹ transformçŸ©é˜µï¼Œä»è€Œæ”¹å˜å¯¹è±¡çš„ä½ç½®ã€æ—‹è½¬æˆ–ç¼©æ”¾ã€‚
 
             if (ImGuizmo::IsUsing())
             {
-                glm::vec3 translation, rotation, scale;//Æ½ÒÆ¡¢Ğı×ª¡¢Ëõ·Å
-                Math::DecomposeTransform(transform, translation, rotation, scale);//·Ö½â±ä»»¾ØÕó
+                glm::vec3 translation, rotation, scale;//å¹³ç§»ã€æ—‹è½¬ã€ç¼©æ”¾
+                Math::DecomposeTransform(transform, translation, rotation, scale);//åˆ†è§£å˜æ¢çŸ©é˜µ
 
-                glm::vec3 deltaRotation = rotation - tc.Rotation;//Ğı×ª²îÖµ
-                tc.Translation = translation;//ÉèÖÃÆ½ÒÆ
-                tc.Rotation += deltaRotation;//ÉèÖÃĞı×ª
-                tc.Scale = scale;//ÉèÖÃËõ·Å
+                glm::vec3 deltaRotation = rotation - tc.Rotation;//æ—‹è½¬å·®å€¼
+                tc.Translation = translation;//è®¾ç½®å¹³ç§»
+                tc.Rotation += deltaRotation;//è®¾ç½®æ—‹è½¬
+                tc.Scale = scale;//è®¾ç½®ç¼©æ”¾
             }
         }
 
         ImGui::End();
-        ImGui::PopStyleVar();//µ¯³ö´°¿ÚÌî³ä
+        ImGui::PopStyleVar();//å¼¹å‡ºçª—å£å¡«å……
 
-        UI_Toolbar();//¹¤¾ßÀ¸
+        UI_Toolbar();//å·¥å…·æ 
 
         ImGui::End();
 
     }
 
-    // ´´½¨Ò»¸ö ImGui ¹¤¾ßÀ¸£¬¹¤¾ßÀ¸ÖĞÓĞÒ»¸öÍ¼Ïñ°´Å¥£¬µã»÷Õâ¸ö°´Å¥¿ÉÒÔÔÚ±à¼­×´Ì¬ºÍ²¥·Å×´Ì¬Ö®¼äÇĞ»»¡£
+    // åˆ›å»ºä¸€ä¸ª ImGui å·¥å…·æ ï¼Œå·¥å…·æ ä¸­æœ‰ä¸€ä¸ªå›¾åƒæŒ‰é’®ï¼Œç‚¹å‡»è¿™ä¸ªæŒ‰é’®å¯ä»¥åœ¨ç¼–è¾‘çŠ¶æ€å’Œæ’­æ”¾çŠ¶æ€ä¹‹é—´åˆ‡æ¢ã€‚
     void EditorLayer::UI_Toolbar()
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
@@ -393,22 +393,22 @@ namespace Hazel {
 
     void EditorLayer::OnEvent(Event& e)
     {
-        m_CameraController.OnEvent(e);//Ïà»ú¿ØÖÆÆ÷µÄÊÂ¼ş
-        m_EditorCamera.OnEvent(e);//±à¼­Æ÷Ïà»úµÄÊÂ¼ş
+        m_CameraController.OnEvent(e);//ç›¸æœºæ§åˆ¶å™¨çš„äº‹ä»¶
+        m_EditorCamera.OnEvent(e);//ç¼–è¾‘å™¨ç›¸æœºçš„äº‹ä»¶
 
-        EventDispatcher dispatcher(e);//ÊÂ¼ş·Ö·¢Æ÷
-        dispatcher.Dispatch<KeyPressedEvent>(HZ_BIND_EVENT_FN(EditorLayer::OnKeyPressed));//°´¼ü°´ÏÂÊÂ¼ş
-        dispatcher.Dispatch<MouseButtonPressedEvent>(HZ_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));//Êó±ê°´ÏÂÊÂ¼ş
+        EventDispatcher dispatcher(e);//äº‹ä»¶åˆ†å‘å™¨
+        dispatcher.Dispatch<KeyPressedEvent>(HZ_BIND_EVENT_FN(EditorLayer::OnKeyPressed));//æŒ‰é”®æŒ‰ä¸‹äº‹ä»¶
+        dispatcher.Dispatch<MouseButtonPressedEvent>(HZ_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));//é¼ æ ‡æŒ‰ä¸‹äº‹ä»¶
     }
 
     bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
     {
-        //¿ì½İ¼ü
+        //å¿«æ·é”®
         if (e.GetRepeatCount() > 0)
             return false;
 
-        bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);//ÊÇ·ñ°´ÏÂÁËCtrl
-        bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);//ÊÇ·ñ°´ÏÂÁËShift
+        bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);//æ˜¯å¦æŒ‰ä¸‹äº†Ctrl
+        bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);//æ˜¯å¦æŒ‰ä¸‹äº†Shift
         switch (e.GetKeyCode())
         {
             case Key::N:
@@ -433,7 +433,7 @@ namespace Hazel {
                 break;
             }
 
-            //GizmosµÄ¿ì½İ¼ü
+            //Gizmosçš„å¿«æ·é”®
             case Key::Q:
             {
                 if (!ImGuizmo::IsUsing())
@@ -475,42 +475,42 @@ namespace Hazel {
     {
         m_ActiveScene = CreateRef<Scene>();
         m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-        m_SceneHierarchyPanel.SetContext(m_ActiveScene);//ÉèÖÃ³¡¾°²ã´ÎÃæ°åµÄÉÏÏÂÎÄ
+        m_SceneHierarchyPanel.SetContext(m_ActiveScene);//è®¾ç½®åœºæ™¯å±‚æ¬¡é¢æ¿çš„ä¸Šä¸‹æ–‡
     }
 
     void EditorLayer::OpenScene()
     {
-        std::string filepath = FileDialogs::OpenFile("Hazel Scene (*.hazel)\0*.hazel\0");//°´ÕÕ¹ıÂË´ò¿ªºó×ºÎª.hazelµÄÎÄ¼ş
+        std::string filepath = FileDialogs::OpenFile("Hazel Scene (*.hazel)\0*.hazel\0");//æŒ‰ç…§è¿‡æ»¤æ‰“å¼€åç¼€ä¸º.hazelçš„æ–‡ä»¶
         if (!filepath.empty())
             OpenScene(filepath);
     }
 
     void EditorLayer::OpenScene(const std::filesystem::path& path)
     {
-        // ¼ì²éÎÄ¼şºó×º
+        // æ£€æŸ¥æ–‡ä»¶åç¼€
         if (path.extension().string() != ".hazel")
         {
             HZ_WARN("Could not load {0} because it is not a Hazel scene file.", path.filename().string());
             return;
         }
 
-        Ref<Scene> newScene = CreateRef<Scene>();//´´½¨ĞÂ³¡¾°
-        SceneSerializer serializer(newScene);//³¡¾°ĞòÁĞÆ÷´æ´¢³¡¾°
+        Ref<Scene> newScene = CreateRef<Scene>();//åˆ›å»ºæ–°åœºæ™¯
+        SceneSerializer serializer(newScene);//åœºæ™¯åºåˆ—å™¨å­˜å‚¨åœºæ™¯
         if (serializer.Deserialize(path.string()))
         {
-            m_ActiveScene = newScene;//¼¤»î³¡¾°
-            m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);//³¡¾°ÊÓ¿Ú´óĞ¡µ÷Õû
-            m_SceneHierarchyPanel.SetContext(m_ActiveScene);//ÉèÖÃ³¡¾°²ã´ÎÃæ°åµÄÉÏÏÂÎÄ
+            m_ActiveScene = newScene;//æ¿€æ´»åœºæ™¯
+            m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);//åœºæ™¯è§†å£å¤§å°è°ƒæ•´
+            m_SceneHierarchyPanel.SetContext(m_ActiveScene);//è®¾ç½®åœºæ™¯å±‚æ¬¡é¢æ¿çš„ä¸Šä¸‹æ–‡
         }
     }
 
     void EditorLayer::SaveSceneAs()
     {
-        std::string filepath = FileDialogs::SaveFile("Hazel Scene (*.hazel)\0*.hazel\0");//°´ÕÕ¹ıÂË±£´æºó×ºÎª.hazelµÄÎÄ¼ş
+        std::string filepath = FileDialogs::SaveFile("Hazel Scene (*.hazel)\0*.hazel\0");//æŒ‰ç…§è¿‡æ»¤ä¿å­˜åç¼€ä¸º.hazelçš„æ–‡ä»¶
         if (!filepath.empty())
         {
-            SceneSerializer serializer(m_ActiveScene);//³¡¾°ĞòÁĞÆ÷´æ´¢³¡¾°
-            serializer.Serialize(filepath);//ĞòÁĞ»¯
+            SceneSerializer serializer(m_ActiveScene);//åœºæ™¯åºåˆ—å™¨å­˜å‚¨åœºæ™¯
+            serializer.Serialize(filepath);//åºåˆ—åŒ–
         }
     }
 

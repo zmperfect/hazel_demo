@@ -4,39 +4,39 @@
 
 #include "Hazel/Core/PlatformDetection.h"
 
-#ifdef HZ_DEBUG//ÅĞ¶ÏÊÇ·ñÎªdebugÄ£Ê½
-    #if defined(HZ_PLATFORM_WINDOWS)//WindowsÆ½Ì¨
-        #define HZ_DEBUGBREAK() __debugbreak()//ÖĞ¶Ï³ÌĞò
-    #elif defined(HZ_PLATFORM_LINUX)//LinuxÆ½Ì¨
+#ifdef HZ_DEBUG//åˆ¤æ–­æ˜¯å¦ä¸ºdebugæ¨¡å¼
+    #if defined(HZ_PLATFORM_WINDOWS)//Windowså¹³å°
+        #define HZ_DEBUGBREAK() __debugbreak()//ä¸­æ–­ç¨‹åº
+    #elif defined(HZ_PLATFORM_LINUX)//Linuxå¹³å°
         #include <signal.h>
-        #define HZ_DEBUGBREAK() raise(SIGTRAP)//ÖĞ¶Ï³ÌĞò
-    #else//Î´ÖªÆ½Ì¨
+        #define HZ_DEBUGBREAK() raise(SIGTRAP)//ä¸­æ–­ç¨‹åº
+    #else//æœªçŸ¥å¹³å°
         #error "Platform doesn't support debugbreak yet!"
     #endif
-	#define HZ_ENABLE_ASSERTS//ÆôÓÃ¶ÏÑÔ
-#else//·ÇDebugÄ£Ê½
-    #define HZ_DEBUGBREAK()//²»ÖĞ¶Ï³ÌĞò
+	#define HZ_ENABLE_ASSERTS//å¯ç”¨æ–­è¨€
+#else//éDebugæ¨¡å¼
+    #define HZ_DEBUGBREAK()//ä¸ä¸­æ–­ç¨‹åº
 #endif
 
-#define HZ_EXPAND_MACRO(x) x//Õ¹¿ªºê
-#define HZ_STRINGIFY_MACRO(x) #x//½«ºê×ª»»Îª×Ö·û´®
+#define HZ_EXPAND_MACRO(x) x//å±•å¼€å®
+#define HZ_STRINGIFY_MACRO(x) #x//å°†å®è½¬æ¢ä¸ºå­—ç¬¦ä¸²
 
-#define BIT(x) (1 << x)//Î»ÔËËã
+#define BIT(x) (1 << x)//ä½è¿ç®—
 
-#define HZ_BIND_EVENT_FN(fn) [this](auto&&... args)->decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }//°ó¶¨ÊÂ¼şº¯Êı
+#define HZ_BIND_EVENT_FN(fn) [this](auto&&... args)->decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }//ç»‘å®šäº‹ä»¶å‡½æ•°
 
 namespace Hazel {
 
 	template <typename T>
-	using Scope = std::unique_ptr<T>;//ÖÇÄÜÖ¸Õë
+	using Scope = std::unique_ptr<T>;//æ™ºèƒ½æŒ‡é’ˆ
     template<typename T, typename ... Args>
-    constexpr Scope<T> CreateScope(Args&& ... args)//´´½¨ÖÇÄÜÖ¸Õë
+    constexpr Scope<T> CreateScope(Args&& ... args)//åˆ›å»ºæ™ºèƒ½æŒ‡é’ˆ
     {
         return std::make_unique<T>(std::forward<Args>(args)...);
     }
 
 	template <typename T>
-	using Ref = std::shared_ptr<T>;//ÖÇÄÜÖ¸Õë
+	using Ref = std::shared_ptr<T>;//æ™ºèƒ½æŒ‡é’ˆ
     template<typename T, typename ... Args>
     constexpr Ref<T> CreateRef(Args&& ... args)
     {
