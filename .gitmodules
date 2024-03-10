@@ -29,3 +29,8 @@
 [submodule "Hazel_demo/vendor/Box2D"]
 	path = Hazel_demo/vendor/Box2D
 	url  = https://gitee.com/ljr1998/box2d.git
+
+[submodule "Hazel_demo/vendor/Box2D"]
+	url  = https://gitee.com/ljr1998/box2d
+	path = Hazel_demo/vendor/Box2D
+
