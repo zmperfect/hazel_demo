@@ -25,7 +25,9 @@ namespace Hazel {
     {
         HZ_PROFILE_FUNCTION();//获取函数签名
 
-        m_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
+        m_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");//创建棋盘纹理
+        m_IconPlay = Texture2D::Create("Resources/Icons/PlayButton.png");//创建播放按钮纹理
+        m_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");//创建停止按钮纹理
     
         FramebufferSpecification fbSpec;//帧缓冲区规范
         fbSpec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };//帧缓冲区纹理格式，颜色RGBA8，颜色RED_INTEGER，深度
@@ -125,12 +127,6 @@ namespace Hazel {
             m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);//场景视口大小调整
         }
 
-        // 视口聚焦时Update
-        if(m_ViewportFocused)
-            m_CameraController.OnUpdate(ts);//相机控制器更新
-
-        m_EditorCamera.OnUpdate(ts);//编辑器相机更新
-
         // Render
         Renderer2D::ResetStats();//重置渲染器统计数据
         m_Framebuffer->Bind();//绑定帧缓冲区
@@ -140,8 +136,24 @@ namespace Hazel {
         //Clear our entity ID attachment to -1
         m_Framebuffer->ClearAttachment(1, -1);//清除帧缓冲区的附件
 
-        //Update scene
-        m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);//活动场景更新
+        switch (m_SceneState)
+        {
+            case SceneState::Edit:
+            {
+                if (m_ViewportFocused)
+                    m_CameraController.OnUpdate(ts);
+
+                m_EditorCamera.OnUpdate(ts);
+
+                m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+                break;
+            }
+            case SceneState::Play:
+            {
+                m_ActiveScene->OnUpdateRuntime(ts);
+                break;
+            }
+        }
 
         auto[mx, my] = ImGui::GetMousePos();//获取鼠标位置
         mx -= m_ViewportBounds[0].x;//减去视口边界
@@ -344,8 +356,39 @@ namespace Hazel {
         ImGui::End();
         ImGui::PopStyleVar();//弹出窗口填充
 
+        UI_Toolbar();//工具栏
+
         ImGui::End();
 
+    }
+
+    // 创建一个 ImGui 工具栏，工具栏中有一个图像按钮，点击这个按钮可以在编辑状态和播放状态之间切换。
+    void EditorLayer::UI_Toolbar()
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+        auto& colors = ImGui::GetStyle().Colors;
+        const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+        const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+
+        ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+        float size = ImGui::GetWindowHeight() - 4.0f;
+        Ref<Texture2D> icon = m_SceneState == SceneState::Edit ? m_IconPlay : m_IconStop;
+        ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+        if (ImGui::ImageButton((ImTextureID)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0))
+        {
+            if (m_SceneState == SceneState::Edit)
+                OnScenePlay();
+            else if (m_SceneState == SceneState::Play)
+                OnSceneStop();
+        }
+        ImGui::PopStyleVar(2);
+        ImGui::PopStyleColor(3);
+        ImGui::End();
     }
 
     void EditorLayer::OnEvent(Event& e)
@@ -462,5 +505,15 @@ namespace Hazel {
         }
     }
 
+    void EditorLayer::OnScenePlay()
+    {
+        m_SceneState = SceneState::Play;
+    }
+
+    void EditorLayer::OnSceneStop()
+    {
+        m_SceneState = SceneState::Edit;
+
+    }
 
 }

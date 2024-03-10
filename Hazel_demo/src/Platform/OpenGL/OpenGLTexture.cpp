@@ -17,7 +17,7 @@ namespace Hazel {
         glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);//创建纹理存储空间
 
         glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//设置纹理最小化参数
-        glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//设置最大化参数
+        glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//设置最大化参数
 
         glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);//设置水平重复
         glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);//设置垂直重复
@@ -61,7 +61,7 @@ namespace Hazel {
         glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);//创建纹理存储空间
 
         glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//设置纹理最小化参数
-        glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//设置最大化参数
+        glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//设置最大化参数
 
         glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);//设置水平重复
         glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);//设置垂直重复
