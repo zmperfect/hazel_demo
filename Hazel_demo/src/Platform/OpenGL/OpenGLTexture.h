@@ -19,7 +19,9 @@ namespace Hazel {
 
         virtual void SetData(void* data, uint32_t size) override;//设置纹理数据
 
-        virtual void Bind(uint32_t slot = 0) const override;
+        virtual void Bind(uint32_t slot = 0) const override;//绑定纹理
+
+        virtual bool IsLoaded() const override { return m_RendererID; }//判断纹理是否加载
 
         virtual bool operator==(const Texture& other) const override
         {
@@ -27,6 +29,7 @@ namespace Hazel {
         }
     private:
         std::string m_Path;
+        bool m_IsLoaded = false;
         uint32_t m_Width, m_Height;
         uint32_t m_RendererID;//OpenGL texture id
         GLenum m_InternalFormat, m_DataFormat;//纹理的内部格式和数据格式

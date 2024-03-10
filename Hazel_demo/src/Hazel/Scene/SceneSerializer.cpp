@@ -186,7 +186,16 @@ namespace Hazel {
 
     bool SceneSerializer::Deserialize(const std::string& filepath)
     {
-        YAML::Node data = YAML::LoadFile(filepath);//从文件路径加载数据
+        YAML::Node data;// 数据
+        try
+        {
+            data = YAML::LoadFile(filepath);//加载文件
+        }
+        catch (YAML::ParserException e)//解析异常
+        {
+            HZ_CORE_ERROR("YAML::ParserException: {0}", e.what());//错误
+            return false;//返回失败
+        }
         if (!data["Scene"])//如果没有场景
             return false;
 
