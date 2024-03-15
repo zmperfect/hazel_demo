@@ -99,9 +99,6 @@ namespace Hazel {
 
         m_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();//绑定剪辑空间控制器
 #endif
-
-        m_SceneHierarchyPanel.SetContext(m_ActiveScene);//设置场景层次面板的上下文
-
     }
 
     void EditorLayer::OnDetach()
@@ -427,8 +424,22 @@ namespace Hazel {
             }
             case Key::S:
             {
-                if (control && shift)
-                    SaveSceneAs();
+                if (control)
+                {
+                    if (shift)
+                        SaveSceneAs();
+                    else
+                        SaveScene();
+                }
+
+                break;
+            }
+
+            // 场景快捷键
+            case Key::D:
+            {
+                if (control)
+                    OnDuplicateEntity();
 
                 break;
             }
@@ -476,6 +487,8 @@ namespace Hazel {
         m_ActiveScene = CreateRef<Scene>();
         m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
         m_SceneHierarchyPanel.SetContext(m_ActiveScene);//设置场景层次面板的上下文
+
+        m_EditorScenePath = std::filesystem::path();//编辑器场景路径为空
     }
 
     void EditorLayer::OpenScene()
@@ -487,6 +500,10 @@ namespace Hazel {
 
     void EditorLayer::OpenScene(const std::filesystem::path& path)
     {
+        // 检查场景状态
+        if (m_SceneState != SceneState::Edit)
+            OnSceneStop();
+
         // 检查文件后缀
         if (path.extension().string() != ".hazel")
         {
@@ -496,12 +513,24 @@ namespace Hazel {
 
         Ref<Scene> newScene = CreateRef<Scene>();//创建新场景
         SceneSerializer serializer(newScene);//场景序列器存储场景
-        if (serializer.Deserialize(path.string()))
+        if (serializer.Deserialize(path.string()))//反序列化
         {
-            m_ActiveScene = newScene;//激活场景
-            m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);//场景视口大小调整
-            m_SceneHierarchyPanel.SetContext(m_ActiveScene);//设置场景层次面板的上下文
+            m_EditorScene = newScene;//编辑器场景
+            m_EditorScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);//编辑器场景视口大小调整
+            m_SceneHierarchyPanel.SetContext(m_EditorScene);//设置场景层次面板的上下文
+
+            m_ActiveScene = m_EditorScene;//活动场景
+            m_EditorScenePath = path;//编辑器场景路径
         }
+    }
+
+    void EditorLayer::SaveScene()
+    {
+        // 每次加载场景时，m_EditorScenePath都会被设置为加载的场景文件的路径。根据这个路径，我们可以知道场景是否已经保存过。
+        if (!m_EditorScenePath.empty())
+            SerializeScene(m_ActiveScene, m_EditorScenePath);
+        else
+            SaveSceneAs();
     }
 
     void EditorLayer::SaveSceneAs()
@@ -509,22 +538,45 @@ namespace Hazel {
         std::string filepath = FileDialogs::SaveFile("Hazel Scene (*.hazel)\0*.hazel\0");//按照过滤保存后缀为.hazel的文件
         if (!filepath.empty())
         {
-            SceneSerializer serializer(m_ActiveScene);//场景序列器存储场景
-            serializer.Serialize(filepath);//序列化
+            SerializeScene(m_ActiveScene, filepath);//序列化场景
+            m_EditorScenePath = filepath;//编辑器场景路径
         }
+    }
+
+    void EditorLayer::SerializeScene(Ref<Scene> scene, const std::filesystem::path& path)
+    {
+        SceneSerializer serializer(scene);//场景序列器存储场景
+        serializer.Serialize(path.string());//序列化
     }
 
     void EditorLayer::OnScenePlay()
     {
         m_SceneState = SceneState::Play;
+
+        m_ActiveScene = Scene::Copy(m_EditorScene);//复制编辑器场景
         m_ActiveScene->OnRuntimeStart();
+        m_SceneHierarchyPanel.SetContext(m_ActiveScene);//设置场景层次面板的上下文
     }
 
     void EditorLayer::OnSceneStop()
     {
         m_SceneState = SceneState::Edit;
-        m_ActiveScene->OnRuntimeStop();
 
+        m_ActiveScene->OnRuntimeStop();
+        m_ActiveScene = m_EditorScene;
+
+        m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
+    }
+
+    void EditorLayer::OnDuplicateEntity()
+    {
+        if (m_SceneState != SceneState::Edit)
+            return;
+
+        Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+        if (selectedEntity)
+            m_EditorScene->DuplicateEntity(selectedEntity);
     }
 
 }

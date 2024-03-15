@@ -38,6 +38,65 @@ namespace Hazel {
     {
     }
 
+    // 复制场景
+    template<typename Component>
+    static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
+    {
+        auto view = src.view<Component>();// 获取所有实体的Component组件
+        for (auto e : view)//遍历
+        {
+            UUID uuid = src.get<IDComponent>(e).ID;//获取ID
+            HZ_CORE_ASSERT(enttMap.find(uuid) != enttMap.end());//断言uuid存在
+            entt::entity dstEnttID = enttMap.at(uuid);//获取目标实体ID
+
+            auto& component = src.get<Component>(e);//获取组件
+            dst.emplace_or_replace<Component>(dstEnttID, component);//添加或替换组件
+        }
+    }
+
+    // 复制场景(若存在)
+    template<typename Component>
+    static void CopyComponentIfExists(Entity dst, Entity src)
+    {
+        if (src.HasComponent<Component>())
+            dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());//添加或替换组件
+    }
+
+    // 复制场景
+    Ref<Scene> Scene::Copy(Ref<Scene> other)
+    {
+        Ref<Scene> newScene = CreateRef<Scene>();// 创建新场景
+
+        // 复制视口大小
+        newScene->m_ViewportWidth = other->m_ViewportWidth;
+        newScene->m_ViewportHeight = other->m_ViewportHeight;
+
+        // 获取实体注册表
+        auto& srcSceneRegistry = other->m_Registry;
+        auto& dstSceneRegistry = newScene->m_Registry;
+        std::unordered_map<UUID, entt::entity> enttMap;//存储UUID和entt::entity的映射
+
+        // 新场景创建实体
+        auto idView = srcSceneRegistry.view<IDComponent>();
+        for (auto e : idView)
+        {
+            UUID uuid = srcSceneRegistry.get<IDComponent>(e).ID;
+            const auto& name = srcSceneRegistry.get<TagComponent>(e).Tag;
+            Entity newEntity = newScene->CreateEntityWithUUID(uuid, name);
+            enttMap[uuid] = (entt::entity)newEntity;
+        }
+
+        // 复制原场景的所有组件到新场景
+        CopyComponent<TransformComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+        CopyComponent<SpriteRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+        CopyComponent<CameraComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+        CopyComponent<NativeScriptComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+        CopyComponent<Rigidbody2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+        CopyComponent<BoxCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+
+        return newScene;
+    }
+
     Entity Scene::CreateEntity(const std::string& name)
     {
         return CreateEntityWithUUID(UUID(), name);
@@ -210,6 +269,19 @@ namespace Hazel {
                 cameraComponent.Camera.SetViewportSize(width, height);//设置视口大小
             }
         }
+    }
+
+    void Scene::DuplicateEntity(Entity entity)
+    {
+        std::string name = entity.GetName();//获取实体名称
+        Entity newEntity = CreateEntity(name);//创建实体
+
+        CopyComponentIfExists<TransformComponent>(newEntity, entity);//复制变换组件
+        CopyComponentIfExists<SpriteRendererComponent>(newEntity, entity);//复制精灵渲染组件
+        CopyComponentIfExists<CameraComponent>(newEntity, entity);//复制相机组件
+        CopyComponentIfExists<NativeScriptComponent>(newEntity, entity);//复制本地脚本组件
+        CopyComponentIfExists<Rigidbody2DComponent>(newEntity, entity);//复制刚体组件
+        CopyComponentIfExists<BoxCollider2DComponent>(newEntity, entity);//复制刚体碰撞组件
     }
 
     Entity Scene::GetPrimaryCameraEntity()

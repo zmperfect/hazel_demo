@@ -33,26 +33,29 @@ namespace Hazel {
     {
         ImGui::Begin("Scene Hierarchy");//开始场景层次面板
 
-        m_Context->m_Registry.each([&](auto entityID)//遍历实体
-            {
-                Entity entity{ entityID , m_Context.get() };//实体
-                DrawEntityNode(entity);//绘制实体节点
-            });
-
-        if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())//如果鼠标左键按下并且鼠标在窗口上
+        if (m_Context)//如果上下文不为空
         {
-            m_SelectionContext = {};//清空选择上下文
-        }
+            m_Context->m_Registry.each([&](auto entityID)//遍历实体
+                {
+                    Entity entity{ entityID , m_Context.get() };//实体
+                    DrawEntityNode(entity);//绘制实体节点
+                });
 
-        //空白处右键菜单
-        if (ImGui::BeginPopupContextWindow(0, 1, false))
-        {
-            if (ImGui::MenuItem("Create Empty Entity"))//如果点击了创建空实体
+            if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())//如果鼠标左键按下并且鼠标在窗口上
             {
-                m_Context->CreateEntity("Empty Entity");//创建空实体
+                m_SelectionContext = {};//清空选择上下文
             }
 
-            ImGui::EndPopup();//结束右键菜单
+            //空白处右键菜单
+            if (ImGui::BeginPopupContextWindow(0, 1, false))
+            {
+                if (ImGui::MenuItem("Create Empty Entity"))//如果点击了创建空实体
+                {
+                    m_Context->CreateEntity("Empty Entity");//创建空实体
+                }
+
+                ImGui::EndPopup();//结束右键菜单
+            }
         }
 
         ImGui::End();
@@ -410,7 +413,7 @@ namespace Hazel {
         DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](auto& component)
             {
                 ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
-                ImGui::DragFloat2("Size", glm::value_ptr(component.Offset));
+                ImGui::DragFloat2("Size", glm::value_ptr(component.Size));
                 ImGui::DragFloat("Density", &component.Density, 0.01f, 0.0f, 1.0f);
                 ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
                 ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);

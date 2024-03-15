@@ -18,6 +18,8 @@ namespace Hazel {
         Scene();
         ~Scene();
 
+        static Ref<Scene> Copy(Ref<Scene> other);//复制场景
+
         Entity CreateEntity(const std::string& name = std::string());//创建实体
         Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string()); //创建带UUID的实体
         void DestroyEntity(Entity entity);//销毁实体
@@ -28,6 +30,8 @@ namespace Hazel {
         void OnUpdateRuntime(Timestep ts);//运行时更新
         void OnUpdateEditor(Timestep ts, EditorCamera& camera);//编辑器更新
         void OnViewportResize(uint32_t width, uint32_t height);//视口调整大小
+
+        void DuplicateEntity(Entity entity);//复制实体
 
         Entity GetPrimaryCameraEntity();//获取主相机实体
     private:

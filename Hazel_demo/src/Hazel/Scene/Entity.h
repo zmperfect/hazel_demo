@@ -24,6 +24,14 @@ namespace Hazel {
             return component;
         }
 
+        template<typename T, typename... Args>//模板参数包
+        T& AddOrReplaceComponent(Args&&... args)//参数包展开
+        {
+            T& component = m_Scene->m_Registry.emplace_or_replace<T>(m_EntityHandle, std::forward<Args>(args)...);//创建或替换组件
+            m_Scene->OnComponentAdded<T>(*this, component);//调用组件添加事件
+            return component;
+        }
+
         template<typename T>
         T& GetComponent()
         {
@@ -49,6 +57,8 @@ namespace Hazel {
         operator uint32_t() const { return (uint32_t)m_EntityHandle; }//重载uint32_t类型,获取实体句柄
 
         UUID GetUUID() { return GetComponent<IDComponent>().ID; }//获取实体UUID
+
+        const std::string& GetName() { return GetComponent<TagComponent>().Tag; }//获取实体名称
 
         bool operator==(const Entity& other) const//重载==
         {
