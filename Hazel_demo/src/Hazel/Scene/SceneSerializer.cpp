@@ -143,9 +143,11 @@ namespace Hazel {
 
     static void SerializeEntity(YAML::Emitter& out, Entity entity)//序列化实体
     {
+        HZ_CORE_ASSERT(entity.HasComponent<IDComponent>(), "Entity has no ID component,");
+
         out << YAML::BeginMap;//开始映射
 
-        out << YAML::Key << "Entity" << YAML::Value << "12837192831273"; // TODO: Entity ID goes here
+        out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID();//实体ID
 
         if (entity.HasComponent<TagComponent>())//如果有标签组件
         {
@@ -294,7 +296,7 @@ namespace Hazel {
         {
             for (auto entity : entities)
             {
-                uint64_t uuid = entity["Entity"].as<uint64_t>();//实体ID TODO
+                uint64_t uuid = entity["Entity"].as<uint64_t>();//实体ID
 
                 std::string name;//名称
                 auto tagComponent = entity["TagComponent"];//标签组件
@@ -303,7 +305,7 @@ namespace Hazel {
 
                 HZ_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);//跟踪
 
-                Entity deserializedEntity = m_Scene->CreateEntity(name);//创建实体
+                Entity deserializedEntity = m_Scene->CreateEntityWithUUID(uuid, name);//创建实体
 
                 auto transformComponent = entity["TransformComponent"];//变换组件
                 if (transformComponent)

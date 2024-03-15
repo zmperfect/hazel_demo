@@ -1,6 +1,8 @@
 #pragma once
 
+#include "Hazel/Core/UUID.h"
 #include "Scene.h"
+#include "Components.h"
 
 #include "entt.hpp"
 
@@ -45,6 +47,8 @@ namespace Hazel {
         operator bool() const { return m_EntityHandle != entt::null; }//重载bool类型,判断实体是否为空
         operator entt::entity() const { return m_EntityHandle; }//重载entt::entity类型,获取实体句柄
         operator uint32_t() const { return (uint32_t)m_EntityHandle; }//重载uint32_t类型,获取实体句柄
+
+        UUID GetUUID() { return GetComponent<IDComponent>().ID; }//获取实体UUID
 
         bool operator==(const Entity& other) const//重载==
         {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hazel/Core/Timestep.h"
+#include "Hazel/Core/UUID.h"
 #include "Hazel/Renderer/EditorCamera.h"
 
 #include "entt.hpp"
@@ -18,6 +19,7 @@ namespace Hazel {
         ~Scene();
 
         Entity CreateEntity(const std::string& name = std::string());//创建实体
+        Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string()); //创建带UUID的实体
         void DestroyEntity(Entity entity);//销毁实体
 
         void OnRuntimeStart();//运行时开始
