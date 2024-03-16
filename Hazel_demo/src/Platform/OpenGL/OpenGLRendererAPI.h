@@ -14,5 +14,8 @@ namespace Hazel {
         virtual void Clear() override;//清除
 
         virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;//绘制顶点数组
+        virtual void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount) override;//绘制线段
+
+        virtual void SetLineWidth(float width) override;//设置线宽
     };
 }

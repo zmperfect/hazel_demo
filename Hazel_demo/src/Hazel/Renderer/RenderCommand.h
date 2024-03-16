@@ -27,10 +27,22 @@ namespace Hazel {
             s_RendererAPI->Clear();
         }
 
-        //绘制
-        static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t count = 0)
+        // 按索引绘制
+        static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexcount = 0)
         {
-            s_RendererAPI->DrawIndexed(vertexArray, count);
+            s_RendererAPI->DrawIndexed(vertexArray, indexcount);
+        }
+
+        // 绘线
+        static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount)
+        {
+            s_RendererAPI->DrawLines(vertexArray, vertexCount);
+        }
+
+        // 设置线宽
+        static void SetLineWidth(float width)
+        {
+            s_RendererAPI->SetLineWidth(width);
         }
     private:
         static Scope<RendererAPI> s_RendererAPI;

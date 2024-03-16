@@ -40,8 +40,8 @@ void main()
 #type fragment
 #version 450 core
 
-layout(location = 0) out vec4 color;//定义了一个输出变量color，它是一个4分量的向量（vec4），包含了红、绿、蓝和alpha通道。location = 0指定了这个变量在着色器程序和渲染管线其他部分之间交换数据时使用的位置编号。
-layout(location = 1) out int color2;//定义了另一个输出变量color2，它是一个整数。location = 1指定了这个变量的位置编号。
+layout(location = 0) out vec4 o_Color;//定义了一个输出变量color，它是一个4分量的向量（vec4），包含了红、绿、蓝和alpha通道。location = 0指定了这个变量在着色器程序和渲染管线其他部分之间交换数据时使用的位置编号。
+layout(location = 1) out int o_EntityID;//实体ID
 
 struct VertexOutput
 {
@@ -95,7 +95,7 @@ void main()
 		case 30: texColor *= texture(u_Textures[30], Input.TexCoord * Input.TilingFactor); break;
 		case 31: texColor *= texture(u_Textures[31], Input.TexCoord * Input.TilingFactor); break;
 	}
-	color = texColor;
+	o_Color = texColor;
 
-	color2 = v_EntityID;
+	o_EntityID = v_EntityID;
 }

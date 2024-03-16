@@ -43,6 +43,7 @@ namespace Hazel {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//混合函数
 
         glEnable(GL_DEPTH_TEST);//允许深度测试
+        glEnable(GL_LINE_SMOOTH);//允许线条平滑
     }
 
     void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -66,5 +67,18 @@ namespace Hazel {
         vertexArray->Bind();//绑定顶点数组
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();//获取索引数量
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);//绘制三角形，顶点索引，索引类型，偏移量
+    }
+
+    // 画线
+    void OpenGLRendererAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount)
+    {
+        vertexArray->Bind();//绑定顶点数组
+        glDrawArrays(GL_LINES, 0, vertexCount);//绘制线段，图元类型，起始索引，顶点数量
+    }
+
+    // 设置线宽
+    void OpenGLRendererAPI::SetLineWidth(float width)
+    {
+        glLineWidth(width);
     }
 }

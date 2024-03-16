@@ -37,6 +37,16 @@ namespace Hazel {
         int EntityID;//实体ID
 	};
 
+	// 线段顶点
+    struct LineVertex
+    {
+        glm::vec3 Position;
+        glm::vec4 Color;
+
+        // Editor-only
+        int EntityID;
+    };
+
 	//渲染数据
 	struct Renderer2DData
 	{
@@ -64,6 +74,16 @@ namespace Hazel {
         CircleVertex* CircleVertexBufferBase = nullptr;
         CircleVertex* CircleVertexBufferPtr = nullptr;
 
+		// Line
+		Ref<VertexArray> LineVertexArray;
+		Ref<VertexBuffer> LineVertexBuffer;
+		Ref<Shader> LineShader;
+
+		uint32_t LineVertexCount = 0;
+		LineVertex* LineVertexBufferBase = nullptr;
+		LineVertex* LineVertexBufferPtr = nullptr;
+
+		float LineWidth = 2.0f;// 线宽
 
 		std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;//纹理槽
 		uint32_t TextureSlotIndex = 1; // 纹理槽索引，0 = white texture
@@ -138,18 +158,31 @@ namespace Hazel {
         s_Data.CircleVertexArray->SetIndexBuffer(quadIB); // Use quad IB
         s_Data.CircleVertexBufferBase = new CircleVertex[s_Data.MaxVertices];
 
+        // Lines
+        s_Data.LineVertexArray = VertexArray::Create();
+
+        s_Data.LineVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(LineVertex));
+        s_Data.LineVertexBuffer->SetLayout({
+            { ShaderDataType::Float3, "a_Position" },
+            { ShaderDataType::Float4, "a_Color"    },
+            { ShaderDataType::Int,    "a_EntityID" }
+            });
+        s_Data.LineVertexArray->AddVertexBuffer(s_Data.LineVertexBuffer);
+        s_Data.LineVertexBufferBase = new LineVertex[s_Data.MaxVertices];
 
 		s_Data.WhiteTexture = Texture2D::Create(1, 1);//创建纹理
 		uint32_t whiteTextureData = 0xffffffff;//白色纹理数据
 		s_Data.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));//设置纹理数据
 
 		int32_t samplers[s_Data.MaxTextureSlots];//纹理槽
-		//设置纹理槽
+		// 设置纹理槽
 		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
 			samplers[i] = i;
 
-		s_Data.QuadShader = Shader::Create("assets/shaders/Renderer2D_Quad.glsl");//创建纹理着色器
-		s_Data.CircleShader = Shader::Create("assets/shaders/Renderer2D_Circle.glsl");
+		// 创建着色器
+		s_Data.QuadShader = Shader::Create("assets/shaders/Renderer2D_Quad.glsl");//创建方形着色器
+		s_Data.CircleShader = Shader::Create("assets/shaders/Renderer2D_Circle.glsl");//创建圆形着色器
+		s_Data.LineShader = Shader::Create("assets/shaders/Renderer2D_Line.glsl");//创建线着色器
 
 		// Set first texture slot to 0
 		s_Data.TextureSlots[0] = s_Data.WhiteTexture;
@@ -207,18 +240,24 @@ namespace Hazel {
 	// 开始批处理
 	void Renderer2D::StartBatch()
 	{
+		// 方形
         s_Data.QuadIndexCount = 0;//方形索引数量
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;//方形顶点缓冲区指针
 
+		// 圆形
 		s_Data.CircleIndexCount = 0;//圆形索引数量
 		s_Data.CircleVertexBufferPtr = s_Data.CircleVertexBufferBase;//圆形顶点缓冲区指针
+
+		// 线
+        s_Data.LineVertexCount = 0;//线顶点数量
+        s_Data.LineVertexBufferPtr = s_Data.LineVertexBufferBase;//线顶点缓冲区指针
 
         s_Data.TextureSlotIndex = 1;//纹理槽索引
 	}
 
 	void Renderer2D::Flush()
 	{
-		if (s_Data.QuadIndexCount)
+		if (s_Data.QuadIndexCount)// 如果方形索引数量大于0
 		{
             uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);//数据大小
             s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);//设置方形顶点缓冲区数据
@@ -232,7 +271,7 @@ namespace Hazel {
             s_Data.Stats.DrawCalls++;//绘制调用次数++
 		}
         
-        if (s_Data.CircleIndexCount)
+        if (s_Data.CircleIndexCount)// 如果圆形索引数量大于0
         {
             uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.CircleVertexBufferPtr - (uint8_t*)s_Data.CircleVertexBufferBase);//数据大小
             s_Data.CircleVertexBuffer->SetData(s_Data.CircleVertexBufferBase, dataSize);//设置圆形顶点缓冲区数据
@@ -240,6 +279,17 @@ namespace Hazel {
             s_Data.CircleShader->Bind();//绑定圆形着色器
             RenderCommand::DrawIndexed(s_Data.CircleVertexArray, s_Data.CircleIndexCount);//按索引绘制
             s_Data.Stats.DrawCalls++;//绘制调用次数++
+        }
+
+		if (s_Data.LineVertexCount)// 如果线顶点数量大于0
+        {
+            uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.LineVertexBufferPtr - (uint8_t*)s_Data.LineVertexBufferBase);
+            s_Data.LineVertexBuffer->SetData(s_Data.LineVertexBufferBase, dataSize);
+
+            s_Data.LineShader->Bind();
+            RenderCommand::SetLineWidth(s_Data.LineWidth);
+            RenderCommand::DrawLines(s_Data.LineVertexArray, s_Data.LineVertexCount);
+            s_Data.Stats.DrawCalls++;
         }
 
 	}
@@ -420,6 +470,54 @@ namespace Hazel {
         s_Data.Stats.QuadCount++;
     }
 
+    void Renderer2D::DrawLine(const glm::vec3& p0, glm::vec3& p1, const glm::vec4& color, int entityID)
+    {
+		// 线段起始位置
+        s_Data.LineVertexBufferPtr->Position = p0;
+        s_Data.LineVertexBufferPtr->Color = color;
+        s_Data.LineVertexBufferPtr->EntityID = entityID;
+        s_Data.LineVertexBufferPtr++;
+
+		// 线段结束位置
+        s_Data.LineVertexBufferPtr->Position = p1;
+        s_Data.LineVertexBufferPtr->Color = color;
+        s_Data.LineVertexBufferPtr->EntityID = entityID;
+        s_Data.LineVertexBufferPtr++;
+
+        s_Data.LineVertexCount += 2;
+    }
+
+	// 绘制矩形
+    void Renderer2D::DrawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, int entityID)
+    {
+		// 根据矩形中心计算矩形的四个顶点
+        glm::vec3 p0 = glm::vec3(position.x - size.x * 0.5f, position.y - size.y * 0.5f, position.z);
+        glm::vec3 p1 = glm::vec3(position.x + size.x * 0.5f, position.y - size.y * 0.5f, position.z);
+        glm::vec3 p2 = glm::vec3(position.x + size.x * 0.5f, position.y + size.y * 0.5f, position.z);
+        glm::vec3 p3 = glm::vec3(position.x - size.x * 0.5f, position.y + size.y * 0.5f, position.z);
+
+		// 绘制矩形的四条边
+        DrawLine(p0, p1, color);
+        DrawLine(p1, p2, color);
+        DrawLine(p2, p3, color);
+        DrawLine(p3, p0, color);
+    }
+
+	// 绘制矩形
+    void Renderer2D::DrawRect(const glm::mat4& transform, const glm::vec4& color, int entityID)
+    {
+		// 根据变换矩阵计算矩形的四个顶点
+        glm::vec3 lineVertices[4];// 矩形的四个顶点vertex
+        for (size_t i = 0; i < 4; i++)
+            lineVertices[i] = transform * s_Data.QuadVertexPositions[i];
+
+		// 绘制矩形的四条边
+        DrawLine(lineVertices[0], lineVertices[1], color);
+        DrawLine(lineVertices[1], lineVertices[2], color);
+        DrawLine(lineVertices[2], lineVertices[3], color);
+        DrawLine(lineVertices[3], lineVertices[0], color);
+    }
+
 	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
 	{
 		if (src.Texture)
@@ -427,6 +525,19 @@ namespace Hazel {
 		else
 			DrawQuad(transform, src.Color, entityID);
 	}
+
+	// 获取线宽
+    float Renderer2D::GetLineWidth()
+    {
+        return s_Data.LineWidth;
+    }
+
+	// 设置线宽
+    void Renderer2D::SetLineWidth(float width)
+    {
+        s_Data.LineWidth = width;
+    }
+
 
 	void Renderer2D::ResetStats()
 	{

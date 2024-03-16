@@ -22,6 +22,9 @@ namespace Hazel {
         virtual void Clear() = 0;//清除
 
         virtual void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t count = 0) = 0;//绘制顶点数组
+        virtual void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount) = 0;//绘制线
+
+        virtual void SetLineWidth(float width) = 0;//设置线宽
 
         static API GetAPI() { return s_API; }//获取API
         static Scope<RendererAPI> Create();//创建
