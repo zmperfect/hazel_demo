@@ -63,6 +63,16 @@ namespace Hazel {
 			: Color(color) {}
 	};
 
+    struct CircleRendererComponent
+    {
+        glm::vec4 Color{ 1.0f, 1.0f, 1.0f, 1.0f };//颜色
+        float Thickness = 1.0f;//厚度
+        float Fade = 0.005f;//淡化
+
+        CircleRendererComponent() = default;
+        CircleRendererComponent(const CircleRendererComponent&) = default;//拷贝构造函数，创建一个新的对象作为原对象的副本
+    };
+
 	struct CameraComponent
 	{
 		SceneCamera Camera;

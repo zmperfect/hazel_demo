@@ -63,8 +63,8 @@ namespace Hazel {
     //按照索引绘制
     void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
     {
+        vertexArray->Bind();//绑定顶点数组
         uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();//获取索引数量
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);//绘制三角形，顶点索引，索引类型，偏移量
-        glBindTexture(GL_TEXTURE_2D, 0);//解绑纹理
     }
 }

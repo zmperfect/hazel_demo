@@ -24,6 +24,19 @@ namespace Hazel {
 		int EntityID;//实体ID
 	};
 
+	//圆形顶点
+	struct CircleVertex 
+	{
+        glm::vec3 WorldPosition;//世界位置
+        glm::vec3 LocalPosition;//本地位置
+        glm::vec4 Color;//颜色
+        float Thickness;//厚度
+        float Fade;//淡化
+
+        // Editor-only
+        int EntityID;//实体ID
+	};
+
 	//渲染数据
 	struct Renderer2DData
 	{
@@ -32,14 +45,25 @@ namespace Hazel {
 		static const uint32_t MaxIndices = MaxQuads * 6;//最大索引数量
 		static const uint32_t MaxTextureSlots = 32; // 最大纹理槽数 TODO: RenderCaps
 
+		// Quad
 		Ref<VertexArray> QuadVertexArray;//方形顶点数组
 		Ref<VertexBuffer> QuadVertexBuffer;//方形顶点缓冲区
-		Ref<Shader> TextureShader;//纹理着色器
+		Ref<Shader> QuadShader;//方形着色器
 		Ref<Texture2D> WhiteTexture;//白色纹理
 
-		uint32_t QuadIndexCount = 0;//方形索引数量
-		QuadVertex* QuadVertexBufferBase = nullptr;//方形顶点缓冲区基地址
-		QuadVertex* QuadVertexBufferPtr = nullptr;//方形顶点缓冲区指针
+        uint32_t QuadIndexCount = 0;//方形索引数量
+        QuadVertex* QuadVertexBufferBase = nullptr;//方形顶点缓冲区基地址
+        QuadVertex* QuadVertexBufferPtr = nullptr;//方形顶点缓冲区指针
+
+		// Circle
+        Ref<VertexArray> CircleVertexArray;
+        Ref<VertexBuffer> CircleVertexBuffer;
+        Ref<Shader> CircleShader;
+
+        uint32_t CircleIndexCount = 0;
+        CircleVertex* CircleVertexBufferBase = nullptr;
+        CircleVertex* CircleVertexBufferPtr = nullptr;
+
 
 		std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;//纹理槽
 		uint32_t TextureSlotIndex = 1; // 纹理槽索引，0 = white texture
@@ -98,6 +122,23 @@ namespace Hazel {
 		s_Data.QuadVertexArray->SetIndexBuffer(quadIB);//设置方形顶点数组索引缓冲区
 		delete[] quadIndices;//删除方形索引
 
+        // Circles
+        s_Data.CircleVertexArray = VertexArray::Create();
+
+        s_Data.CircleVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(CircleVertex));
+        s_Data.CircleVertexBuffer->SetLayout({
+            { ShaderDataType::Float3, "a_WorldPosition" },
+            { ShaderDataType::Float3, "a_LocalPosition" },
+            { ShaderDataType::Float4, "a_Color"         },
+            { ShaderDataType::Float,  "a_Thickness"     },
+            { ShaderDataType::Float,  "a_Fade"          },
+            { ShaderDataType::Int,    "a_EntityID"      }
+            });
+        s_Data.CircleVertexArray->AddVertexBuffer(s_Data.CircleVertexBuffer);
+        s_Data.CircleVertexArray->SetIndexBuffer(quadIB); // Use quad IB
+        s_Data.CircleVertexBufferBase = new CircleVertex[s_Data.MaxVertices];
+
+
 		s_Data.WhiteTexture = Texture2D::Create(1, 1);//创建纹理
 		uint32_t whiteTextureData = 0xffffffff;//白色纹理数据
 		s_Data.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));//设置纹理数据
@@ -107,7 +148,8 @@ namespace Hazel {
 		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
 			samplers[i] = i;
 
-		s_Data.TextureShader = Shader::Create("assets/shaders/Texture.glsl");//创建纹理着色器
+		s_Data.QuadShader = Shader::Create("assets/shaders/Renderer2D_Quad.glsl");//创建纹理着色器
+		s_Data.CircleShader = Shader::Create("assets/shaders/Renderer2D_Circle.glsl");
 
 		// Set first texture slot to 0
 		s_Data.TextureSlots[0] = s_Data.WhiteTexture;
@@ -162,29 +204,44 @@ namespace Hazel {
 		Flush();//刷新
 	}
 
+	// 开始批处理
 	void Renderer2D::StartBatch()
 	{
         s_Data.QuadIndexCount = 0;//方形索引数量
         s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;//方形顶点缓冲区指针
+
+		s_Data.CircleIndexCount = 0;//圆形索引数量
+		s_Data.CircleVertexBufferPtr = s_Data.CircleVertexBufferBase;//圆形顶点缓冲区指针
 
         s_Data.TextureSlotIndex = 1;//纹理槽索引
 	}
 
 	void Renderer2D::Flush()
 	{
-		if(s_Data.QuadIndexCount == 0)//方形索引数量为0
-            return;//没啥要画的
+		if (s_Data.QuadIndexCount)
+		{
+            uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);//数据大小
+            s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);//设置方形顶点缓冲区数据
 
-		uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);//数据大小
-		s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);//设置方形顶点缓冲区数据
+            // 绑定纹理
+            for (uint32_t i = 0; i < s_Data.TextureSlotIndex; i++)
+                s_Data.TextureSlots[i]->Bind(i);
 
-		// 绑定纹理
-		for (uint32_t i = 0; i < s_Data.TextureSlotIndex; i++)
-			s_Data.TextureSlots[i]->Bind(i);
+            s_Data.QuadShader->Bind();//绑定纹理着色器
+            RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);//按索引绘制
+            s_Data.Stats.DrawCalls++;//绘制调用次数++
+		}
+        
+        if (s_Data.CircleIndexCount)
+        {
+            uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.CircleVertexBufferPtr - (uint8_t*)s_Data.CircleVertexBufferBase);//数据大小
+            s_Data.CircleVertexBuffer->SetData(s_Data.CircleVertexBufferBase, dataSize);//设置圆形顶点缓冲区数据
 
-		s_Data.TextureShader->Bind();//绑定纹理着色器
-		RenderCommand::DrawIndexed(s_Data.QuadVertexArray, s_Data.QuadIndexCount);//按索引绘制
-		s_Data.Stats.DrawCalls++;//绘制调用次数++
+            s_Data.CircleShader->Bind();//绑定圆形着色器
+            RenderCommand::DrawIndexed(s_Data.CircleVertexArray, s_Data.CircleIndexCount);//按索引绘制
+            s_Data.Stats.DrawCalls++;//绘制调用次数++
+        }
+
 	}
 
 	void Renderer2D::NextBatch()
@@ -338,6 +395,30 @@ namespace Hazel {
 
 		DrawQuad(transform, texture, tilingFactor, tintColor);
 	}
+
+	void Renderer2D::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness /*= 1.0f*/, float fade /*= 0.005f*/, int entityID /*= -1*/)
+    {
+        HZ_PROFILE_FUNCTION();
+
+        // TODO: 为圆实现批处理
+        // if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+        // 	NextBatch();
+
+        for (size_t i = 0; i < 4; i++)
+        {
+            s_Data.CircleVertexBufferPtr->WorldPosition = transform * s_Data.QuadVertexPositions[i];
+            s_Data.CircleVertexBufferPtr->LocalPosition = s_Data.QuadVertexPositions[i] * 2.0f;
+            s_Data.CircleVertexBufferPtr->Color = color;
+            s_Data.CircleVertexBufferPtr->Thickness = thickness;
+            s_Data.CircleVertexBufferPtr->Fade = fade;
+            s_Data.CircleVertexBufferPtr->EntityID = entityID;
+            s_Data.CircleVertexBufferPtr++;
+        }
+
+        s_Data.CircleIndexCount += 6;
+
+        s_Data.Stats.QuadCount++;
+    }
 
 	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
 	{

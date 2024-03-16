@@ -89,6 +89,7 @@ namespace Hazel {
         // 复制原场景的所有组件到新场景
         CopyComponent<TransformComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
         CopyComponent<SpriteRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+        CopyComponent<CircleRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
         CopyComponent<CameraComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
         CopyComponent<NativeScriptComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
         CopyComponent<Rigidbody2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
@@ -226,12 +227,26 @@ namespace Hazel {
         {
             Renderer2D::BeginScene(*mainCamera, cameraTransform);//开始渲染
 
-            auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);//获取所有实体的TransformComponent和SpriteRendererComponent组件
-            for (auto entity : group)
+            // Draw sprites
             {
-                auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);//获取组件
+                auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);//获取所有实体的TransformComponent和SpriteRendererComponent组件
+                for (auto entity : group)
+                {
+                    auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);//获取组件
 
-                Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);//渲染
+                    Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);//渲染
+                }
+            }
+
+            // Draw circles
+            {
+                auto view = m_Registry.view<TransformComponent, CircleRendererComponent>();//获取所有实体的TransformComponent和CircleRendererComponent组件
+                for (auto entity : view)
+                {
+                    auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);//获取组件
+
+                    Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);//渲染
+                }
             }
 
             Renderer2D::EndScene();//结束渲染
@@ -243,13 +258,27 @@ namespace Hazel {
     {
         Renderer2D::BeginScene(camera);//开始渲染
 
-        auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);//获取所有实体的TransformComponent和SpriteRendererComponent组件
-        for (auto entity : group)
+        // Draw sprites
         {
-            auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);//获取组件
+            auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);//获取所有实体的TransformComponent和SpriteRendererComponent组件
+            for (auto entity : group)
+            {
+                auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);//获取组件
 
-            Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);//渲染
+                Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);//渲染
+            }
         }
+
+        // Draw circles
+        {
+            auto view = m_Registry.view<TransformComponent, CircleRendererComponent>();
+            for (auto entity : view)
+            {
+                auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
+
+                Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
+            }
+        }  
 
         Renderer2D::EndScene();//结束渲染
     }
@@ -278,6 +307,7 @@ namespace Hazel {
 
         CopyComponentIfExists<TransformComponent>(newEntity, entity);//复制变换组件
         CopyComponentIfExists<SpriteRendererComponent>(newEntity, entity);//复制精灵渲染组件
+        CopyComponentIfExists<CircleRendererComponent>(newEntity, entity);//复制圆形渲染组件
         CopyComponentIfExists<CameraComponent>(newEntity, entity);//复制相机组件
         CopyComponentIfExists<NativeScriptComponent>(newEntity, entity);//复制本地脚本组件
         CopyComponentIfExists<Rigidbody2DComponent>(newEntity, entity);//复制刚体组件
@@ -321,6 +351,11 @@ namespace Hazel {
 
     template<>
     void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
+    {
+    }
+
+    template<>
+    void Scene::OnComponentAdded<CircleRendererComponent>(Entity entity, CircleRendererComponent& component)
     {
     }
 

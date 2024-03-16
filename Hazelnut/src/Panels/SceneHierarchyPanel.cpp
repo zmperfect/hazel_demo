@@ -259,6 +259,15 @@ namespace Hazel {
                     ImGui::CloseCurrentPopup();//关闭当前弹出窗口
                 }
             }
+
+            if (!m_SelectionContext.HasComponent<CircleRendererComponent>())//如果选择的实体没有圆形渲染器组件
+            {
+                if (ImGui::MenuItem("Circle Renderer"))//如果点击了圆形渲染器
+                {
+                    m_SelectionContext.AddComponent<CircleRendererComponent>(); //添加圆形渲染器组件
+                    ImGui::CloseCurrentPopup();//关闭当前弹出窗口
+                }
+            }
             
             if (!m_SelectionContext.HasComponent<SpriteRendererComponent>())
             {
@@ -382,6 +391,14 @@ namespace Hazel {
 
 			ImGui::DragFloat("Tiling Factor", &component.TilingFactor, 0.1f, 0.0f, 100.0f);
         });//绘制精灵渲染器组件
+
+        // 绘制CircleRendererComponent组件
+        DrawComponent<CircleRendererComponent>("Circle Renderer", entity, [](auto& component)
+            {
+                ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
+                ImGui::DragFloat("Thickness", &component.Thickness, 0.025f, 0.0f, 1.0f);
+                ImGui::DragFloat("Fade", &component.Fade, 0.00025f, 0.0f, 1.0f);
+            });
 
         // 绘制Rigidbody2DComponent组件
         DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [](auto& component)

@@ -37,6 +37,8 @@ namespace Hazel {
         static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));//绘制旋转矩形，带纹理，带重复因子，带颜色色调
         static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));//绘制旋转矩形，带纹理，带重复因子，带颜色色调
 
+        static void DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness = 1.0f, float fade = 0.005f, int entityID = -1);//绘制圆形
+
         static void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID = -1);//绘制精灵
 
         // Stats

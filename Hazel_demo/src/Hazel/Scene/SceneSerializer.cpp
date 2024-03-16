@@ -209,6 +209,19 @@ namespace Hazel {
             out << YAML::EndMap;//结束映射
         }
 
+        if (entity.HasComponent<CircleRendererComponent>())//如果有圆形渲染器组件
+        {
+            out << YAML::Key << "CircleRendererComponent";
+            out << YAML::BeginMap; // CircleRendererComponent
+
+            auto& circleRendererComponent = entity.GetComponent<CircleRendererComponent>();
+            out << YAML::Key << "Color" << YAML::Value << circleRendererComponent.Color;
+            out << YAML::Key << "Thickness" << YAML::Value << circleRendererComponent.Thickness;
+            out << YAML::Key << "Fade" << YAML::Value << circleRendererComponent.Fade;
+
+            out << YAML::EndMap; // CircleRendererComponent
+        }
+
         if (entity.HasComponent<Rigidbody2DComponent>())//如果有刚体组件
         {
             out << YAML::Key << "Rigidbody2DComponent";
@@ -342,6 +355,15 @@ namespace Hazel {
                 {
                     auto& src = deserializedEntity.AddComponent<SpriteRendererComponent>();//精灵渲染器组件
                     src.Color = spriteRendererComponent["Color"].as<glm::vec4>();//颜色
+                }
+
+                auto circleRendererComponent = entity["CircleRendererComponent"];//圆形渲染器组件
+                if (circleRendererComponent)
+                {
+                    auto& crc = deserializedEntity.AddComponent<CircleRendererComponent>();
+                    crc.Color = circleRendererComponent["Color"].as<glm::vec4>();
+                    crc.Thickness = circleRendererComponent["Thickness"].as<float>();
+                    crc.Fade = circleRendererComponent["Fade"].as<float>();
                 }
 
                 auto rigidbody2DComponent = entity["Rigidbody2DComponent"];//刚体组件
