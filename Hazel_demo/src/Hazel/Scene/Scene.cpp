@@ -14,6 +14,7 @@
 #include "box2d/b2_body.h"
 #include "box2d/b2_fixture.h"
 #include "box2d/b2_polygon_shape.h"
+#include "box2d/b2_circle_shape.h"
 
 namespace Hazel {
 
@@ -38,7 +39,7 @@ namespace Hazel {
     {
     }
 
-    // 复制场景
+    // 复制实体组件
     template<typename Component>
     static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
     {
@@ -94,6 +95,7 @@ namespace Hazel {
         CopyComponent<NativeScriptComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
         CopyComponent<Rigidbody2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
         CopyComponent<BoxCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+        CopyComponent<CircleCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
         return newScene;
     }
@@ -151,6 +153,23 @@ namespace Hazel {
                 fixtureDef.friction = bc2d.Friction;//摩擦力
                 fixtureDef.restitution = bc2d.Restitution;//恢复力
                 fixtureDef.restitutionThreshold = bc2d.RestitutionThreshold;//恢复力阈值
+                body->CreateFixture(&fixtureDef);//创建夹具
+            }
+
+            if (entity.HasComponent<CircleCollider2DComponent>())//如果有CircleCollider2DComponent组件
+            {
+                auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+
+                b2CircleShape circleShape;//圆形形状
+                circleShape.m_p.Set(cc2d.Offset.x, cc2d.Offset.y);//设置圆心
+                circleShape.m_radius = cc2d.Radius;//半径
+
+                b2FixtureDef fixtureDef;//夹具定义
+                fixtureDef.shape = &circleShape;//形状
+                fixtureDef.density = cc2d.Density;//密度
+                fixtureDef.friction = cc2d.Friction;//摩擦力
+                fixtureDef.restitution = cc2d.Restitution;//恢复力
+                fixtureDef.restitutionThreshold = cc2d.RestitutionThreshold;//恢复力阈值
                 body->CreateFixture(&fixtureDef);//创建夹具
             }
         }
@@ -318,6 +337,7 @@ namespace Hazel {
         CopyComponentIfExists<NativeScriptComponent>(newEntity, entity);//复制本地脚本组件
         CopyComponentIfExists<Rigidbody2DComponent>(newEntity, entity);//复制刚体组件
         CopyComponentIfExists<BoxCollider2DComponent>(newEntity, entity);//复制刚体碰撞组件
+        CopyComponentIfExists<CircleCollider2DComponent>(newEntity, entity);//复制圆形碰撞组件
     }
 
     Entity Scene::GetPrimaryCameraEntity()
@@ -384,6 +404,12 @@ namespace Hazel {
     // 添加刚体碰撞组件
     template<>
     void Scene::OnComponentAdded<BoxCollider2DComponent>(Entity entity, BoxCollider2DComponent& component)
+    {
+    }
+
+    // 添加圆形碰撞组件
+    template<>
+    void Scene::OnComponentAdded<CircleCollider2DComponent>(Entity entity, CircleCollider2DComponent& component)
     {
     }
 
