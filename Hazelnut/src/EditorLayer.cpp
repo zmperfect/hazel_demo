@@ -166,6 +166,8 @@ namespace Hazel {
             m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
         }
 
+        OnOverlayRender();//覆盖渲染
+
         m_Framebuffer->Unbind();
 
     }
@@ -269,9 +271,14 @@ namespace Hazel {
 
         ImGui::End();//结束设置
 
+        // Settings
+        ImGui::Begin("Settings");
+        ImGui::Checkbox("Show physics colliders", &m_ShowPhysicsColliders);
+        ImGui::End();
+
+        // Viewport
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });//设置窗口填充
         ImGui::Begin("Viewport");//开始视口
-
         // 窗口设置
         auto viewportMinRegion = ImGui::GetWindowContentRegionMin();//获取窗口内容区域最小值
         auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();//获取窗口内容区域最大值
@@ -480,6 +487,59 @@ namespace Hazel {
                 m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
         }
         return false;
+    }
+
+    void EditorLayer::OnOverlayRender()
+    {
+        if (m_SceneState == SceneState::Play)
+        {
+            Entity camera = m_ActiveScene->GetPrimaryCameraEntity();//获取主相机实体
+            Renderer2D::BeginScene(camera.GetComponent<CameraComponent>().Camera, camera.GetComponent<TransformComponent>().GetTransform());//开始场景
+        }
+        else
+        {
+            Renderer2D::BeginScene(m_EditorCamera);//开始场景
+        }
+
+        if (m_ShowPhysicsColliders)
+        {
+            // Box Colliders
+            {
+                auto view = m_ActiveScene->GetAllEntitiesWith<TransformComponent, BoxCollider2DComponent>();
+                for (auto entity : view)
+                {
+                    auto [tc, bc2d] = view.get<TransformComponent, BoxCollider2DComponent>(entity);
+
+                    glm::vec3 translation = tc.Translation + glm::vec3(bc2d.Offset, 0.001f);// collider中心的变换
+                    glm::vec3 scale = tc.Scale * glm::vec3(bc2d.Size * 2.0f, 1.0f);// collider的缩放
+
+                    glm::mat4 transform = glm::translate(glm::mat4(1.0f), translation)
+                        * glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
+                        * glm::scale(glm::mat4(1.0f), scale);
+
+                    Renderer2D::DrawRect(transform, glm::vec4(0, 1, 0, 1));//绘制矩形
+                }
+            }
+
+            // Circle Colliders
+            {
+                auto view = m_ActiveScene->GetAllEntitiesWith<TransformComponent, CircleCollider2DComponent>();
+                for (auto entity : view)
+                {
+                    auto [tc, cc2d] = view.get<TransformComponent, CircleCollider2DComponent>(entity);
+
+                    glm::vec3 translation = tc.Translation + glm::vec3(cc2d.Offset, 0.001f);
+                    glm::vec3 scale = tc.Scale * glm::vec3(cc2d.Radius * 2.0f);
+
+                    glm::mat4 transform = glm::translate(glm::mat4(1.0f), translation)
+                        * glm::scale(glm::mat4(1.0f), scale);
+
+                    Renderer2D::DrawCircle(transform, glm::vec4(0, 1, 0, 1), 0.01f);
+                }
+            }
+        }
+
+        Renderer2D::EndScene();//结束场景
     }
 
     void EditorLayer::NewScene()

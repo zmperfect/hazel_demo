@@ -162,7 +162,7 @@ namespace Hazel {
 
                 b2CircleShape circleShape;//圆形形状
                 circleShape.m_p.Set(cc2d.Offset.x, cc2d.Offset.y);//设置圆心
-                circleShape.m_radius = cc2d.Radius;//半径
+                circleShape.m_radius = transform.Scale.x * cc2d.Radius;//半径
 
                 b2FixtureDef fixtureDef;//夹具定义
                 fixtureDef.shape = &circleShape;//形状
